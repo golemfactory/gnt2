@@ -1,0 +1,15 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+      "allowJs": true,
+      "lib": [
+        "esnext"
+      ],
+      "noImplicitAny": false,
+      "target": "es2015"
+    },
+    "exclude": [
+      "**/build",
+      "**/dist"
+    ]
+  }
