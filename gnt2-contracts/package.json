@@ -1,0 +1,38 @@
+{
+  "name": "gnt2-contracts",
+  "version": "0.0.1",
+  "main": "index.js",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "build:gnt": "yarn waffle .waffle-GNT.json",
+    "build:gnt2": "yarn waffle .waffle.json",
+    "build:types": "typechain --target ethers --outDir build/contract-types 'build/*.json' && tsc",
+    "build": "yarn build:gnt && yarn build:gnt2 && yarn build:types",
+    "lint": "yarn lint:ts && yarn lint:contracts",
+    "lint:ts": "eslint '{src,test}/**/*.{js,ts}'",
+    "lint:contracts": "solium -d src/contracts",
+    "clean": "rimraf build dist",
+    "test": "NODE_ENV=test mocha -r ts-node/register \"test/**/*.{js,ts}\""
+  },
+  "dependencies": {
+    "chalk": "^2.4.2",
+    "ethers": "^4.0.0"
+  },
+  "devDependencies": {
+    "@openzeppelin/contracts": "2.3.0",
+    "@types/chai": "^4.1.7",
+    "@types/mocha": "^5.2.7",
+    "chai": "^4.2.0",
+    "eslint": "^6.7.2",
+    "ethereum-waffle": "^2.0.15",
+    "mocha": "^6.2.0",
+    "rimraf": "^3.0.0",
+    "solium": "^1.2.5",
+    "ts-node": "^8.3.0",
+    "typechain": "^1.0.3",
+    "typechain-target-ethers": "^1.0.3",
+    "typescript": "^3.7.2",
+    "uuid": "^3.3.3"
+  }
+}

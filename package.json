@@ -1,0 +1,17 @@
+{
+  "name": "@gnt2/monorepo",
+  "version": "0.0.1",
+  "private": true,
+  "workspaces": [
+    "gnt2-*"
+  ],
+  "scripts": {
+    "build": "yarn wsrun --stages --fast-exit build",
+    "test": "yarn wsrun --serial test",
+    "lint": "yarn wsrun lint",
+    "clean": "yarn wsrun clean"
+  },
+  "dependencies": {
+    "wsrun": "^5.2.0"
+  }
+}
