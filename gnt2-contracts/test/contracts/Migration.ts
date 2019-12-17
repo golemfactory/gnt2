@@ -4,7 +4,7 @@ import {
   GolemNetworkTokenFactory,
   NewGolemNetworkTokenFactory
 } from '../../src/contractsWrappers';
-import {utils, Wallet} from "ethers";
+import {utils, Wallet} from 'ethers';
 
 async function balance(token, holder: Wallet) {
   return utils.formatUnits(await token.balanceOf(holder.address), 'ether');
@@ -21,9 +21,14 @@ describe('GNT to NGNT Migration', () => {
 
   it('migrates token', async () => {
     const currentBlockNumber = await provider.getBlockNumber();
-    token = await new GolemNetworkTokenFactory(deployer).deploy(golemFactory.address, deployer.address, currentBlockNumber + 2, currentBlockNumber + 3);
+    token = await new GolemNetworkTokenFactory(deployer).deploy(
+      golemFactory.address,
+      deployer.address,
+      currentBlockNumber + 2,
+      currentBlockNumber + 3
+    );
     const holderSignedToken = await token.connect(holder);
-    await holderSignedToken.create({value: utils.parseUnits("150000.0")});
+    await holderSignedToken.create({value: utils.parseUnits('150000.0')});
     const tokenBalance = await token.balanceOf(holder.address);
     expect(utils.formatUnits(tokenBalance, 'ether')).to.eq('150000000.0');
     await mineEmptyBlock();
