@@ -1,14 +1,41 @@
-import {ethers} from 'ethers';
-import '../types';
+import {ethers, providers} from 'ethers';
 import {AsyncSendable} from 'ethers/providers';
 
-export default async function connectToMetaMask() {
-  if (typeof window.ethereum !== 'undefined') {
-    const metamaskProvider = window.ethereum as AsyncSendable;
-    const provider = new ethers.providers.Web3Provider(metamaskProvider);
-    const accounts = await provider.send('eth_requestAccounts', []);
-    console.log(accounts);
-    const balance = await provider.getBalance(accounts[0]);
-    return [accounts[0], balance];
+export
+class MetamaskProvider extends providers.JsonRpcProvider {
+  private provider?: Promise<providers.JsonRpcProvider>;
+
+  private static async _initializeProvider(): Promise<providers.JsonRpcProvider> {
+    if (typeof window.ethereum !== 'undefined') {
+      const metamaskProvider = window.ethereum as AsyncSendable;
+      return new ethers.providers.Web3Provider(metamaskProvider);
+    }
+    throw new Error('Metamask init failed');
+  }
+
+  async initialize() {
+    this.provider = MetamaskProvider._initializeProvider();
+    return this.provider;
+  }
+
+  async getAccount() {
+    if (this.provider) {
+      return (await (await this.provider).send('eth_requestAccounts', []))[0];
+    }
+  }
+
+  async balanceOf(address: string) {
+    if (this.provider) {
+      return (await this.provider).getBalance(address);
+    }
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async perform(method: string, params: any) {
+    if (!this.provider) {
+      this.provider = MetamaskProvider._initializeProvider();
+    }
+    const provider = await this.provider;
+    return provider.perform(method, params);
   }
 }

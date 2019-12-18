@@ -2,18 +2,22 @@ import React, {useState} from 'react';
 import '../styles/App.sass';
 import {hot} from 'react-hot-loader/root';
 import styled from 'styled-components';
-import connectToMetaMask from '../services/MetamaskService';
+import {MetamaskProvider} from '../services/MetamaskService';
 
 const App: React.FC = () => {
   const [address, setAddress] = useState('<unknown>');
   const [balance, setBalance] = useState('<unknown>');
 
+
+  const provider = new MetamaskProvider();
+
   const onClick = async () => {
-    const account = await connectToMetaMask();
-    if (account) {
-      setAddress(account[0].toString());
-      setBalance(account[1].toString());
-    }
+    await provider.initialize();
+    const account = await provider.getAccount();
+    setAddress(account);
+    const balance = (await provider.balanceOf(account))?.toString();
+    // const balance = (await accountService.balanceOf(account)).toString();
+    setBalance(balance || '');
   };
 
   return (

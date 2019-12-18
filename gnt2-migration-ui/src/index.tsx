@@ -1,10 +1,11 @@
 import React from 'react';
 import {render} from 'react-dom';
-import App from './ui/App';
 import './styles/index.sass';
-import './types';
+import './types/index.d.ts';
+import {RealApp} from './ui/RealApp';
+
 
 render(
-  <App/>,
+  <RealApp/>,
   document.getElementById('app')
 );
