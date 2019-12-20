@@ -4,7 +4,13 @@ import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 
+
 const config: Configuration = {
+  node: {
+    fs: 'empty',
+    net: 'empty'
+  },
+
   entry: [
     'react-hot-loader/patch',
     './src/index.tsx'

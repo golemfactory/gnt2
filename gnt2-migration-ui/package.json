@@ -17,6 +17,9 @@
     "react-router-dom": "^5.1.2",
     "styled-components": "^4.4.0"
   },
+  "browser":{
+    "child_process": false
+  },
   "devDependencies": {
     "@babel/core": "^7.6.4",
     "@babel/plugin-proposal-nullish-coalescing-operator": "^7.4.4",
