@@ -9,7 +9,7 @@ const mockedEthereum = {
 };
 
 
-describe('connect Service', () => {
+describe('Connections Service', () => {
   describe('create', () => {
     let connectionService: ConnectionService;
     beforeEach(() => {
@@ -17,7 +17,7 @@ describe('connect Service', () => {
     });
 
     it('provider should be undefined', () => {
-      expect(connectionService.provider).to.deep.equal(undefined);
+      expect(() => connectionService.getProvider()).to.throw(/Provider requested, but not yet initialized/);
     });
 
   });

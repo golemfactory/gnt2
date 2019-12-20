@@ -1,16 +1,22 @@
 import React from 'react';
-import {BrowserRouter, Switch, Route} from 'react-router-dom';
+import {BrowserRouter, Route, Switch} from 'react-router-dom';
 import {Login} from './Login';
 import {Account} from './Account';
+import {useServices} from './useServices';
 
-export const Dashboard = () =>
-  (
+export const Dashboard = () => {
+
+  const {connectionService} = useServices();
+  const Root = connectionService.isInitialized ? Account : Login;
+
+  return (
     <div>
       <BrowserRouter>
         <Switch>
-          <Route path='/account' component={Account}/>
-          <Route exact path='/' component={Login}/>
+          <Route exact path='/account' component={Account}/>
+          <Route exact path='/' component={Root}/>
         </Switch>
       </BrowserRouter>
     </div>
   );
+};

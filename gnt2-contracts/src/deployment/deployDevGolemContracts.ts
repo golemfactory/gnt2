@@ -2,6 +2,7 @@ import {utils, Wallet} from 'ethers';
 import {NewGolemNetworkTokenFactory} from 'gnt2-contracts';
 import {GolemNetworkTokenFactory} from '../../build/contract-types/GolemNetworkTokenFactory';
 import {JsonRpcProvider, Provider} from 'ethers/providers';
+import {ConsoleLogger, Logger} from '../utils/logger';
 
 export interface GolemContractsDevDeployment {
   oldGolemTokenContractAddress: string;
@@ -27,16 +28,23 @@ export async function deployOldToken(provider: Provider, deployWallet: Wallet, h
   return {token, holderSignedToken};
 }
 
-export async function deployDevGolemContracts(provider: Provider, deployWallet: Wallet, holderWallet: Wallet): Promise<GolemContractsDevDeployment> {
-  console.log('Deploying Old Golem Network Token...');
+export async function deployDevGolemContracts(provider: Provider,
+  deployWallet: Wallet,
+  holderWallet: Wallet,
+  logger: Logger = new ConsoleLogger()
+): Promise<GolemContractsDevDeployment> {
+  logger.log('Deploying Old Golem Network Token...');
   const {token: oldToken} = await deployOldToken(provider, deployWallet, holderWallet);
-  console.log(`Old Golem Network Token address: ${oldToken.address}`);
-  console.log('Deploying New Golem Network Token...');
+  logger.log(`Old Golem Network Token address: ${oldToken.address}`);
+  logger.log('Deploying New Golem Network Token...');
   const newToken = await new NewGolemNetworkTokenFactory(deployWallet).deploy();
-  console.log(`New Golem Network Token address: ${newToken.address}`);
-  console.log('Setting new token as migration agent');
+  logger.log(`New Golem Network Token address: ${newToken.address}`);
+  logger.log('Setting new token as migration agent');
   await oldToken.setMigrationAgent(newToken.address);
-  console.log('Migration agent set');
-  console.log(`Dev account: ${holderWallet.address} - ${holderWallet.privateKey}`);
-  return {oldGolemTokenContractAddress: oldToken.address, newGolemTokenContractAddress: newToken.address};
+  logger.log('Migration agent set');
+  logger.log(`Dev account: ${holderWallet.address} - ${holderWallet.privateKey}`);
+  return {
+    oldGolemTokenContractAddress: oldToken.address,
+    newGolemTokenContractAddress: newToken.address
+  };
 }

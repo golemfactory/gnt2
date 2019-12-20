@@ -9,7 +9,6 @@ export const Login = ({history}: RouteComponentProps) => {
 
   const onClick = async () => {
     const provider = await connectionService.connect();
-    console.log(provider);
     if (provider) {
       history.push('/account');
     }
