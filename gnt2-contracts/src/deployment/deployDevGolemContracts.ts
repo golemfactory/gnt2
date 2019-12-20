@@ -4,8 +4,8 @@ import {GolemNetworkTokenFactory} from '../../build/contract-types/GolemNetworkT
 import {JsonRpcProvider, Provider} from 'ethers/providers';
 
 export interface GolemContractsDevDeployment {
-  oldGolemTokenContractAddress: string,
-  newGolemTokenContractAddress: string
+  oldGolemTokenContractAddress: string;
+  newGolemTokenContractAddress: string;
 }
 
 async function mineEmptyBlock(provider: Provider) {
