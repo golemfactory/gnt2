@@ -19,8 +19,10 @@ export const Account = () => {
     <div>
       <div>Your address:</div>
       <div> {address}</div>
-      <div>Your balance:</div>
-      <div>{balance}</div>
+      <div>Your NGNT balance:</div>
+      <div data-test-id='NGNT'>{balance}</div>
+      <div>Your GNT balance:</div>
+      <div data-test-id='GNT'>{balance}</div>
     </div>
   );
 };
