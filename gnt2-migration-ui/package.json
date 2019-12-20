@@ -10,11 +10,15 @@
     "clean": "rimraf dist"
   },
   "dependencies": {
+    "ethers": "^4.0.40",
     "react": "^16.10.2",
     "react-dom": "^16.10.2",
     "react-hot-loader": "^4.12.15",
     "react-router-dom": "^5.1.2",
     "styled-components": "^4.4.0"
+  },
+  "browser":{
+    "child_process": false
   },
   "devDependencies": {
     "@babel/core": "^7.6.4",
