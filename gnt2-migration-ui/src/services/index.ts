@@ -1,12 +1,14 @@
-import {MetamaskProvider} from './MetamaskService';
 import {AccountService} from './AccountsService';
+import {ConnectionService} from './connectionService';
 
 export type Services = ReturnType<typeof createServices>;
 
 export function createServices() {
-  const accountService = new AccountService(new MetamaskProvider());
+  const connectionService = ConnectionService.create();
+  const accountService = new AccountService(() => connectionService.getProvider());
 
   return {
-    accountService
+    accountService,
+    connectionService
   };
 }

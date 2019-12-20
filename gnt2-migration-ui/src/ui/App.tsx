@@ -2,27 +2,24 @@ import React, {useState} from 'react';
 import '../styles/App.sass';
 import {hot} from 'react-hot-loader/root';
 import styled from 'styled-components';
-import {MetamaskProvider} from '../services/MetamaskService';
+import {useServices} from './hooks';
 
 const App: React.FC = () => {
   const [address, setAddress] = useState('<unknown>');
   const [balance, setBalance] = useState('<unknown>');
-
-
-  const provider = new MetamaskProvider();
+  const {connectionService, accountService} = useServices();
 
   const onClick = async () => {
-    await provider.initialize();
-    const account = await provider.getAccount();
+    await connectionService.connect();
+    const account = await accountService.getDefaultAccount();
     setAddress(account);
-    const balance = (await provider.balanceOf(account))?.toString();
-    // const balance = (await accountService.balanceOf(account)).toString();
+    const balance = (await accountService.balanceOf(account)).toString();
     setBalance(balance || '');
   };
 
   return (
     <Body>
-      <MetaMaskButton onClick={onClick}>Connect me to MetaMask</MetaMaskButton>
+      <MetaMaskButton onClick={onClick}>Connect with MetaMask</MetaMaskButton>
       <div>Your address:</div>
       <div>{address}</div>
       <div>Your balance:</div>
