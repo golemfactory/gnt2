@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import '../styles/App.sass';
 import {hot} from 'react-hot-loader/root';
 import styled from 'styled-components';
-import {useServices} from './hooks';
+import {useServices} from './useServices';
 
 const App: React.FC = () => {
   const [address, setAddress] = useState('<unknown>');
