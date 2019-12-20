@@ -1,10 +1,8 @@
 import {expect} from 'chai';
 import {createMockProvider, getWallets} from 'ethereum-waffle';
-import {
-  GolemNetworkTokenFactory,
-  NewGolemNetworkTokenFactory
-} from '../../src/contractsWrappers';
+import {NewGolemNetworkTokenFactory} from '../..';
 import {utils, Wallet} from 'ethers';
+import {deployOldToken} from '../../src/deployment/deployDevGolemContracts';
 
 async function balance(token, holder: Wallet) {
   return utils.formatUnits(await token.balanceOf(holder.address), 'ether');
@@ -12,29 +10,12 @@ async function balance(token, holder: Wallet) {
 
 describe('GNT to NGNT Migration', () => {
   const provider = createMockProvider();
-  const [deployer, holder, golemFactory] = getWallets(provider);
-  let token;
-
-  async function mineEmptyBlock() {
-    await provider.send('evm_mine', []);
-  }
+  const [deployWallet, holder] = getWallets(provider);
 
   it('migrates token', async () => {
-    const currentBlockNumber = await provider.getBlockNumber();
-    token = await new GolemNetworkTokenFactory(deployer).deploy(
-      golemFactory.address,
-      deployer.address,
-      currentBlockNumber + 2,
-      currentBlockNumber + 3
-    );
-    const holderSignedToken = await token.connect(holder);
-    await holderSignedToken.create({value: utils.parseUnits('150000.0')});
-    const tokenBalance = await token.balanceOf(holder.address);
-    expect(utils.formatUnits(tokenBalance, 'ether')).to.eq('150000000.0');
-    await mineEmptyBlock();
-    await token.finalize();
+    const {token, holderSignedToken} = await deployOldToken(provider, deployWallet, holder);
 
-    const newToken = await new NewGolemNetworkTokenFactory(deployer).deploy();
+    const newToken = await new NewGolemNetworkTokenFactory(deployWallet).deploy();
     await token.setMigrationAgent(newToken.address);
 
     await holderSignedToken.migrate(utils.parseEther('150000000.0'));
