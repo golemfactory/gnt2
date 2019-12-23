@@ -19,7 +19,6 @@ export const Login = ({history}: RouteComponentProps) => {
   );
 };
 
-
 const MetaMaskButton = styled.button`
   background-color: #f59042;
   border: none;

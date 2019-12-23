@@ -37,8 +37,8 @@ describe('Account page', () => {
       </ServiceContext.Provider>
     );
 
-    await expect(waitForElement(() => getByTestId('ETH-balance'))).resolves.toHaveTextContent('9999999999849999999869462000000000');
-    await expect(waitForElement(() => getByTestId('GNT-balance'))).resolves.toHaveTextContent('150000000000000000000000000');
-    await expect(waitForElement(() => getByTestId('NGNT-balance'))).resolves.toHaveTextContent('0');
+    await expect(waitForElement(() => getByTestId('ETH-balance'))).resolves.toHaveTextContent('9999999999849999.9999');
+    await expect(waitForElement(() => getByTestId('GNT-balance'))).resolves.toHaveTextContent('150000000.000');
+    await expect(waitForElement(() => getByTestId('NGNT-balance'))).resolves.toHaveTextContent('0.0');
   });
 });

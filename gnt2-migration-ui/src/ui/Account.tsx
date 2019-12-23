@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import {useServices} from './useServices';
 import {useAsync} from './hooks/useAsync';
+import {formatValue} from '../utils/formatter';
 
 export const Account = () => {
   const [address, setAddress] = useState<string | undefined>(undefined);
@@ -12,9 +13,9 @@ export const Account = () => {
 
   useAsync(async () => {
     setAddress(await accountService.getDefaultAccount());
-    setBalance((await accountService.balanceOf(await accountService.getDefaultAccount())).toString());
-    setOldTokensBalance((await tokensService.balanceOfOldTokens(await accountService.getDefaultAccount())).toString());
-    setNewTokensBalance((await tokensService.balanceOfNewTokens(await accountService.getDefaultAccount())).toString());
+    setBalance(formatValue((await accountService.balanceOf(await accountService.getDefaultAccount())).toString(), 4));
+    setOldTokensBalance(formatValue((await tokensService.balanceOfOldTokens(await accountService.getDefaultAccount())).toString(), 3));
+    setNewTokensBalance(formatValue((await tokensService.balanceOfNewTokens(await accountService.getDefaultAccount())).toString(), 3));
   }, []);
 
   return (

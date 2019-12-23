@@ -11,15 +11,17 @@
     "clean": "rimraf dist"
   },
   "dependencies": {
-    "gnt2-contracts": "0.0.1",
+    "@types/big.js": "^4.0.5",
+    "big.js": "^5.2.2",
     "ethers": "^4.0.40",
+    "gnt2-contracts": "0.0.1",
     "react": "^16.10.2",
     "react-dom": "^16.10.2",
     "react-hot-loader": "^4.12.15",
     "react-router-dom": "^5.1.2",
     "styled-components": "^4.4.0"
   },
-  "browser":{
+  "browser": {
     "child_process": false
   },
   "devDependencies": {
