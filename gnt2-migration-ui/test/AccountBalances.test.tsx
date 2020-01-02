@@ -1,7 +1,7 @@
 import '@testing-library/jest-dom/extend-expect';
 
 import React from 'react';
-import {render, waitForElement} from '@testing-library/react';
+import {render, waitForElement, fireEvent} from '@testing-library/react';
 import {createMockProvider, getWallets} from 'ethereum-waffle';
 import {Account} from '../src/ui/Account';
 import {ServiceContext} from '../src/ui/useServices';
@@ -10,6 +10,7 @@ import {TokensService} from '../src/services/TokensService';
 import {deployDevGolemContracts} from '../../gnt2-contracts';
 import {AccountService} from '../src/services/AccountsService';
 import {JsonRpcProvider} from 'ethers/providers';
+import {act} from 'react-dom/test-utils';
 
 const noOpLogger = {
   log: () => {
@@ -41,4 +42,22 @@ describe('Account page', () => {
     await expect(waitForElement(() => getByTestId('GNT-balance'))).resolves.toHaveTextContent('150000000.000');
     await expect(waitForElement(() => getByTestId('NGNT-balance'))).resolves.toHaveTextContent('0.0');
   });
+
+  test('shows migrated tokens', async () => {
+    const {getByTestId} = await render(
+      <ServiceContext.Provider value={await createTestServices(createMockProvider())}>
+        <Account/>
+      </ServiceContext.Provider>
+    );
+
+    act(() => {
+      fireEvent.change(getByTestId('input'), {target: {value: '10'}});
+      fireEvent.click(getByTestId('button'));
+      console.log(getByTestId('input'));
+    });
+
+    await expect(waitForElement(() => getByTestId('GNT-balance'))).resolves.toHaveTextContent('149999990.000');
+    await expect(waitForElement(() => getByTestId('NGNT-balance'))).resolves.toHaveTextContent('10.000');
+  });
+
 });

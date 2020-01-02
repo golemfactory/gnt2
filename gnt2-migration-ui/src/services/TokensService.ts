@@ -1,6 +1,6 @@
 import {JsonRpcProvider} from 'ethers/providers';
 import {GolemNetworkTokenFactory} from '../../../gnt2-contracts/build/contract-types/GolemNetworkTokenFactory';
-import {BigNumber} from 'ethers/utils';
+import {BigNumber, parseEther} from 'ethers/utils';
 import {NewGolemNetworkTokenFactory} from '../../../gnt2-contracts';
 
 export class TokensService {
@@ -15,5 +15,10 @@ export class TokensService {
   async balanceOfNewTokens(address: string) {
     const newTokenContract = NewGolemNetworkTokenFactory.connect(this.newGolemTokenContractAddress, this.provider());
     return newTokenContract.balanceOf(address);
+  }
+
+  async migrateFrom(value: string) {
+    const oldTokenContract = GolemNetworkTokenFactory.connect(this.oldGolemTokenContractAddress, this.provider().getSigner());
+    await oldTokenContract.migrate(parseEther(value));
   }
 }
