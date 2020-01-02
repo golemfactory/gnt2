@@ -24,7 +24,7 @@ async function startGanache(port) {
   printWallets(wallets);
 
   console.log(`  Node url (ganache): ${jsonRpcUrl}...`);
-  return jsonRpcUrl;
+  return provider;
 }
 
 export {startGanache};
