@@ -2,6 +2,7 @@ import React, {useState} from 'react';
 import {useServices} from './useServices';
 import {useAsync} from './hooks/useAsync';
 import {formatValue} from '../utils/formatter';
+import Jazzicon, {jsNumberForAddress} from 'react-jazzicon';
 
 export const Account = () => {
   const [address, setAddress] = useState<string | undefined>(undefined);
@@ -21,7 +22,10 @@ export const Account = () => {
   return (
     <div>
       <div>Your address:</div>
-      <div>{address}</div>
+      <div>
+        {address && <Jazzicon diameter={46} seed={jsNumberForAddress(address)}/>}
+        <div>{address}</div>
+      </div>
       <div>Your ETH balance:</div>
       {balance && <div data-testid='ETH-balance'>{balance}</div>}
       <div>Your NGNT balance:</div>
