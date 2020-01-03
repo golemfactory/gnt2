@@ -1,9 +1,9 @@
 import React, {useState} from 'react';
 import {useServices} from './useServices';
-import {useAsync} from './hooks/useAsync';
 import {formatValue} from '../utils/formatter';
 import styled from 'styled-components';
 import {BigNumber} from 'ethers/utils';
+import {useAsyncEffect} from './hooks/useAsyncEffect';
 
 export const Account = () => {
   const [address, setAddress] = useState<string | undefined>(undefined);
@@ -14,11 +14,12 @@ export const Account = () => {
 
   const {accountService, tokensService} = useServices();
 
-  useAsync(async () => {
-    setAddress(await accountService.getDefaultAccount());
-    setBalance(await accountService.balanceOf(await accountService.getDefaultAccount()));
-    setOldTokensBalance(await tokensService.balanceOfOldTokens(await accountService.getDefaultAccount()));
-    setNewTokensBalance(await tokensService.balanceOfNewTokens(await accountService.getDefaultAccount()));
+  useAsyncEffect(async () => {
+    const account = await accountService.getDefaultAccount();
+    setAddress(account);
+    setBalance(await accountService.balanceOf(account));
+    setOldTokensBalance(await tokensService.balanceOfOldTokens(account));
+    setNewTokensBalance(await tokensService.balanceOfNewTokens(account));
   }, [refresh]);
 
   const migrateTokens = async () => {
