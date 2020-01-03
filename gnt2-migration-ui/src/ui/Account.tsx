@@ -8,6 +8,7 @@ export const Account = () => {
   const [balance, setBalance] = useState<string | undefined>(undefined);
   const [oldTokensBalance, setOldTokensBalance] = useState<string | undefined>(undefined);
   const [newTokensBalance, setNewTokensBalance] = useState<string | undefined>(undefined);
+  const [batching, setBatching] = useState<string | undefined>(undefined);
 
   const {accountService, tokensService} = useServices();
 
@@ -16,6 +17,7 @@ export const Account = () => {
     setBalance(formatValue((await accountService.balanceOf(await accountService.getDefaultAccount())).toString(), 4));
     setOldTokensBalance(formatValue((await tokensService.balanceOfOldTokens(await accountService.getDefaultAccount())).toString(), 3));
     setNewTokensBalance(formatValue((await tokensService.balanceOfNewTokens(await accountService.getDefaultAccount())).toString(), 3));
+    setBatching(formatValue((await tokensService.balanceOfBatchingTokens(await accountService.getDefaultAccount())).toString(), 3));
   }, []);
 
   return (
@@ -28,6 +30,7 @@ export const Account = () => {
       {newTokensBalance && <div data-testid='NGNT-balance'>{newTokensBalance}</div>}
       <div>Your GNT balance:</div>
       {oldTokensBalance && <div data-testid='GNT-balance'>{oldTokensBalance}</div>}
+      <h1>{batching}</h1>
     </div>
   );
 };

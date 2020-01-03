@@ -8,7 +8,12 @@ export function createServices() {
   const connectionService = ConnectionService.create();
   const getProvider = () => connectionService.getProvider();
   const accountService = new AccountService(getProvider);
-  const tokensService = new TokensService(getProvider, config.oldGolemTokenContractAddress, config.newGolemTokenContractAddress);
+  const tokensService = new TokensService(
+    getProvider,
+    config.oldGolemTokenContractAddress,
+    config.newGolemTokenContractAddress,
+    config.batchingGolemTokenContractAddress
+  );
 
   return {
     accountService,

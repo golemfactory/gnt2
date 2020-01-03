@@ -3,10 +3,12 @@ import {NewGolemNetworkTokenFactory} from 'gnt2-contracts';
 import {GolemNetworkTokenFactory} from '../../build/contract-types/GolemNetworkTokenFactory';
 import {JsonRpcProvider, Provider} from 'ethers/providers';
 import {ConsoleLogger, Logger} from '../utils/logger';
+import {GolemNetworkTokenBatchingFactory} from '../../build/contract-types/GolemNetworkTokenBatchingFactory';
 
 export interface GolemContractsDevDeployment {
   oldGolemTokenContractAddress: string;
   newGolemTokenContractAddress: string;
+  batchingGolemTokenContractAddress: string;
 }
 
 async function mineEmptyBlock(provider: Provider) {
@@ -39,12 +41,16 @@ export async function deployDevGolemContracts(provider: Provider,
   logger.log('Deploying New Golem Network Token...');
   const newToken = await new NewGolemNetworkTokenFactory(deployWallet).deploy();
   logger.log(`New Golem Network Token address: ${newToken.address}`);
+  const batchingToken = await new GolemNetworkTokenBatchingFactory(deployWallet).deploy(oldToken.address);
+  logger.log(`Golem Network Token Batching address: ${batchingToken.address}`);
+  // await batchingToken.transfer(holderWallet.address, utils.parseUnits('150.0'));
   logger.log('Setting new token as migration agent');
   await oldToken.setMigrationAgent(newToken.address);
   logger.log('Migration agent set');
   logger.log(`Dev account: ${holderWallet.address} - ${holderWallet.privateKey}`);
   return {
     oldGolemTokenContractAddress: oldToken.address,
-    newGolemTokenContractAddress: newToken.address
+    newGolemTokenContractAddress: newToken.address,
+    batchingGolemTokenContractAddress: batchingToken.address
   };
 }
