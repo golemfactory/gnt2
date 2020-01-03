@@ -1,7 +1,7 @@
 import '@testing-library/jest-dom/extend-expect';
 
 import React from 'react';
-import {render, waitForElement, fireEvent} from '@testing-library/react';
+import {render, waitForElement, fireEvent, wait} from '@testing-library/react';
 import {createMockProvider, getWallets} from 'ethereum-waffle';
 import {Account} from '../src/ui/Account';
 import {ServiceContext} from '../src/ui/useServices';
@@ -17,6 +17,7 @@ const noOpLogger = {
   }
 };
 
+const flushAllPromises = () => new Promise((resolve) => setImmediate(resolve));
 
 describe('Account page', () => {
 
@@ -59,8 +60,9 @@ describe('Account page', () => {
 
     fireEvent.click(getByTestId('button'));
 
-    await expect(waitForElement(() => getByTestId('NGNT-balance'))).resolves.toHaveTextContent(/^0.000/);
-    await expect(waitForElement(() => getByTestId('NGNT-balance'))).resolves.toHaveTextContent('150000000.000');
-    // await expect(waitForElement(() => getByTestId('button'))).resolves.toBeDisabled();
+    await flushAllPromises();
+
+    await expect(waitForElement(() => getByTestId('GNT-balance'))).resolves.toHaveTextContent('0.000');
+    await wait(() => expect(waitForElement(() => getByTestId('NGNT-balance'))).resolves.toHaveTextContent('150000000.000'));
   });
 });
