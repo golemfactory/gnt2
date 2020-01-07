@@ -1,10 +1,10 @@
 import {expect} from 'chai';
-import '../src/types/index.d.ts';
 import {ConnectionService} from '../src/services/connectionService';
+import sinon from 'sinon';
 
 const mockedEthereum = {
-  sendAsync: jest.fn(),
-  send: jest.fn(),
+  sendAsync: sinon.stub(),
+  send: sinon.stub(),
   host: '0000'
 };
 

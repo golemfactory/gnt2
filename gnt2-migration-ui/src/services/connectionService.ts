@@ -1,4 +1,5 @@
 import {AsyncSendable, JsonRpcProvider, Web3Provider} from 'ethers/providers';
+import '../types';
 
 export class ConnectionService {
   private provider: JsonRpcProvider | undefined;

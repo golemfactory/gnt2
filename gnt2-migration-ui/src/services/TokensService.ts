@@ -22,6 +22,11 @@ export class TokensService {
     return newTokenContract.balanceOf(address);
   }
 
+  async migrateTokens(value: string) {
+    const oldTokenContract = GolemNetworkTokenFactory.connect(this.oldGolemTokenContractAddress, this.provider().getSigner());
+    await oldTokenContract.migrate(value);
+  }
+
   async balanceOfBatchingTokens(address: string) {
     const batchingContract = GolemNetworkTokenBatchingFactory.connect(this.batchingGolemTokenContractAddress, this.provider());
     return batchingContract.balanceOf(address);

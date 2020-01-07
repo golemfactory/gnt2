@@ -14,7 +14,7 @@
     "lint:ts": "eslint '{src,test}/**/*.{js,ts}'",
     "lint:contracts": "solium -d src/contracts",
     "clean": "rimraf build dist",
-    "test": "NODE_ENV=test mocha -r ts-node/register \"test/**/*.{js,ts}\""
+    "test": "NODE_ENV=test mocha --timeout 20000 -r ts-node/register \"test/**/*.{js,ts}\""
   },
   "dependencies": {
     "chalk": "^2.4.2",

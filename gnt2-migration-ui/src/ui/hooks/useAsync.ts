@@ -21,7 +21,8 @@ export function useAsync<T>(execute: () => Promise<T>, deps: readonly any[]): [T
     return () => {
       promise.current = undefined;
     };
-  }, [error, execute, value]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, deps);
 
   return [value, error];
 }
