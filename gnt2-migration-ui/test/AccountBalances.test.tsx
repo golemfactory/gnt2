@@ -33,9 +33,13 @@ describe('Account page', () => {
 
   async function createTestServices(provider: JsonRpcProvider) {
     const [holderWallet, deployWallet] = getWallets(provider);
-    const {newGolemTokenContractAddress, oldGolemTokenContractAddress} = await deployDevGolemContracts(provider, deployWallet, holderWallet, noOpLogger);
+    const {
+      newGolemTokenContractAddress,
+      oldGolemTokenContractAddress,
+      batchingGolemTokenContractAddress
+    } = await deployDevGolemContracts(provider, deployWallet, holderWallet, noOpLogger);
     return {
-      tokensService: new TokensService(() => provider, oldGolemTokenContractAddress, newGolemTokenContractAddress),
+      tokensService: new TokensService(() => provider, oldGolemTokenContractAddress, newGolemTokenContractAddress, batchingGolemTokenContractAddress),
       accountService: accountServiceWithAddress(provider, holderWallet.address)
     } as Services;
   }
@@ -52,9 +56,10 @@ describe('Account page', () => {
       </ServiceContext.Provider>
     );
 
-    expect(await waitForElement(() => getByTestId('ETH-balance'))).to.have.text('9999999999849999.9999');
-    expect(await waitForElement(() => getByTestId('GNT-balance'))).to.have.text('150000000.000');
+    expect(await waitForElement(() => getByTestId('ETH-balance'))).to.have.text('9999999999849999.9941');
+    expect(await waitForElement(() => getByTestId('GNT-balance'))).to.have.text('140000000.000');
     expect(await waitForElement(() => getByTestId('NGNT-balance'))).to.have.text('0.000');
+    expect(await waitForElement(() => getByTestId('GNTB-balance'))).to.have.text('10000000.000');
   });
 
   it('shows migrated tokens', async () => {
@@ -67,7 +72,7 @@ describe('Account page', () => {
     fireEvent.click(getByTestId('button'));
 
     await wait(() => {
-      expect(queryByTestId('NGNT-balance')).to.have.text('150000000.000');
+      expect(queryByTestId('NGNT-balance')).to.have.text('140000000.000');
       expect(queryByTestId('GNT-balance')).to.have.text('0.000');
     });
   });

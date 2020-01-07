@@ -10,7 +10,7 @@ export const Account = () => {
   const [balance, setBalance] = useState<BigNumber | undefined>(undefined);
   const [oldTokensBalance, setOldTokensBalance] = useState<BigNumber | undefined>(undefined);
   const [newTokensBalance, setNewTokensBalance] = useState<BigNumber | undefined>(undefined);
-  const [batching, setBatching] = useState<string | undefined>(undefined);
+  const [batching, setBatching] = useState<BigNumber | undefined>(undefined);
   const [refresh, setRefresh] = useState(false);
 
   const {accountService, tokensService} = useServices();
@@ -21,7 +21,7 @@ export const Account = () => {
     setBalance(await accountService.balanceOf(account));
     setOldTokensBalance(await tokensService.balanceOfOldTokens(account));
     setNewTokensBalance(await tokensService.balanceOfNewTokens(account));
-    setBatching(await tokensService.balanceOfBatchingTokens(account));
+    setBatching(await tokensService.balanceOfBatchingTokens(account.toString()));
   }, [refresh]);
 
   const migrateTokens = async () => {
@@ -39,9 +39,10 @@ export const Account = () => {
       {newTokensBalance && <div data-testid='NGNT-balance'>{format(newTokensBalance)}</div>}
       <div>Your GNT balance:</div>
       {oldTokensBalance && <div data-testid='GNT-balance'>{format(oldTokensBalance)}</div>}
+      <div>Your GNTB balance:</div>
+      {batching && <div data-testid='GNTB-balance'>{format(batching)}</div>}
       <div>Your ETH balance:</div>
       {balance && <div data-testid='ETH-balance'>{format(balance, 4)}</div>}
-      <h1>{batching}</h1>
       <Migrate data-testid="button" onClick={migrateTokens} disabled={oldTokensBalance?.eq(new BigNumber('0'))}>
           Migrate
       </Migrate>
