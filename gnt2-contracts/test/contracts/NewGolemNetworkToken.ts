@@ -1,7 +1,7 @@
 import {expect} from 'chai';
 import {createMockProvider, deployContract, getWallets} from 'ethereum-waffle';
 import NewGolemNetworkToken from '../../build/NewGolemNetworkToken.json';
-import {ContractJSON} from 'ethereum-waffle/dist/ContractJSON';
+import {ContractJSON} from 'ethereum-waffle/dist/esm/ContractJSON';
 
 describe('New Golem Network Token', () => {
   const provider = createMockProvider();
@@ -9,7 +9,7 @@ describe('New Golem Network Token', () => {
   let token;
 
   it('is deployed properly', async () => {
-    token = await deployContract(sender, NewGolemNetworkToken as unknown as ContractJSON);
+    token = await deployContract(sender, NewGolemNetworkToken as ContractJSON);
     expect(await token.name()).to.eq('New Golem Network Token');
     expect(await token.symbol()).to.eq('NGNT');
     expect(await token.decimals()).to.eq(18);

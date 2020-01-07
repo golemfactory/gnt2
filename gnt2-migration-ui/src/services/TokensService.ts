@@ -16,4 +16,9 @@ export class TokensService {
     const newTokenContract = NewGolemNetworkTokenFactory.connect(this.newGolemTokenContractAddress, this.provider());
     return newTokenContract.balanceOf(address);
   }
+
+  async migrateTokens(value: string) {
+    const oldTokenContract = GolemNetworkTokenFactory.connect(this.oldGolemTokenContractAddress, this.provider().getSigner());
+    await oldTokenContract.migrate(value);
+  }
 }

@@ -1,5 +1,5 @@
 import {formatValue} from '../src/utils/formatter';
-
+import {expect} from 'chai';
 
 describe('formatEther', () => {
   [
@@ -12,7 +12,7 @@ describe('formatEther', () => {
     ['90', 4, '0.0000']
   ].forEach(([value, digits, expected]) => {
     it(`formats ${value} number to ${expected}`, () => {
-      expect(formatValue(value, +digits)).toEqual(expected);
+      expect(formatValue(value, +digits)).to.eq(expected);
     });
   });
 
