@@ -1,8 +1,6 @@
 import {JsonRpcProvider} from 'ethers/providers';
-import {GolemNetworkTokenFactory} from '../../../gnt2-contracts/build/contract-types/GolemNetworkTokenFactory';
 import {BigNumber} from 'ethers/utils';
-import {NewGolemNetworkTokenFactory} from '../../../gnt2-contracts';
-import {GolemNetworkTokenBatchingFactory} from '../../../gnt2-contracts/build/contract-types/GolemNetworkTokenBatchingFactory';
+import {NewGolemNetworkTokenFactory, GolemNetworkTokenBatchingFactory, GolemNetworkTokenFactory} from 'gnt2-contracts';
 
 export class TokensService {
   constructor(

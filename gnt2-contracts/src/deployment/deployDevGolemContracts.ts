@@ -33,11 +33,11 @@ export async function deployOldToken(provider: Provider, deployWallet: Wallet, h
   return {token, holderSignedToken};
 }
 
-export async function transferGNTB(wallet: Wallet, token: GolemNetworkTokenBatching, oldToken: GolemNetworkToken, value: string) {
-  await token.openGate();
-  const gateAddress = await token.getGateAddress(wallet.address);
-  await oldToken.transfer(gateAddress, value);
-  await token.transferFromGate();
+export async function wrapGNTtoGNTB(wallet: Wallet, gntb: GolemNetworkTokenBatching, gnt: GolemNetworkToken, value: string) {
+  await gntb.openGate();
+  const gateAddress = await gntb.getGateAddress(wallet.address);
+  await gnt.transfer(gateAddress, value);
+  await gntb.transferFromGate();
 }
 
 export async function deployDevGolemContracts(provider: Provider,
@@ -52,7 +52,7 @@ export async function deployDevGolemContracts(provider: Provider,
   const newToken = await new NewGolemNetworkTokenFactory(deployWallet).deploy();
   logger.log(`New Golem Network Token address: ${newToken.address}`);
   const batchingToken = await new GolemNetworkTokenBatchingFactory(holderWallet).deploy(oldToken.address);
-  await transferGNTB(holderWallet, batchingToken, holderSignedToken, parseUnits('10000000').toString());
+  await wrapGNTtoGNTB(holderWallet, batchingToken, holderSignedToken, parseUnits('10000000').toString());
   logger.log(`Golem Network Token Batching address: ${batchingToken.address}`);
   logger.log('Setting new token as migration agent');
   await oldToken.setMigrationAgent(newToken.address);

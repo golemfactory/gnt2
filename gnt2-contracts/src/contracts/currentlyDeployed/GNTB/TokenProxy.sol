@@ -1,9 +1,8 @@
 // Copyright 2018 Golem Factory
 // Licensed under the GNU General Public License v3. See the LICENSE file.
 
-pragma solidity ^0.5.3;
+pragma solidity ^0.4.21;
 
-import "./open_zeppelin/BurnableToken.sol";
 import "./open_zeppelin/StandardToken.sol";
 
 /// The Gate is a contract with unique address to allow a token holder
@@ -16,7 +15,7 @@ contract Gate {
     address private PROXY;
 
     /// Gates are to be created by the TokenProxy.
-    constructor(ERC20Basic _token, address _proxy) public {
+    function Gate(ERC20Basic _token, address _proxy) public {
         TOKEN = _token;
         PROXY = _proxy;
     }
@@ -51,7 +50,7 @@ contract Gate {
 ///
 /// In the step 3 the User's tokens are going to be moved from the Gate to
 /// the User's balance in the Proxy.
-contract TokenProxy is StandardToken, BurnableToken {
+contract TokenProxy is StandardToken {
 
     ERC20Basic public TOKEN;
 
@@ -60,9 +59,11 @@ contract TokenProxy is StandardToken, BurnableToken {
 
     event GateOpened(address indexed gate, address indexed user);
 
-    event Mint(address indexed to, uint256 amount);
+    event Minted(address indexed to, uint256 amount);
 
-    constructor(ERC20Basic _token) public {
+    event Burned(address indexed from, uint256 amount);
+
+    function TokenProxy(ERC20Basic _token) public {
         TOKEN = _token;
     }
 
@@ -75,10 +76,10 @@ contract TokenProxy is StandardToken, BurnableToken {
         address user = msg.sender;
 
         // Do not allow creating more than one Gate per User.
-        require(gates[user] == address(0));
+        require(gates[user] == 0);
 
         // Create new Gate.
-        address gate = address(new Gate(TOKEN, address(this)));
+        address gate = new Gate(TOKEN, this);
 
         // Remember User - Gate relationship.
         gates[user] = gate;
@@ -92,7 +93,7 @@ contract TokenProxy is StandardToken, BurnableToken {
         address gate = gates[user];
 
         // Make sure the User's Gate exists.
-        require(gate != address(0));
+        require(gate != 0);
 
         uint256 value = TOKEN.balanceOf(gate);
 
@@ -103,16 +104,23 @@ contract TokenProxy is StandardToken, BurnableToken {
         totalSupply_ += value;
         balances[user] += value;
 
-        emit Mint(user, value);
+        emit Minted(user, value);
     }
 
     function withdraw(uint256 _value) external {
-        withdrawTo(_value, msg.sender);
+      withdrawTo(_value, msg.sender);
     }
 
     function withdrawTo(uint256 _value, address _destination) public {
-        require(_value > 0 && _destination != address(0));
-        burn(_value);
+        address user = msg.sender;
+        uint256 balance = balances[user];
+        require(_value <= balance);
+
+        balances[user] = (balance - _value);
+        totalSupply_ -= _value;
+
         TOKEN.transfer(_destination, _value);
+
+        emit Burned(user, _value);
     }
 }
