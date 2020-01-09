@@ -3,10 +3,19 @@ import {NewGolemNetworkTokenFactory} from 'gnt2-contracts';
 import {GolemNetworkTokenFactory} from '../../build/contract-types/GolemNetworkTokenFactory';
 import {JsonRpcProvider, Provider} from 'ethers/providers';
 import {ConsoleLogger, Logger} from '../utils/logger';
+import {GolemNetworkToken} from '../../build/contract-types/GolemNetworkToken';
+import {GolemNetworkTokenBatching} from '../../build/contract-types/GolemNetworkTokenBatching';
 
 export interface GolemContractsDevDeployment {
   oldGolemTokenContractAddress: string;
   newGolemTokenContractAddress: string;
+}
+
+export async function transferGNTB(wallet: Wallet, token: GolemNetworkTokenBatching, oldToken: GolemNetworkToken, value: string) {
+  await token.openGate();
+  const gateAddress = await token.getGateAddress(wallet.address);
+  await oldToken.transfer(gateAddress, value);
+  await token.transferFromGate();
 }
 
 async function mineEmptyBlock(provider: Provider) {
