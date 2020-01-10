@@ -3,15 +3,16 @@ import {ConnectionService} from './ConnectionService';
 import {TokensService} from './TokensService';
 import {NetworkService} from './NetworkService';
 import {ContractAddressService} from './ContractAddressService';
+import {MetamaskNetworkService} from './MetamaskNetworkService';
 
 export type Services = ReturnType<typeof createServices>;
 
 export function createServices() {
-
+  const metamaskNetworkService = MetamaskNetworkService.create();
   const connectionService = ConnectionService.create();
   const getProvider = () => connectionService.getProvider();
-  const accountService = new AccountService(getProvider);
-  const networkService = NetworkService.create();
+  const accountService = AccountService.create(getProvider);
+  const networkService = NetworkService.create(metamaskNetworkService);
   const contractAddressService = new ContractAddressService(networkService);
   const tokensService = new TokensService(getProvider, contractAddressService);
   const startServices = async () => {

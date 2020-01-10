@@ -10,26 +10,28 @@ export class TokensService {
     private provider: () => JsonRpcProvider,
     private contractAddressService: ContractAddressService
   ) {
-    this.golemTokens = contractAddressService.golemNetworkTokenAddress.get();
+    this.golemTokens = this.contractAddressService.golemNetworkTokenAddress.get();
   }
 
-  async balanceOfOldTokens(address: string, tokenAddress: string): Promise<BigNumber> {
-    const oldTokenContract = GolemNetworkTokenFactory.connect(this.golemTokens.oldGolemTokenContractAddress, this.provider());
+  getAddress() { return this.contractAddressService.golemNetworkTokenAddress.get(); }
+
+  async balanceOfOldTokens(address: string): Promise<BigNumber> {
+    const oldTokenContract = GolemNetworkTokenFactory.connect(this.getAddress().oldGolemTokenContractAddress, this.provider());
     return oldTokenContract.balanceOf(address);
   }
 
   async balanceOfNewTokens(address: string) {
-    const newTokenContract = NewGolemNetworkTokenFactory.connect(this.golemTokens.newGolemTokenContractAddress, this.provider());
+    const newTokenContract = NewGolemNetworkTokenFactory.connect(this.getAddress().newGolemTokenContractAddress, this.provider());
     return newTokenContract.balanceOf(address);
   }
 
   async migrateTokens(value: string) {
-    const oldTokenContract = GolemNetworkTokenFactory.connect(this.golemTokens.oldGolemTokenContractAddress, this.provider().getSigner());
+    const oldTokenContract = GolemNetworkTokenFactory.connect(this.getAddress().oldGolemTokenContractAddress, this.provider().getSigner());
     await oldTokenContract.migrate(value, {gasLimit: 750000});
   }
 
   async balanceOfBatchingTokens(address: string) {
-    const batchingContract = GolemNetworkTokenBatchingFactory.connect(this.golemTokens.batchingGolemTokenContractAddress, this.provider());
+    const batchingContract = GolemNetworkTokenBatchingFactory.connect(this.getAddress().batchingGolemTokenContractAddress, this.provider());
     return batchingContract.balanceOf(address);
   }
 }

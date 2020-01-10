@@ -1,11 +1,12 @@
 import '../types';
 import {Callback} from 'reactive-properties/dist/Property';
+import {MetamaskNetworkService} from './MetamaskNetworkService';
 
 export interface Subscribable {
   subscribe: (cb: Callback) => Callback;
 }
 
-const selectChain = (chainId: string) => {
+const selectChain = (chainId: string | undefined) => {
   if (chainId === '4') {
     return 'Rinkeby';
   } else {
@@ -14,16 +15,16 @@ const selectChain = (chainId: string) => {
 };
 
 export class NetworkService implements Subscribable {
-  network: string;
+  network: string | undefined;
 
-  constructor(private globalEthereum: () => any) {
-    this.network = '';
+  constructor(private globalEthereum: () => any, metamaskNetworkService: MetamaskNetworkService) {
+    this.network = selectChain(metamaskNetworkService.getNetwork());
   }
 
 
-  static create() {
+  static create(metamaskNetworkService: MetamaskNetworkService) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return new NetworkService(() => window.ethereum as any);
+    return new NetworkService(() => window.ethereum as any, metamaskNetworkService);
   }
 
   subscribe(callback: Callback): Callback {

@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import {BigNumber} from 'ethers/utils';
 import {useAsyncEffect} from './hooks/useAsyncEffect';
 import {useProperty} from './hooks/useProperty';
+import '../types';
 
 export const Account = () => {
   const [address, setAddress] = useState<string | undefined>(undefined);
@@ -36,6 +37,7 @@ export const Account = () => {
 
   return (
     <div>
+      {oldToken && <h1>{oldToken}</h1>}
       <div>Your address:</div>
       <div>{address}</div>
       <div>Your NGNT balance:</div>

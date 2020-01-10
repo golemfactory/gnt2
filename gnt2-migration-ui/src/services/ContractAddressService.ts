@@ -21,7 +21,7 @@ export class ContractAddressService {
     }, networkService));
   }
 
-  private getGNTAddress(network: string) {
+  private getGNTAddress(network: string | undefined) {
     console.log(network);
     if (network === 'Rinkeby') {
       return getNetworks().rinkeby;
