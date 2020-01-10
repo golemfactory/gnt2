@@ -7,25 +7,28 @@ import {useAsyncEffect} from './hooks/useAsyncEffect';
 import {useProperty} from './hooks/useProperty';
 
 export const Account = () => {
+  const [address, setAddress] = useState<string | undefined>(undefined);
   const [balance, setBalance] = useState<BigNumber | undefined>(undefined);
   const [oldTokensBalance, setOldTokensBalance] = useState<BigNumber | undefined>(undefined);
   const [newTokensBalance, setNewTokensBalance] = useState<BigNumber | undefined>(undefined);
   const [batchingTokensBalance, setBatchingTokensBalance] = useState<BigNumber | undefined>(undefined);
   const [refresh, setRefresh] = useState(false);
 
-  const {accountService, tokensService, connectionService} = useServices();
+  const {accountService, tokensService, contractAddressService, connectionService} = useServices();
+  const oldToken = useProperty(contractAddressService.golemNetworkTokenAddress);
   const account = useProperty(connectionService.account);
 
   useAsyncEffect(async () => {
-    if (!account) return;
+    const account = await accountService.getDefaultAccount();
+    setAddress(account);
     setBalance(await accountService.balanceOf(account));
     setOldTokensBalance(await tokensService.balanceOfOldTokens(account));
     setNewTokensBalance(await tokensService.balanceOfNewTokens(account));
     setBatchingTokensBalance(await tokensService.balanceOfBatchingTokens(account));
-  }, [refresh, account]);
+  }, [refresh, account, oldToken]);
 
   const migrateTokens = async () => {
-    await tokensService.migrateTokens((await tokensService.balanceOfOldTokens(await accountService.getDefaultAccount())).toString());
+    await tokensService.migrateTokens((await tokensService.balanceOfOldTokens(await accountService.getDefaultAccount(), oldToken)).toString());
     setRefresh(!refresh);
   };
 
@@ -34,7 +37,7 @@ export const Account = () => {
   return (
     <div>
       <div>Your address:</div>
-      <div>{account}</div>
+      <div>{address}</div>
       <div>Your NGNT balance:</div>
       {newTokensBalance && <div data-testid='NGNT-balance'>{format(newTokensBalance)}</div>}
       <div>Your GNT balance:</div>

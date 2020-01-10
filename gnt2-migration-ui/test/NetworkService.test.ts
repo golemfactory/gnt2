@@ -21,13 +21,13 @@ describe('Network Service', () => {
     const mockedEthereum = new TestEthereum();
 
     const networkService = new NetworkService(() => mockedEthereum);
-    networkService.subscribe((networkName) => {
-      expect(networkName).to.eq('Rinkeby');
+    networkService.subscribe(() => {
       networkChangeDetected = true;
     });
 
     mockedEthereum.simulateNetworkChange('4');
 
+    expect(networkService.network).to.eq('Rinkeby');
     expect(networkChangeDetected).to.be.true;
   });
 });
