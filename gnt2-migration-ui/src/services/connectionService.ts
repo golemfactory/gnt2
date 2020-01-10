@@ -29,7 +29,9 @@ export class ConnectionService {
     const metamaskProvider = this.getGlobalEthereum();
     if (metamaskProvider !== undefined && metamaskProvider.isMetaMask) {
       this.provider = new Web3Provider(metamaskProvider);
-      metamaskProvider.on();
+      metamaskProvider.on('accountsChanged', (accounts: string[]) => {
+        this.handleAccountsChange(accounts);
+      });
       this.connectionState = ConnectionState.NOT_CONNECTED;
       return;
     }
