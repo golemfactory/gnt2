@@ -14,10 +14,14 @@ export function createServices() {
     config.newGolemTokenContractAddress,
     config.batchingGolemTokenContractAddress
   );
+  const startServices = async () => {
+    await connectionService.checkConnection();
+  };
 
   return {
     accountService,
     connectionService,
-    tokensService
+    tokensService,
+    startServices
   };
 }

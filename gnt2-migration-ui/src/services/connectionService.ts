@@ -1,35 +1,50 @@
-import {AsyncSendable, JsonRpcProvider, Web3Provider} from 'ethers/providers';
+import {JsonRpcProvider, Web3Provider} from 'ethers/providers';
 import '../types';
+import {State} from 'reactive-properties';
+
+export enum ConnectionState {
+  UNKNOWN,
+  NO_METAMASK,
+  NOT_CONNECTED,
+  CONNECTED
+}
 
 export class ConnectionService {
   private provider: JsonRpcProvider | undefined;
-  isInitialized: boolean;
+  connectionState: ConnectionState;
+  account: State<string>;
 
-  constructor(private getGlobalEthereum: () => AsyncSendable | undefined) {
-    this.isInitialized = false;
+  constructor(private getGlobalEthereum: () => MetamaskEthereum | undefined) {
+    this.connectionState = ConnectionState.UNKNOWN;
+    this.account = new State<string>('');
   }
 
   static create() {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const connectionService = new ConnectionService(() => window.ethereum as any);
+    const connectionService = new ConnectionService(() => window.ethereum);
     connectionService.createProvider();
     return connectionService;
   }
 
-  createProvider() {
+  private createProvider() {
     const metamaskProvider = this.getGlobalEthereum();
-    if (metamaskProvider !== undefined) {
-      const web3Provider = new Web3Provider(metamaskProvider);
-      this.provider = web3Provider;
-      return web3Provider;
+    if (metamaskProvider !== undefined && metamaskProvider.isMetaMask) {
+      this.provider = new Web3Provider(metamaskProvider);
+      metamaskProvider.on('accountsChanged', (accounts: string[]) => {
+        this.handleAccountsChange(accounts);
+      });
+      this.connectionState = ConnectionState.NOT_CONNECTED;
+      return;
     }
-    throw new Error('Metamask init failed');
+    this.connectionState = ConnectionState.NO_METAMASK;
+
+  }
+
+  async checkConnection() {
+    this.handleAccountsChange(await this.getProvider().listAccounts());
   }
 
   async connect() {
-    await this.getProvider().send('eth_requestAccounts', []);
-    this.isInitialized = true;
-    return this.provider;
+    this.handleAccountsChange(await this.getProvider().send('eth_requestAccounts', []));
   }
 
   getProvider() {
@@ -37,5 +52,14 @@ export class ConnectionService {
       throw new Error('Provider requested, but not yet initialized');
     }
     return this.provider;
+  }
+
+  private handleAccountsChange(accounts: string[]) {
+    if (accounts.length === 0) {
+      this.connectionState = ConnectionState.NOT_CONNECTED;
+      return;
+    }
+    this.account.set(accounts[0]);
+    this.connectionState = ConnectionState.CONNECTED;
   }
 }
