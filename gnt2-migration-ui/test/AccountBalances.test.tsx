@@ -11,6 +11,7 @@ import {JsonRpcProvider} from 'ethers/providers';
 import sinon from 'sinon';
 import chai, {expect} from 'chai';
 import chaiDom from 'chai-dom';
+import {ConnectionService} from '../src/services/connectionService';
 
 chai.use(chaiDom);
 
@@ -38,9 +39,18 @@ describe('Account page', () => {
       oldGolemTokenContractAddress,
       batchingGolemTokenContractAddress
     } = await deployDevGolemContracts(provider, deployWallet, holderWallet, noOpLogger);
+
+    function testConnectionService() {
+      const connectionService = new ConnectionService(() => undefined);
+      connectionService['provider'] = provider;
+      connectionService.checkConnection();
+      return connectionService;
+    }
+
     return {
       tokensService: new TokensService(() => provider, oldGolemTokenContractAddress, newGolemTokenContractAddress, batchingGolemTokenContractAddress),
-      accountService: accountServiceWithAddress(provider, holderWallet.address)
+      accountService: accountServiceWithAddress(provider, holderWallet.address),
+      connectionService: testConnectionService()
     } as Services;
   }
 

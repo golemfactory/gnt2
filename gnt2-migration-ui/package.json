@@ -18,7 +18,9 @@
     "react-dom": "^16.10.2",
     "react-hot-loader": "^4.12.15",
     "react-router-dom": "^5.1.2",
-    "styled-components": "^4.4.0"
+    "reactive-properties": "latest",
+    "styled-components": "^4.4.0",
+    "use-subscription": "latest"
   },
   "browser": {
     "child_process": false
@@ -45,6 +47,7 @@
     "@types/sinon": "^7.5.1",
     "@types/styled-components": "^4.1.19",
     "@types/testing-library__react": "^9.1.2",
+    "@types/use-subscription": "^1.0.0",
     "@types/webpack": "^4.39.3",
     "@types/webpack-dev-server": "^3.1.7",
     "@typescript-eslint/eslint-plugin": "^2.7.0",
