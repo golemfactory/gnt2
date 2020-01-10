@@ -16,7 +16,7 @@ export const Account = () => {
   const [refresh, setRefresh] = useState(false);
 
   const {accountService, tokensService, contractAddressService, connectionService} = useServices();
-  const oldToken = useProperty(contractAddressService.golemNetworkTokenAddress);
+  const tokenAdresses = useProperty(contractAddressService.golemNetworkTokenAddress);
   const account = useProperty(connectionService.account);
 
   useAsyncEffect(async () => {
@@ -26,10 +26,10 @@ export const Account = () => {
     setOldTokensBalance(await tokensService.balanceOfOldTokens(account));
     setNewTokensBalance(await tokensService.balanceOfNewTokens(account));
     setBatchingTokensBalance(await tokensService.balanceOfBatchingTokens(account));
-  }, [refresh, account, oldToken]);
+  }, [refresh, account, tokenAdresses]);
 
   const migrateTokens = async () => {
-    await tokensService.migrateTokens((await tokensService.balanceOfOldTokens(await accountService.getDefaultAccount(), oldToken)).toString());
+    await tokensService.migrateTokens((await tokensService.balanceOfOldTokens(await accountService.getDefaultAccount())).toString());
     setRefresh(!refresh);
   };
 
@@ -37,7 +37,6 @@ export const Account = () => {
 
   return (
     <div>
-      {oldToken && <h1>{oldToken}</h1>}
       <div>Your address:</div>
       <div>{address}</div>
       <div>Your NGNT balance:</div>

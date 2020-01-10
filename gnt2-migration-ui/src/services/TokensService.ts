@@ -2,7 +2,7 @@ import {JsonRpcProvider} from 'ethers/providers';
 import {BigNumber} from 'ethers/utils';
 import {NewGolemNetworkTokenFactory, GolemNetworkTokenBatchingFactory, GolemNetworkTokenFactory} from 'gnt2-contracts';
 import {ContractAddressService} from './ContractAddressService';
-import {GolemTokenAddresses} from '../models/GolemTokenAddresses';
+import {GolemTokenAddresses} from '../types/GolemTokenAddresses';
 
 export class TokensService {
   private golemTokens: GolemTokenAddresses;

@@ -1,10 +1,13 @@
 import {expect} from 'chai';
 import {NetworkService} from '../src/services/NetworkService';
 
-class TestEthereum {
-  private callback: (chainId: string) => void = () => {};
+class TestEthereum implements MetamaskEthereum {
+  isMetaMask= true;
+  networkVersion= '4';
 
-  public on(event: string, callback: (chainId: string) => void) {
+  private callback: (chainId: string) => void = () => { /* do nothing */ };
+
+  on(event: string, callback: (chainId: string) => void) {
     this.callback = callback;
   }
 
@@ -27,7 +30,7 @@ describe('Network Service', () => {
 
     mockedEthereum.simulateNetworkChange('4');
 
-    expect(networkService.network).to.eq('Rinkeby');
+    expect(networkService.network.get()).to.eq('Rinkeby');
     expect(networkChangeDetected).to.be.true;
   });
 });

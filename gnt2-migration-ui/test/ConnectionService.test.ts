@@ -19,6 +19,7 @@ describe('Connections Service', () => {
         },
         send: sinon.mock(),
         isMetaMask: true,
+        networkVersion: '4',
         on: (eventName, callback) => {
           mockedEthereumCallback = callback;
         }
