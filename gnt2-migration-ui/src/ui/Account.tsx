@@ -17,9 +17,7 @@ export const Account = () => {
   const account = useProperty(connectionService.account);
 
   useAsyncEffect(async () => {
-    if (account === '') {
-      return;
-    }
+    if (!account) return;
     setBalance(await accountService.balanceOf(account));
     setOldTokensBalance(await tokensService.balanceOfOldTokens(account));
     setNewTokensBalance(await tokensService.balanceOfNewTokens(account));
