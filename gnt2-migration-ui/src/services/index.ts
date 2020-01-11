@@ -1,5 +1,5 @@
 import {AccountService} from './AccountsService';
-import {ConnectionService} from './connectionService';
+import {ConnectionService} from './ConnectionService';
 import {TokensService} from './TokensService';
 import {config} from '../config';
 export type Services = ReturnType<typeof createServices>;

@@ -3,7 +3,7 @@ import '../styles/App.sass';
 import styled from 'styled-components';
 import {useServices} from './useServices';
 import {RouteComponentProps} from 'react-router-dom';
-import {ConnectionState} from '../services/connectionService';
+import {ConnectionState} from '../services/ConnectionService';
 
 export const Login = ({history}: RouteComponentProps) => {
   const {connectionService} = useServices();

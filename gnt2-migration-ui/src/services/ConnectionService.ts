@@ -14,29 +14,27 @@ export class ConnectionService {
   connectionState: ConnectionState;
   account: State<string>;
 
-  constructor(private getGlobalEthereum: () => MetamaskEthereum | undefined) {
+  constructor(private globalEthereum: MetamaskEthereum | undefined) {
     this.connectionState = ConnectionState.UNKNOWN;
     this.account = new State<string>('');
   }
 
   static create() {
-    const connectionService = new ConnectionService(() => window.ethereum);
+    const connectionService = new ConnectionService(window.ethereum);
     connectionService.createProvider();
     return connectionService;
   }
 
   private createProvider() {
-    const metamaskProvider = this.getGlobalEthereum();
-    if (metamaskProvider !== undefined && metamaskProvider.isMetaMask) {
-      this.provider = new Web3Provider(metamaskProvider);
-      metamaskProvider.on('accountsChanged', (accounts: string[]) => {
+    if (this.globalEthereum !== undefined && this.globalEthereum.isMetaMask) {
+      this.provider = new Web3Provider(this.globalEthereum);
+      this.globalEthereum.on('accountsChanged', (accounts: string[]) => {
         this.handleAccountsChange(accounts);
       });
       this.connectionState = ConnectionState.NOT_CONNECTED;
       return;
     }
     this.connectionState = ConnectionState.NO_METAMASK;
-
   }
 
   async checkConnection() {
