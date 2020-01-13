@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import {BigNumber} from 'ethers/utils';
 import {useAsyncEffect} from './hooks/useAsyncEffect';
 import {useProperty} from './hooks/useProperty';
+import {useSnackbar} from './hooks/useSnackbar';
 
 export const Account = () => {
   const [balance, setBalance] = useState<BigNumber | undefined>(undefined);
@@ -12,9 +13,11 @@ export const Account = () => {
   const [newTokensBalance, setNewTokensBalance] = useState<BigNumber | undefined>(undefined);
   const [batchingTokensBalance, setBatchingTokensBalance] = useState<BigNumber | undefined>(undefined);
   const [refresh, setRefresh] = useState(false);
+  const [transaction, setTransaction] = useState<string | undefined>('');
 
   const {accountService, tokensService, connectionService} = useServices();
   const account = useProperty(connectionService.account);
+  const {show} = useSnackbar();
 
   useAsyncEffect(async () => {
     if (!account) return;
@@ -25,7 +28,14 @@ export const Account = () => {
   }, [refresh, account]);
 
   const migrateTokens = async () => {
-    await tokensService.migrateTokens((await tokensService.balanceOfOldTokens(await accountService.getDefaultAccount())).toString());
+    let tx;
+    try {
+      tx = await tokensService.migrateTokens((await tokensService.balanceOfOldTokens(await accountService.getDefaultAccount())).toString());
+    } catch (e) {
+      console.log(e.message);
+      show(e.message);
+    }
+    setTransaction(tx);
     setRefresh(!refresh);
   };
 
@@ -43,9 +53,10 @@ export const Account = () => {
       {batchingTokensBalance && <div data-testid='GNTB-balance'>{format(batchingTokensBalance)}</div>}
       <div>Your ETH balance:</div>
       {balance && <div data-testid='ETH-balance'>{format(balance, 4)}</div>}
-      <Migrate data-testid="button" onClick={migrateTokens} disabled={oldTokensBalance?.eq(new BigNumber('0'))}>
+      <Migrate data-testid="button" onClick={migrateTokens} disabled={oldTokensBalance && oldTokensBalance.eq(new BigNumber('0'))}>
           Migrate
       </Migrate>
+      {transaction && <div>{transaction}</div>}
     </div>
   );
 };
