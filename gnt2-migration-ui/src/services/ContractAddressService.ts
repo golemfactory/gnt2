@@ -1,28 +1,33 @@
 import {Property, State, withSubscription} from 'reactive-properties';
-import {NetworkService} from './NetworkService';
-import {getNetworks} from '../config';
-import {GolemTokenAddresses} from '../types/GolemTokenAddresses';
+import {tokenContractsAddresses} from '../config';
+import {ConnectionService} from './ConnectionService';
+
+export interface GolemTokenAddresses {
+  oldGolemToken: string;
+  newGolemToken: string;
+  batchingGolemToken: string;
+}
 
 export class ContractAddressService {
   golemNetworkTokenAddress: Property<GolemTokenAddresses>;
   private golemNetworkTokenAddressState: State<GolemTokenAddresses>;
 
-  constructor(networkService: NetworkService) {
+  constructor(connectionService: ConnectionService) {
     this.golemNetworkTokenAddressState = new State({
-      oldGolemTokenContractAddress: '',
-      newGolemTokenContractAddress: '',
-      batchingGolemTokenContractAddress: ''
+      oldGolemToken: '',
+      newGolemToken: '',
+      batchingGolemToken: ''
     });
     this.golemNetworkTokenAddress = this.golemNetworkTokenAddressState.pipe(withSubscription(() => {
-      const network = this.getGNTAddress(networkService.network.get());
-      this.golemNetworkTokenAddressState.set(network);
-    }, networkService));
+      const tokenContractsAddresses = this.getGNTAddress(connectionService.network.get());
+      this.golemNetworkTokenAddressState.set(tokenContractsAddresses);
+    }, connectionService));
   }
 
   private getGNTAddress(network: string | undefined) {
     if (network === 'Rinkeby') {
-      return getNetworks().rinkeby;
+      return tokenContractsAddresses.rinkeby;
     }
-    return getNetworks().local;
+    return tokenContractsAddresses.local;
   }
 }

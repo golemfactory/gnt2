@@ -1,4 +1,5 @@
 import React from 'react';
+import {State} from 'reactive-properties';
 import {fireEvent, render, wait, waitForElement} from '@testing-library/react';
 import {createMockProvider, getWallets} from 'ethereum-waffle';
 import {Account} from '../src/ui/Account';
@@ -12,7 +13,6 @@ import sinon from 'sinon';
 import chai, {expect} from 'chai';
 import chaiDom from 'chai-dom';
 import {ContractAddressService} from '../src/services/ContractAddressService';
-import {NetworkService} from '../src/services/NetworkService';
 import {ConnectionService} from '../src/services/ConnectionService';
 
 chai.use(chaiDom);
@@ -23,18 +23,9 @@ const noOpLogger = {
   }
 };
 
-
 describe('Account page', () => {
 
   let services: Services;
-
-  const mockedEthereum = {
-    isMetaMask: true,
-    on: () => {
-      /* empty */
-    },
-    networkVersion: '4'
-  };
 
   function accountServiceWithAddress(provider: JsonRpcProvider, address: string) {
     const accountService = new AccountService(() => provider);
@@ -53,8 +44,8 @@ describe('Account page', () => {
       return connectionService;
     }
     function mockContractAddressService() {
-      const networkService = new NetworkService(() => mockedEthereum);
-      networkService.checkNetwork();
+      const connectionService = new ConnectionService({} as MetamaskEthereum);
+      connectionService.checkNetwork();
 
       return {
         golemNetworkTokenAddress: new State({...addresses}),

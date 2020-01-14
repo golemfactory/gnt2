@@ -6,7 +6,7 @@ import sinonChai from 'sinon-chai';
 chai.use(sinonChai);
 
 describe('Connections Service', () => {
-  let mockedEthereum: MetamaskEthereum & {simulateAccountChanged: (accounts: string[]) => void};
+  let mockedEthereum: MetamaskEthereum & {simulateAccountChanged: (accounts: string[]) => void, simulateNetworkChange: (accounts: string) => void};
 
   describe('create', () => {
     let connectionService: ConnectionService;
@@ -17,10 +17,16 @@ describe('Connections Service', () => {
         simulateAccountChanged: function (accounts = []) {
           mockedEthereumCallback(accounts);
         },
+        simulateNetworkChange: function (network = '') {
+          mockedEthereumCallback(network);
+        },
         send: sinon.mock(),
         isMetaMask: true,
         networkVersion: '4',
         on: (eventName, callback) => {
+          mockedEthereumCallback = callback;
+        },
+        off: (eventName, callback) => {
           mockedEthereumCallback = callback;
         }
       };
@@ -31,6 +37,21 @@ describe('Connections Service', () => {
       expect(() => connectionService.getProvider()).to.throw(/Provider requested, but not yet initialized/);
     });
 
+    it('delivers network change event', () => {
+
+      let networkChangeDetected = false;
+
+      const connectionService = new ConnectionService(mockedEthereum);
+      connectionService.subscribe(() => {
+        networkChangeDetected = true;
+        connectionService.checkNetwork();
+      });
+
+      mockedEthereum.simulateNetworkChange('4');
+
+      expect(connectionService.network.get()).to.eq('Rinkeby');
+      expect(networkChangeDetected).to.be.true;
+    });
     it('starts in UNKNOWN state', () => {
       expectState().to.eq(ConnectionState.UNKNOWN);
     });

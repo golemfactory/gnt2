@@ -8,7 +8,6 @@ import {useProperty} from './hooks/useProperty';
 import '../types';
 
 export const Account = () => {
-  const [address, setAddress] = useState<string | undefined>(undefined);
   const [balance, setBalance] = useState<BigNumber | undefined>(undefined);
   const [oldTokensBalance, setOldTokensBalance] = useState<BigNumber | undefined>(undefined);
   const [newTokensBalance, setNewTokensBalance] = useState<BigNumber | undefined>(undefined);
@@ -20,8 +19,6 @@ export const Account = () => {
   const account = useProperty(connectionService.account);
 
   useAsyncEffect(async () => {
-    const account = await accountService.getDefaultAccount();
-    setAddress(account);
     setBalance(await accountService.balanceOf(account));
     setOldTokensBalance(await tokensService.balanceOfOldTokens(account));
     setNewTokensBalance(await tokensService.balanceOfNewTokens(account));
@@ -38,7 +35,7 @@ export const Account = () => {
   return (
     <div>
       <div>Your address:</div>
-      <div>{address}</div>
+      <div>{account}</div>
       <div>Your NGNT balance:</div>
       {newTokensBalance && <div data-testid='NGNT-balance'>{format(newTokensBalance)}</div>}
       <div>Your GNT balance:</div>
