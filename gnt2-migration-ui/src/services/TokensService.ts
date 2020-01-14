@@ -27,19 +27,7 @@ export class TokensService {
       .then((tx) => {
         return tx.hash;
       }, (error) => {
-        const errorMessage = (code: number) => {
-          switch (code) {
-            case -32000:
-              throw new InsufficientFunds();
-            case 4001:
-              throw new TransactionDenied();
-            case -32603:
-              throw new MetamaskError();
-            default:
-              throw new UnknownError();
-          }
-        };
-        return errorMessage(error.code);
+        return errorMessage(error.code.toString());
       });
   }
 
@@ -48,3 +36,16 @@ export class TokensService {
     return batchingContract.balanceOf(address);
   }
 }
+
+const errorMessage = (code: string) => {
+  switch (code) {
+    case '-32000':
+      throw new InsufficientFunds();
+    case '4001':
+      throw new TransactionDenied();
+    case '-32603':
+      throw new MetamaskError();
+    default:
+      throw new UnknownError();
+  }
+};

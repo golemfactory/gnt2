@@ -11,7 +11,7 @@ export class TransactionDenied extends Error {
 }
 export class MetamaskError extends Error {
   constructor() {
-    super(`Metamask error, please restart browser`);
+    super(`Metamask error, please restart browser.`);
   }
 }
 export class UnknownError extends Error {

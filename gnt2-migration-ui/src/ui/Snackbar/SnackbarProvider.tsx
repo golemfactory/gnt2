@@ -3,7 +3,7 @@ import {Snackbar} from './Snackbar';
 
 
 type Show = (message: string) => void;
-// @typescript-eslint/no-explicit-any
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const SnackbarContext = createContext<{show: Show}>({} as any);
 
 const SNACKBAR_TIMEOUT = 3000;
