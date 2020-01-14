@@ -3,7 +3,7 @@ import {BrowserRouter, Route, Switch, Redirect} from 'react-router-dom';
 import {Login} from './Login';
 import {Account} from './Account';
 import {useServices} from './useServices';
-import {ConnectionState} from '../services/connectionService';
+import {ConnectionState} from '../services/ConnectionService';
 
 export const Dashboard = () => {
 

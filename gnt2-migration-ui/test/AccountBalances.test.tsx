@@ -11,7 +11,7 @@ import {JsonRpcProvider} from 'ethers/providers';
 import sinon from 'sinon';
 import chai, {expect} from 'chai';
 import chaiDom from 'chai-dom';
-import {ConnectionService} from '../src/services/connectionService';
+import {ConnectionService} from '../src/services/ConnectionService';
 
 chai.use(chaiDom);
 
@@ -41,7 +41,7 @@ describe('Account page', () => {
     } = await deployDevGolemContracts(provider, deployWallet, holderWallet, noOpLogger);
 
     function testConnectionService() {
-      const connectionService = new ConnectionService(() => undefined);
+      const connectionService = new ConnectionService(undefined);
       connectionService['provider'] = provider;
       connectionService.checkConnection();
       return connectionService;
