@@ -1,3 +1,4 @@
+// @ts-nocheck
 import {TokensService} from '../src/services/TokensService';
 import {createMockProvider, getWallets} from 'ethereum-waffle';
 import {
@@ -42,6 +43,13 @@ describe('Token Service', () => {
       await expect(tokensService.migrateTokens(parseUnits('10000000000').toString())).to.be.rejectedWith('Insufficient funds.');
     });
 
+    it(`returns transaction hash`, async () => {
+      const result = await tokensService.migrateTokens('100');
+      expect(result).to.be.an('string');
+      expect(result?.slice(0, 2)).to.eq('0x');
+      expect(result?.length).to.eq(66);
+    });
+
     [[transactionDenied, 'User denied transaction signature.'],
       [MetamaskError, 'Metamask error, please restart browser.'],
       [UnknownError, 'Something went wrong, try again later.']
@@ -55,12 +63,5 @@ describe('Token Service', () => {
       });
     });
 
-    it(`returns transaction hash`, async () => {
-      const result = await tokensService.migrateTokens('100');
-      console.log(result);
-      expect(result).to.be.an('string');
-      expect(result?.slice(0, 2)).to.eq('0x');
-      expect(result?.length).to.eq(66);
-    });
   });
 });
