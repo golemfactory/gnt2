@@ -1,7 +1,6 @@
 import {JsonRpcProvider, Web3Provider} from 'ethers/providers';
 import '../types';
 import {Property, State, withSubscription} from 'reactive-properties';
-import {Callback} from 'reactive-properties/dist/Property';
 
 export enum ConnectionState {
   UNKNOWN,
@@ -86,15 +85,19 @@ export class ConnectionService {
       throw new Error('Metamask requested, but not yet initialized');
     }
     this.globalEthereum.on('networkChanged', listener);
-    const clearListener = this.globalEthereum.off('networkChanged', listener);
-    return () => clearListener;
+    return () => {
+      if (this.globalEthereum === undefined) {
+        throw new Error('Metamask requested, but not yet initialized');
+      }
+      return this.globalEthereum.off('networkChanged', listener);
+    };
   }
 
   async checkNetwork() {
-    if (this.globalEthereum !== undefined) {
-      const selectedChain = selectChain(this.globalEthereum.networkVersion);
-      await this.networkState.set(selectedChain);
+    if (this.globalEthereum === undefined) {
+      throw new Error('Metamask requested, but not yet initialized');
     }
-    throw new Error('Metamask requested, but not yet initialized');
+    const selectedChain = selectChain(this.globalEthereum.networkVersion);
+    await this.networkState.set(selectedChain);
   }
 }

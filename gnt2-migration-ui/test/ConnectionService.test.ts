@@ -113,6 +113,19 @@ describe('Connections Service', () => {
     function expectState() {
       return expect(connectionService.connectionState);
     }
-
+    describe('checkNetwork', () => {
+      it('sets network state, if ethereum is not undefined', () => {
+        connectionService = new ConnectionService(mockedEthereum);
+        connectionService.checkNetwork();
+      });
+      it('throw error, if ethereum is not undefined', () => {
+        connectionService = new ConnectionService(undefined);
+        try {
+          connectionService.checkNetwork();
+        } catch (e) {
+          expect(e.message).to.eq('Metamask requested, but not yet initialized');
+        }
+      });
+    });
   });
 });

@@ -11,3 +11,5 @@ type MetamaskEthereum = {
 interface Window {
   ethereum: MetamaskEthereum;
 }
+
+type Callback = () => void;

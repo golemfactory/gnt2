@@ -13,11 +13,7 @@ export class ContractAddressService {
   private golemNetworkTokenAddressState: State<GolemTokenAddresses>;
 
   constructor(connectionService: ConnectionService) {
-    this.golemNetworkTokenAddressState = new State({
-      oldGolemToken: '',
-      newGolemToken: '',
-      batchingGolemToken: ''
-    });
+    this.golemNetworkTokenAddressState = new State(tokenContractsAddresses.rinkeby);
     this.golemNetworkTokenAddress = this.golemNetworkTokenAddressState.pipe(withSubscription(() => {
       const tokenContractsAddresses = this.getGNTAddress(connectionService.network.get());
       this.golemNetworkTokenAddressState.set(tokenContractsAddresses);

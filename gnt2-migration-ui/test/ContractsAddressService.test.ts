@@ -1,5 +1,5 @@
 import {expect} from 'chai';
-import {Callback} from 'reactive-properties/dist/Property';
+import '../src/types';
 import {ContractAddressService} from '../src/services/ContractAddressService';
 import {State} from 'reactive-properties';
 import {ConnectionService} from '../src/services/ConnectionService';
@@ -17,9 +17,9 @@ describe('Contract Address Service', () => {
     const contractAddressService = new ContractAddressService(connectionService as unknown as ConnectionService);
     contractAddressService.golemNetworkTokenAddress.subscribe(() => { /* do nothing */ });
     expect(contractAddressService.golemNetworkTokenAddress.get()).to.deep.eq({
-      oldGolemToken: '',
-      newGolemToken: '',
-      batchingGolemToken: ''
+      oldGolemToken: '0x924442A66cFd812308791872C4B242440c108E19',
+      newGolemToken: '0xef6A0668be10276f6B74eB80593B01B5d0606a2f',
+      batchingGolemToken: '0x123438d379BAbD07134d1d4d7dFa0BCbd56ca3F3'
     });
     callback();
     expect(contractAddressService.golemNetworkTokenAddress.get()).to.deep.eq({
