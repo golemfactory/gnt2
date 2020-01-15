@@ -6,6 +6,7 @@ type MetamaskEthereum = {
   networkVersion: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   off(eventName: string, callback: (param?: any) => void): void;
+  enable: () => Promise<void>;
 };
 
 interface Window {

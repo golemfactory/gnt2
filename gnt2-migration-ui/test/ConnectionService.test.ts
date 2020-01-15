@@ -14,6 +14,7 @@ describe('Connections Service', () => {
     beforeEach(() => {
       let mockedEthereumCallback: (params?: any) => void = () => { /* empty */ };
       mockedEthereum = {
+        enable: async () => { await Promise.resolve(); },
         simulateAccountChanged: function (accounts = []) {
           mockedEthereumCallback(accounts);
         },
