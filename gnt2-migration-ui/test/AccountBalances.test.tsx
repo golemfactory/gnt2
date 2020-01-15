@@ -1,4 +1,5 @@
 import React from 'react';
+import {State} from 'reactive-properties';
 import {fireEvent, render, wait, waitForElement} from '@testing-library/react';
 import {createMockProvider, getWallets} from 'ethereum-waffle';
 import {Account} from '../src/ui/Account';
@@ -11,6 +12,7 @@ import {JsonRpcProvider} from 'ethers/providers';
 import sinon from 'sinon';
 import chai, {expect} from 'chai';
 import chaiDom from 'chai-dom';
+import {ContractAddressService} from '../src/services/ContractAddressService';
 import {ConnectionService} from '../src/services/ConnectionService';
 
 chai.use(chaiDom);
@@ -20,7 +22,6 @@ const noOpLogger = {
     /* do nothing */
   }
 };
-
 
 describe('Account page', () => {
 
@@ -34,11 +35,7 @@ describe('Account page', () => {
 
   async function createTestServices(provider: JsonRpcProvider) {
     const [holderWallet, deployWallet] = getWallets(provider);
-    const {
-      newGolemTokenContractAddress,
-      oldGolemTokenContractAddress,
-      batchingGolemTokenContractAddress
-    } = await deployDevGolemContracts(provider, deployWallet, holderWallet, noOpLogger);
+    const addresses = await deployDevGolemContracts(provider, deployWallet, holderWallet, noOpLogger);
 
     function testConnectionService() {
       const connectionService = new ConnectionService(undefined);
@@ -46,11 +43,22 @@ describe('Account page', () => {
       connectionService.checkConnection();
       return connectionService;
     }
+    function mockContractAddressService() {
+      const connectionService = new ConnectionService({} as MetamaskEthereum);
+      connectionService.checkNetwork();
+
+      return {
+        golemNetworkTokenAddress: new State({...addresses}),
+        golemNetworkTokenAddressState: '',
+        getGNTAddress: () => { /* do nothing */ }
+      } as unknown as ContractAddressService;
+    }
 
     return {
-      tokensService: new TokensService(() => provider, oldGolemTokenContractAddress, newGolemTokenContractAddress, batchingGolemTokenContractAddress),
+      tokensService: new TokensService(() => provider, mockContractAddressService()),
       accountService: accountServiceWithAddress(provider, holderWallet.address),
-      connectionService: testConnectionService()
+      connectionService: testConnectionService(),
+      contractAddressService: mockContractAddressService()
     } as Services;
   }
 

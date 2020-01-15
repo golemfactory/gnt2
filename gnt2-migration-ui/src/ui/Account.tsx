@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import {BigNumber} from 'ethers/utils';
 import {useAsyncEffect} from './hooks/useAsyncEffect';
 import {useProperty} from './hooks/useProperty';
+import '../types';
 
 export const Account = () => {
   const [balance, setBalance] = useState<BigNumber | undefined>(undefined);
@@ -13,16 +14,16 @@ export const Account = () => {
   const [batchingTokensBalance, setBatchingTokensBalance] = useState<BigNumber | undefined>(undefined);
   const [refresh, setRefresh] = useState(false);
 
-  const {accountService, tokensService, connectionService} = useServices();
+  const {accountService, tokensService, contractAddressService, connectionService} = useServices();
+  const tokenAdresses = useProperty(contractAddressService.golemNetworkTokenAddress);
   const account = useProperty(connectionService.account);
 
   useAsyncEffect(async () => {
-    if (!account) return;
     setBalance(await accountService.balanceOf(account));
     setOldTokensBalance(await tokensService.balanceOfOldTokens(account));
     setNewTokensBalance(await tokensService.balanceOfNewTokens(account));
     setBatchingTokensBalance(await tokensService.balanceOfBatchingTokens(account));
-  }, [refresh, account]);
+  }, [refresh, account, tokenAdresses]);
 
   const migrateTokens = async () => {
     await tokensService.migrateTokens((await tokensService.balanceOfOldTokens(await accountService.getDefaultAccount())).toString());
