@@ -91,6 +91,7 @@ const config: Configuration = {
         NODE_ENV: process.env.NODE_ENV,
         OLD_GNT_TOKEN_CONTRACT_ADDRESS: process.env.OLD_GNT_TOKEN_CONTRACT_ADDRESS,
         NEW_GNT_TOKEN_CONTRACT_ADDRESS: process.env.NEW_GNT_TOKEN_CONTRACT_ADDRESS,
+        BATCHING_GNT_TOKEN_CONTRACT_ADDRESS: process.env.BATCHING_GNT_TOKEN_CONTRACT_ADDRESS
       })
     })
   ],

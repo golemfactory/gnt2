@@ -1,19 +1,20 @@
 {
   "name": "gnt2-contracts",
   "version": "0.0.1",
-  "main": "index.js",
+  "main": "index.ts",
   "license": "MIT",
   "private": true,
   "scripts": {
     "build:gnt": "yarn waffle .waffle-GNT.json",
     "build:gnt2": "yarn waffle .waffle.json",
+    "build:gntb": "yarn waffle .waffle-GNTB.json",
     "build:types": "typechain --target ethers --outDir build/contract-types 'build/*.json' && tsc",
-    "build": "yarn build:gnt && yarn build:gnt2 && yarn build:types",
+    "build": "yarn build:gnt && yarn build:gnt2 && yarn build:gntb && yarn build:types",
     "lint": "yarn lint:ts && yarn lint:contracts",
     "lint:ts": "eslint '{src,test}/**/*.{js,ts}'",
     "lint:contracts": "solium -d src/contracts",
     "clean": "rimraf build dist",
-    "test": "NODE_ENV=test mocha -r ts-node/register \"test/**/*.{js,ts}\""
+    "test": "NODE_ENV=test mocha --timeout 20000 -r ts-node/register \"test/**/*.{js,ts}\""
   },
   "dependencies": {
     "chalk": "^2.4.2",
