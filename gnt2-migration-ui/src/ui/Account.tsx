@@ -6,6 +6,7 @@ import {BigNumber} from 'ethers/utils';
 import {useAsyncEffect} from './hooks/useAsyncEffect';
 import {useProperty} from './hooks/useProperty';
 import '../types';
+import Jazzicon, {jsNumberForAddress} from 'react-jazzicon';
 
 export const Account = () => {
   const [balance, setBalance] = useState<BigNumber | undefined>(undefined);
@@ -31,11 +32,13 @@ export const Account = () => {
   };
 
   const format = (value: BigNumber, digits = 3) => formatValue(value.toString(), digits);
-
   return (
     <div>
       <div>Your address:</div>
-      <div>{account}</div>
+      <JazziconAddress>
+        {account && <Jazzicon diameter={46} seed={jsNumberForAddress(account)}/>}
+        <Address>{account}</Address>
+      </JazziconAddress>
       <div>Your NGNT balance:</div>
       {newTokensBalance && <div data-testid='NGNT-balance'>{format(newTokensBalance)}</div>}
       <div>Your GNT balance:</div>
@@ -50,6 +53,15 @@ export const Account = () => {
     </div>
   );
 };
+
+const JazziconAddress = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
+const Address = styled.div`
+  margin-left: 8px;
+`;
 
 const Migrate = styled.button`
   background-color: #181EA9;
