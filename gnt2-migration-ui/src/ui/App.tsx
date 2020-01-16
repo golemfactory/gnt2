@@ -6,34 +6,27 @@ import {Dashboard} from './Dashboard';
 import {useServices} from './useServices';
 import styled from 'styled-components';
 import {useAsync} from './hooks/useAsync';
+import {ConnectionState} from '../services/ConnectionService';
 
 const App: React.FC = () => {
 
   const [ready, setReady] = useState(false);
-  const [loggedToMetamask, setLoggedToMetamask] = useState(false);
   const services = useServices();
+  const {connectionService} = useServices();
+
 
   useAsync(async () => {
     await services.startServices();
     setReady(true);
-
-    await window.ethereum.enable();
-    setLoggedToMetamask(true);
   }, []);
 
-  if (window.ethereum === undefined || !window.ethereum.isMetaMask) {
+  if (connectionService.connectionState === ConnectionState.NO_METAMASK) {
     return (
       <Body>Sorry, you must have metamask installed</Body>
     );
   }
 
   if (!ready) return null;
-
-  if (!loggedToMetamask) {
-    return (
-      <Body>Please, login to metamask</Body>
-    );
-  }
 
   return (
     <Body>

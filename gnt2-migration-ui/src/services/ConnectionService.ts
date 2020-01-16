@@ -9,7 +9,7 @@ export enum ConnectionState {
   CONNECTED
 }
 
-const selectChain = (chainId: string | undefined): string => {
+const selectChain = (chainId: void | string): string => {
   if (chainId === '4') {
     return 'Rinkeby';
   } else {
@@ -97,7 +97,7 @@ export class ConnectionService {
     if (this.globalEthereum === undefined) {
       throw new Error('Metamask requested, but not yet initialized');
     }
-    const selectedChain = selectChain(this.globalEthereum.networkVersion);
+    const selectedChain = selectChain(await this.globalEthereum.send('net_version'));
     await this.networkState.set(selectedChain);
   }
 }
