@@ -5,23 +5,23 @@ import {
   GolemNetworkTokenFactory
 } from '../../gnt2-contracts';
 import sinon from 'sinon';
-import {throwError} from 'ethers/errors';
 import {GolemNetworkToken} from 'gnt2-contracts/build/contract-types/GolemNetworkToken';
-import {ContractTransaction} from 'ethers';
-import {parseUnits} from 'ethers/utils';
+import {ContractTransaction, utils, errors} from 'ethers';
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
+import {ContractAddressService, GolemTokenAddresses} from '../src/services/ContractAddressService';
+import {State} from 'reactive-properties';
 chai.use(chaiAsPromised);
 const expect = chai.expect;
 
 const transactionDenied = async (): Promise<ContractTransaction> => {
-  throw throwError('User denied transaction signature.', '4001', '');
+  throw errors.throwError('User denied transaction signature.', '4001', '');
 };
 const MetamaskError = async (): Promise<ContractTransaction> => {
-  throw throwError('Metamask error, please restart browser.', '-32603', '');
+  throw errors.throwError('Metamask error, please restart browser.', '-32603', '');
 };
 const UnknownError = async (): Promise<ContractTransaction> => {
-  throw throwError('Something went wrong, try again later.', '420', '');
+  throw errors.throwError('Something went wrong, try again later.', '420', '');
 };
 
 describe('Token Service', () => {
@@ -32,14 +32,16 @@ describe('Token Service', () => {
     let tokensService: TokensService;
 
     beforeEach(async () => {
-      const {oldGolemTokenContractAddress,
-        newGolemTokenContractAddress,
-        batchingGolemTokenContractAddress} = await deployDevGolemContracts(provider, holder, deployWallet, {log: () => { /* do nothing */ }});
-      tokensService = new TokensService(() => provider, oldGolemTokenContractAddress, newGolemTokenContractAddress, batchingGolemTokenContractAddress);
+      const addresses = await deployDevGolemContracts(provider, holder, deployWallet, {log: () => { /* do nothing */ }});
+      const contractAddressService = {
+        golemNetworkTokenAddress: new State<GolemTokenAddresses>(addresses)
+      } as unknown as ContractAddressService;
+      tokensService = new TokensService(() => provider, contractAddressService);
     });
 
     it(`returns error with message 'Insufficient funds.'`, async () => {
-      await expect(tokensService.migrateTokens(parseUnits('10000000000').toString())).to.be.rejectedWith('Insufficient funds.');
+      const tokens = utils.parseEther('500000000').toString();
+      await expect(tokensService.migrateTokens(tokens)).to.be.rejectedWith('Something went wrong, try again later.');
     });
 
     it(`returns transaction hash`, async () => {

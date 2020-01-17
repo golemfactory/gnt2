@@ -5,14 +5,17 @@ interface MetamskError extends Error {
 }
 
 export const mapCodeToError = (error: MetamskError) => {
-  switch (error.code.toString()) {
-    case '-32000':
-      return new InsufficientFunds(error);
-    case '4001':
-      return new TransactionDenied(error);
-    case '-32603':
-      return new MetamaskError(error);
-    default:
-      return new UnknownError(error);
+  if (error.code) {
+    switch (error.code.toString()) {
+      case '-32000':
+        return new InsufficientFunds(error);
+      case '4001':
+        return new TransactionDenied(error);
+      case '-32603':
+        return new MetamaskError(error);
+      default:
+        return new UnknownError(error);
+    }
   }
+  return new UnknownError(error);
 };

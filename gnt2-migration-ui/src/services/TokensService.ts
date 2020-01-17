@@ -3,6 +3,7 @@ import {BigNumber} from 'ethers/utils';
 import {NewGolemNetworkTokenFactory, GolemNetworkTokenBatchingFactory, GolemNetworkTokenFactory} from 'gnt2-contracts';
 import {ContractAddressService} from './ContractAddressService';
 import {gasLimit} from '../config';
+import {mapCodeToError} from '../utils/mapCodeToError';
 
 export class TokensService {
   constructor(
@@ -22,15 +23,13 @@ export class TokensService {
     return newTokenContract.balanceOf(address);
   }
 
-  async migrateTokens(value: string) {
+  async migrateTokens(value: string): Promise<string | undefined> {
     const oldTokenContract = GolemNetworkTokenFactory.connect(this.tokenContractsAddresses().oldGolemToken, this.provider().getSigner());
-    const transactionHash = await oldTokenContract.migrate(value, {gasLimit})
-      .then((tx) => {
-        return tx.hash;
-      }, (error) => {
-        throw mapCodeToError(error);
-      });
-    return transactionHash;
+    try {
+      return (await oldTokenContract.migrate(value, {gasLimit})).hash;
+    } catch (error) {
+      throw mapCodeToError(error);
+    }
   }
 
   async balanceOfBatchingTokens(address: string) {
