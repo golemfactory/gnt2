@@ -9,9 +9,9 @@ import {GolemNetworkToken} from '../../build/contract-types/GolemNetworkToken';
 import {parseUnits} from 'ethers/utils';
 
 export interface GolemContractsDevDeployment {
-  oldGolemTokenContractAddress: string;
-  newGolemTokenContractAddress: string;
-  batchingGolemTokenContractAddress: string;
+  oldGolemToken: string;
+  newGolemToken: string;
+  batchingGolemToken: string;
 }
 
 async function mineEmptyBlock(provider: Provider) {
@@ -59,8 +59,8 @@ export async function deployDevGolemContracts(provider: Provider,
   logger.log('Migration agent set');
   logger.log(`Dev account: ${holderWallet.address} - ${holderWallet.privateKey}`);
   return {
-    oldGolemTokenContractAddress: oldToken.address,
-    newGolemTokenContractAddress: newToken.address,
-    batchingGolemTokenContractAddress: batchingToken.address
+    oldGolemToken: oldToken.address,
+    newGolemToken: newToken.address,
+    batchingGolemToken: batchingToken.address
   };
 }

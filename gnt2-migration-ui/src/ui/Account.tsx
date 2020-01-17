@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import {BigNumber} from 'ethers/utils';
 import {useAsyncEffect} from './hooks/useAsyncEffect';
 import {useProperty} from './hooks/useProperty';
+import '../types';
 import {useSnackbar} from './hooks/useSnackbar';
 
 export const Account = () => {
@@ -15,17 +16,17 @@ export const Account = () => {
   const [refresh, setRefresh] = useState(false);
   const [transactionHash, setTransactionHash] = useState<string | undefined>('');
 
-  const {accountService, tokensService, connectionService} = useServices();
+  const {accountService, tokensService, contractAddressService, connectionService} = useServices();
+  const tokenAdresses = useProperty(contractAddressService.golemNetworkTokenAddress);
   const account = useProperty(connectionService.account);
   const {show} = useSnackbar();
 
   useAsyncEffect(async () => {
-    if (!account) return;
     setBalance(await accountService.balanceOf(account));
     setOldTokensBalance(await tokensService.balanceOfOldTokens(account));
     setNewTokensBalance(await tokensService.balanceOfNewTokens(account));
     setBatchingTokensBalance(await tokensService.balanceOfBatchingTokens(account));
-  }, [refresh, account]);
+  }, [refresh, account, tokenAdresses]);
 
   const migrateTokens = async () => {
     try {
@@ -51,7 +52,7 @@ export const Account = () => {
       {batchingTokensBalance && <div data-testid='GNTB-balance'>{format(batchingTokensBalance)}</div>}
       <div>Your ETH balance:</div>
       {balance && <div data-testid='ETH-balance'>{format(balance, 4)}</div>}
-      <Migrate data-testid="button" onClick={migrateTokens} disabled={oldTokensBalance && oldTokensBalance.eq(new BigNumber('0'))}>
+      <Migrate data-testid="button" onClick={migrateTokens} disabled={oldTokensBalance?.eq(new BigNumber('0'))}>
           Migrate
       </Migrate>
       {transactionHash && <div>{transactionHash}</div>}

@@ -2,6 +2,7 @@ import {JsonRpcProvider} from 'ethers/providers';
 
 export class AccountService {
   private provider: () => JsonRpcProvider;
+
   constructor(provider: () => JsonRpcProvider) {
     this.provider = provider;
   }
