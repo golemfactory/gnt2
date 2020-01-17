@@ -1,21 +1,27 @@
+class ServiceError extends Error {
+  constructor(message: string, public wrappedError?: Error) {
+    super(message);
+    Object.setPrototypeOf(this, ServiceError.prototype);
+  }
+}
 
-export class InsufficientFunds extends Error {
-  constructor() {
-    super(`Insufficient funds.`);
+export class InsufficientFunds extends ServiceError {
+  constructor(wrappedError: Error) {
+    super(`Insufficient funds.`, wrappedError);
   }
 }
-export class TransactionDenied extends Error {
-  constructor() {
-    super(`User denied transaction signature.`);
+export class TransactionDenied extends ServiceError {
+  constructor(wrappedError: Error) {
+    super(`User denied transaction signature.`, wrappedError);
   }
 }
-export class MetamaskError extends Error {
-  constructor() {
-    super(`Metamask error, please restart browser.`);
+export class MetamaskError extends ServiceError {
+  constructor(wrappedError: Error) {
+    super(`Metamask error, please restart browser.`, wrappedError);
   }
 }
-export class UnknownError extends Error {
-  constructor() {
-    super(`Something went wrong, try again later.`);
+export class UnknownError extends ServiceError {
+  constructor(wrappedError: Error) {
+    super(`Something went wrong, try again later.`, wrappedError);
   }
 }

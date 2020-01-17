@@ -1,4 +1,3 @@
-// @ts-nocheck
 import {TokensService} from '../src/services/TokensService';
 import {createMockProvider, getWallets} from 'ethereum-waffle';
 import {
@@ -45,23 +44,20 @@ describe('Token Service', () => {
 
     it(`returns transaction hash`, async () => {
       const result = await tokensService.migrateTokens('100');
-      expect(result).to.be.an('string');
-      expect(result?.slice(0, 2)).to.eq('0x');
-      expect(result?.length).to.eq(66);
+      expect(result).to.match(/0x[0-9a-fA-F]{64}/);
     });
 
-    [[transactionDenied, 'User denied transaction signature.'],
-      [MetamaskError, 'Metamask error, please restart browser.'],
-      [UnknownError, 'Something went wrong, try again later.']
-    ].forEach(([migrate, error]) => {
-      it(`returns error with message '${error}'`, async () => {
-        sinon.stub(GolemNetworkTokenFactory, 'connect').callsFake(() => ({migrate} as unknown as GolemNetworkToken));
+    [{simulatedError: transactionDenied, expectedMessage: 'User denied transaction signature.'},
+      {simulatedError: MetamaskError, expectedMessage: 'Metamask error, please restart browser.'},
+      {simulatedError: UnknownError, expectedMessage: 'Something went wrong, try again later.'}
+    ].forEach(({simulatedError, expectedMessage}) => {
+      it(`returns error with message '${expectedMessage}'`, async () => {
+        sinon.stub(GolemNetworkTokenFactory, 'connect').callsFake(() => ({migrate: simulatedError} as unknown as GolemNetworkToken));
 
-        await expect(tokensService.migrateTokens('10000')).to.be.rejectedWith(error);
+        await expect(tokensService.migrateTokens('10000')).to.be.rejectedWith(expectedMessage);
 
         sinon.restore();
       });
     });
-
   });
 });

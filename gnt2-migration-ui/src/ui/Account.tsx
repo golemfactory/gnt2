@@ -13,7 +13,7 @@ export const Account = () => {
   const [newTokensBalance, setNewTokensBalance] = useState<BigNumber | undefined>(undefined);
   const [batchingTokensBalance, setBatchingTokensBalance] = useState<BigNumber | undefined>(undefined);
   const [refresh, setRefresh] = useState(false);
-  const [transaction, setTransaction] = useState<string | undefined>('');
+  const [transactionHash, setTransactionHash] = useState<string | undefined>('');
 
   const {accountService, tokensService, connectionService} = useServices();
   const account = useProperty(connectionService.account);
@@ -28,15 +28,13 @@ export const Account = () => {
   }, [refresh, account]);
 
   const migrateTokens = async () => {
-    let tx;
     try {
-      tx = await tokensService.migrateTokens((await tokensService.balanceOfOldTokens(await accountService.getDefaultAccount())).toString());
+      const tx = await tokensService.migrateTokens((await tokensService.balanceOfOldTokens(await accountService.getDefaultAccount())).toString());
+      setTransactionHash(tx);
+      setRefresh(!refresh);
     } catch (e) {
-      console.log(e.message);
       show(e.message);
     }
-    setTransaction(tx);
-    setRefresh(!refresh);
   };
 
   const format = (value: BigNumber, digits = 3) => formatValue(value.toString(), digits);
@@ -56,7 +54,7 @@ export const Account = () => {
       <Migrate data-testid="button" onClick={migrateTokens} disabled={oldTokensBalance && oldTokensBalance.eq(new BigNumber('0'))}>
           Migrate
       </Migrate>
-      {transaction && <div>{transaction}</div>}
+      {transactionHash && <div>{transactionHash}</div>}
     </div>
   );
 };

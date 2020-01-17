@@ -1,7 +1,7 @@
 import {JsonRpcProvider} from 'ethers/providers';
 import {BigNumber} from 'ethers/utils';
 import {GolemNetworkTokenBatchingFactory, GolemNetworkTokenFactory, NewGolemNetworkTokenFactory} from 'gnt2-contracts';
-import {InsufficientFunds, MetamaskError, TransactionDenied, UnknownError} from '../errors';
+import {mapCodeToError} from '../utils/mapCodeToError';
 
 export class TokensService {
   constructor(
@@ -23,12 +23,13 @@ export class TokensService {
 
   async migrateTokens(value: string) {
     const oldTokenContract = GolemNetworkTokenFactory.connect(this.oldGolemTokenContractAddress, this.provider().getSigner());
-    return oldTokenContract.migrate(value)
+    const transactionHash = await oldTokenContract.migrate(value)
       .then((tx) => {
         return tx.hash;
       }, (error) => {
-        return errorMessage(error.code.toString());
+        throw mapCodeToError(error);
       });
+    return transactionHash;
   }
 
   async balanceOfBatchingTokens(address: string) {
@@ -36,16 +37,3 @@ export class TokensService {
     return batchingContract.balanceOf(address);
   }
 }
-
-const errorMessage = (code: string) => {
-  switch (code) {
-    case '-32000':
-      throw new InsufficientFunds();
-    case '4001':
-      throw new TransactionDenied();
-    case '-32603':
-      throw new MetamaskError();
-    default:
-      throw new UnknownError();
-  }
-};
