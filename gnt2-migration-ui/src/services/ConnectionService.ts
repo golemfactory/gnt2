@@ -9,7 +9,7 @@ export enum ConnectionState {
   CONNECTED
 }
 
-const networkNameFrom = (chainId: string | undefined): string => {
+const networkNameFrom = (chainId: string | void): string => {
   if (chainId === '4') {
     return 'Rinkeby';
   } else {
@@ -85,10 +85,10 @@ export class ConnectionService {
   }
 
   async checkNetwork() {
-    this.handleNetworkChange(await this.metamaskEthereum().send('net_version'));
+    this.handleNetworkChange(await this.metamaskEthereum.send('net_version'));
   }
 
-  private handleNetworkChange(chainId: string) {
+  private handleNetworkChange(chainId: string | void) {
     this.networkState.set(networkNameFrom(chainId));
   }
 

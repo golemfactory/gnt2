@@ -12,27 +12,27 @@ describe('Connections Service', () => {
 
   let connectionService: ConnectionService;
 
-    beforeEach(() => {
-      let mockedEthereumCallback: (params?: any) => void = () => { /* empty */ };
-      mockedEthereum = {
-        simulateAccountChanged: function (accounts = []) {
-          mockedEthereumCallback(accounts);
-        },
-        simulateNetworkChange: function (network = '') {
-          mockedEthereumCallback(network);
-        },
-        send: sinon.mock().returns('4'),
-        isMetaMask: true,
-        networkVersion: '4',
-        on: (eventName, callback) => {
-          mockedEthereumCallback = callback;
-        },
-        off: (eventName, callback) => {
-          mockedEthereumCallback = callback;
-        }
-      };
-      connectionService = new ConnectionService(mockedEthereum);
-    });
+  beforeEach(() => {
+    let mockedEthereumCallback: (params?: any) => void = () => { /* empty */ };
+    mockedEthereum = {
+      simulateAccountChanged: function (accounts = []) {
+        mockedEthereumCallback(accounts);
+      },
+      simulateNetworkChange: function (network = '') {
+        mockedEthereumCallback(network);
+      },
+      send: sinon.mock().returns('4'),
+      isMetaMask: true,
+      networkVersion: '4',
+      on: (eventName, callback) => {
+        mockedEthereumCallback = callback;
+      },
+      off: (eventName, callback) => {
+        mockedEthereumCallback = callback;
+      }
+    };
+    connectionService = new ConnectionService(mockedEthereum);
+  });
 
   describe('when initialized', () => {
     it('has no provider', () => {
@@ -115,7 +115,7 @@ describe('Connections Service', () => {
 
   it('throws error when asked to check network with no MetaMask', () => {
     connectionService = new ConnectionService(undefined);
-    expect(() => connectionService.checkNetwork()).to.throw(/Metamask requested, but not yet initialized/);
+    expect(connectionService.checkNetwork()).to.be.rejectedWith(/Metamask requested, but not yet initialized/);
   });
 
   function tryToCreateProvider() {
