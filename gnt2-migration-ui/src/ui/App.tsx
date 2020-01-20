@@ -14,19 +14,18 @@ const App: React.FC = () => {
   const services = useServices();
   const {connectionService} = useServices();
 
-
   useAsync(async () => {
     await services.startServices();
     setReady(true);
   }, []);
+
+  if (!ready) return null;
 
   if (connectionService.connectionState === ConnectionState.NO_METAMASK) {
     return (
       <Body>Sorry, you must have metamask installed</Body>
     );
   }
-
-  if (!ready) return null;
 
   return (
     <Body>
