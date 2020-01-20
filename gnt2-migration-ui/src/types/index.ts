@@ -1,5 +1,5 @@
 type MetamaskEthereum = {
-  send: () => void;
+  send: (eventName: string) => void | string;
   isMetaMask: boolean;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   on: (eventName: string, callback: (param?: any) => void) => void;

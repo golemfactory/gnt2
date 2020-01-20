@@ -13,8 +13,7 @@ describe('Connections Service', () => {
   let connectionService: ConnectionService;
 
   beforeEach(() => {
-    let mockedEthereumCallback: (params?: any) => void = () => { /* empty */
-    };
+    let mockedEthereumCallback: (params?: any) => void = () => { /* empty */ };
     mockedEthereum = {
       simulateAccountChanged: function (accounts = []) {
         mockedEthereumCallback(accounts);
@@ -22,9 +21,9 @@ describe('Connections Service', () => {
       simulateNetworkChange: function (network = '') {
         mockedEthereumCallback(network);
       },
-      send: sinon.mock(),
+      send: sinon.mock().returns('4'),
       isMetaMask: true,
-      networkVersion: '1',
+      networkVersion: '4',
       on: (eventName, callback) => {
         mockedEthereumCallback = callback;
       },
@@ -116,7 +115,7 @@ describe('Connections Service', () => {
 
   it('throws error when asked to check network with no MetaMask', () => {
     connectionService = new ConnectionService(undefined);
-    expect(() => connectionService.checkNetwork()).to.throw(/Metamask requested, but not yet initialized/);
+    expect(connectionService.checkNetwork()).to.be.rejectedWith(/Metamask requested, but not yet initialized/);
   });
 
   function tryToCreateProvider() {
