@@ -4,13 +4,14 @@ import {Login} from './Login';
 import {Account} from './Account';
 import {useServices} from './useServices';
 import {ConnectionState} from '../services/ConnectionService';
+import {RouteComponentProps} from 'react-router';
+import {RequireConnectionRoute} from './RequireConnectionRoute';
 
 export const Dashboard = () => {
 
   const {connectionService} = useServices();
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const render = (props: any) => {
+  const render = (props: RouteComponentProps) => {
     return connectionService.connectionState === ConnectionState.CONNECTED ? (
       <Redirect to='/account'/>
     ) : (
@@ -22,7 +23,7 @@ export const Dashboard = () => {
     <div>
       <BrowserRouter>
         <Switch>
-          <Route exact path='/account' component={Account}/>
+          <RequireConnectionRoute exact path='/account' component={ Account}/>
           <Route exact path='/' render={render}/>
         </Switch>
       </BrowserRouter>

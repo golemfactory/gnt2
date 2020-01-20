@@ -5,8 +5,8 @@ import {hot} from 'react-hot-loader/root';
 import {Dashboard} from './Dashboard';
 import {useServices} from './useServices';
 import styled from 'styled-components';
-import {useAsync} from './hooks/useAsync';
 import {ConnectionState} from '../services/ConnectionService';
+import {useAsyncEffect} from './hooks/useAsyncEffect';
 
 const App: React.FC = () => {
 
@@ -14,7 +14,7 @@ const App: React.FC = () => {
   const services = useServices();
   const {connectionService} = useServices();
 
-  useAsync(async () => {
+  useAsyncEffect(async () => {
     await services.startServices();
     setReady(true);
   }, []);
