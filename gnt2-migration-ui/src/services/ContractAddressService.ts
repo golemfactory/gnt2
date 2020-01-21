@@ -6,6 +6,7 @@ export interface GolemTokenAddresses {
   oldGolemToken: string;
   newGolemToken: string;
   batchingGolemToken: string;
+  depositGolemToken: string;
 }
 
 export class ContractAddressService {

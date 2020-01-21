@@ -2,3 +2,4 @@ export {NewGolemNetworkTokenFactory} from './build/contract-types/NewGolemNetwor
 export {deployDevGolemContracts} from './src/deployment/deployDevGolemContracts';
 export {GolemNetworkTokenBatchingFactory} from './build/contract-types/GolemNetworkTokenBatchingFactory';
 export {GolemNetworkTokenFactory} from './build/contract-types/GolemNetworkTokenFactory';
+export {GNTDepositFactory} from './build/contract-types/GNTDepositFactory';

@@ -6,12 +6,13 @@ import {ConsoleLogger, Logger} from '../utils/logger';
 import {GolemNetworkTokenBatchingFactory} from '../../build/contract-types/GolemNetworkTokenBatchingFactory';
 import {GolemNetworkTokenBatching} from '../../build/contract-types/GolemNetworkTokenBatching';
 import {GolemNetworkToken} from '../../build/contract-types/GolemNetworkToken';
-import {parseUnits} from 'ethers/utils';
+import {GNTDepositFactory} from '../../build/contract-types/GNTDepositFactory';
 
 export interface GolemContractsDevDeployment {
   oldGolemToken: string;
   newGolemToken: string;
   batchingGolemToken: string;
+  depositGolemToken: string;
 }
 
 async function mineEmptyBlock(provider: Provider) {
@@ -52,8 +53,12 @@ export async function deployDevGolemContracts(provider: Provider,
   const newToken = await new NewGolemNetworkTokenFactory(deployWallet).deploy();
   logger.log(`New Golem Network Token address: ${newToken.address}`);
   const batchingToken = await new GolemNetworkTokenBatchingFactory(holderWallet).deploy(oldToken.address);
-  await wrapGNTtoGNTB(holderWallet, batchingToken, holderSignedToken, parseUnits('10000000').toString());
+  await wrapGNTtoGNTB(holderWallet, batchingToken, holderSignedToken, utils.parseUnits('10000000').toString());
   logger.log(`Golem Network Token Batching address: ${batchingToken.address}`);
+  const depositToken = await new GNTDepositFactory(holderWallet)
+    .deploy(batchingToken.address, oldToken.address, deployWallet.address, utils.parseEther('1'));
+  await batchingToken.transferAndCall(depositToken.address, utils.parseUnits('100').toString(), [], {gasLimit: 100000});
+  logger.log(`Golem Network Token Deposit address: ${depositToken.address}`);
   logger.log('Setting new token as migration agent');
   await oldToken.setMigrationAgent(newToken.address);
   logger.log('Migration agent set');
@@ -61,6 +66,7 @@ export async function deployDevGolemContracts(provider: Provider,
   return {
     oldGolemToken: oldToken.address,
     newGolemToken: newToken.address,
-    batchingGolemToken: batchingToken.address
+    batchingGolemToken: batchingToken.address,
+    depositGolemToken: depositToken.address
   };
 }

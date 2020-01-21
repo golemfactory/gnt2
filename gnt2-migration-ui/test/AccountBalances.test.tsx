@@ -74,10 +74,11 @@ describe('Account page', () => {
       </ServiceContext.Provider>
     );
 
-    expect(await waitForElement(() => getByTestId('ETH-balance'))).to.have.text('9999999999849999.9944');
+    expect(await waitForElement(() => getByTestId('ETH-balance'))).to.have.text('9999999999849999.9914');
     expect(await waitForElement(() => getByTestId('GNT-balance'))).to.have.text('140000000.000');
     expect(await waitForElement(() => getByTestId('NGNT-balance'))).to.have.text('0.000');
-    expect(await waitForElement(() => getByTestId('GNTB-balance'))).to.have.text('10000000.000');
+    expect(await waitForElement(() => getByTestId('GNTB-balance'))).to.have.text('9999900.000');
+    expect(await waitForElement(() => getByTestId('GNTD-balance'))).to.have.text('100.000');
   });
 
   it('shows migrated tokens', async () => {
