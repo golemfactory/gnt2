@@ -9,12 +9,21 @@ export enum ConnectionState {
   CONNECTED
 }
 
-const networkNameFrom = (chainId: string | void): string => {
-  if (chainId === '4') {
-    return 'Rinkeby';
+const networkNameFrom = (chainId: Chain | string): string => {
+  let chain;
+  if (typeof chainId === 'string') {
+    chain = chainId;
   } else {
-    return 'local';
+    chain = chainId.result;
   }
+  if (['4', '1579614826572'].includes(chain)) {
+    if (chain === '4') {
+      return 'Rinkeby';
+    } else {
+      return 'local';
+    }
+  }
+  throw new Error(`This network is not supported.`);
 };
 
 export class ConnectionService {
@@ -85,10 +94,11 @@ export class ConnectionService {
   }
 
   async checkNetwork() {
-    this.handleNetworkChange(await this.metamaskEthereum.send('net_version'));
+    const network = await this.metamaskEthereum.send('net_version');
+    this.handleNetworkChange(network);
   }
 
-  private handleNetworkChange(chainId: string | void) {
+  private handleNetworkChange(chainId: Chain | string) {
     this.networkState.set(networkNameFrom(chainId));
   }
 

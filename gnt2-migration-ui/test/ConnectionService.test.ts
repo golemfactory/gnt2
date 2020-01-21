@@ -113,6 +113,12 @@ describe('Connections Service', () => {
     expect(connectionService.network.get()).to.eq('Rinkeby');
   });
 
+  it('throws error when network is not supported', async () => {
+    mockedEthereum.networkVersion = '100';
+    connectionService = new ConnectionService(mockedEthereum);
+    expect(connectionService.checkNetwork()).to.be.rejectedWith('This network is not supported.');
+  });
+
   it('throws error when asked to check network with no MetaMask', () => {
     connectionService = new ConnectionService(undefined);
     expect(connectionService.checkNetwork()).to.be.rejectedWith(/Metamask requested, but not yet initialized/);
