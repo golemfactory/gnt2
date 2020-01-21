@@ -27,7 +27,7 @@ export const Account = () => {
   }, [refresh, account, tokenAdresses]);
 
   const migrateTokens = async () => {
-    await tokensService.migrateTokens((await tokensService.balanceOfOldTokens(await accountService.getDefaultAccount())).toString());
+    await tokensService.migrateAllTokens(account);
     setRefresh(!refresh);
   };
 
@@ -48,7 +48,7 @@ export const Account = () => {
       <div>Your ETH balance:</div>
       {balance && <div data-testid='ETH-balance'>{format(balance, 4)}</div>}
       <Migrate data-testid="button" onClick={migrateTokens} disabled={oldTokensBalance?.eq(new BigNumber('0'))}>
-          Migrate
+        Migrate
       </Migrate>
     </div>
   );

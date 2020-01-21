@@ -85,7 +85,7 @@ export class ConnectionService {
   }
 
   async checkNetwork() {
-    this.handleNetworkChange(await this.metamaskEthereum.send('net_version'));
+    this.handleNetworkChange(await this.getProvider().send('net_version', []));
   }
 
   private handleNetworkChange(chainId: string | void) {
