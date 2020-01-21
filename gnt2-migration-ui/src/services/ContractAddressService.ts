@@ -1,5 +1,5 @@
 import {Property, State, withSubscription} from 'reactive-properties';
-import {GolemTokenAddresses, TokenContractsAddresses} from '../config';
+import {GolemTokenAddresses, Network, TokenContractsAddresses} from '../config';
 import {ConnectionService} from './ConnectionService';
 
 export class ContractAddressService {
@@ -14,8 +14,8 @@ export class ContractAddressService {
     }, connectionService));
   }
 
-  private getGNTAddress(network: string | undefined) {
-    if (network === 'Rinkeby') {
+  private getGNTAddress(network: Network) {
+    if (network === 'rinkeby') {
       return this.tokenContractsAddresses.rinkeby;
     }
     return this.tokenContractsAddresses.local;

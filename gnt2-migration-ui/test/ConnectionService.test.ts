@@ -3,6 +3,7 @@ import {ConnectionService, ConnectionState} from '../src/services/ConnectionServ
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import chaiAsPromised from 'chai-as-promised';
+import {JsonRpcProvider} from 'ethers/providers';
 
 chai.use(sinonChai);
 chai.use(chaiAsPromised);
@@ -23,7 +24,6 @@ describe('Connections Service', () => {
       },
       send: sinon.mock().returns('4'),
       isMetaMask: true,
-      networkVersion: '4',
       on: (eventName, callback) => {
         mockedEthereumCallback = callback;
       },
@@ -70,7 +70,7 @@ describe('Connections Service', () => {
     const callback = sinon.mock();
     connectionService.subscribe(callback);
     mockedEthereum.simulateNetworkChange('4');
-    expect(connectionService.network.get()).to.eq('Rinkeby');
+    expect(connectionService.network.get()).to.eq('rinkeby');
     expect(callback).to.have.been.called;
   });
 
@@ -107,10 +107,10 @@ describe('Connections Service', () => {
   });
 
   it('sets network state based on MetaMask', async () => {
-    mockedEthereum.networkVersion = '4';
     connectionService = new ConnectionService(mockedEthereum);
+    sinon.stub(connectionService, 'getProvider').returns(mockedEthereum as unknown as JsonRpcProvider);
     await connectionService.checkNetwork();
-    expect(connectionService.network.get()).to.eq('Rinkeby');
+    expect(connectionService.network.get()).to.eq('rinkeby');
   });
 
   it('throws error when asked to check network with no MetaMask', () => {

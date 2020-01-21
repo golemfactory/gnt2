@@ -41,7 +41,6 @@ describe('Account page', () => {
       const connectionService = new ConnectionService({
         send: sinon.mock(),
         isMetaMask: true,
-        networkVersion: '0',
         on: () => { /* empty */ },
         off: () => { /* empty */ }
       });
