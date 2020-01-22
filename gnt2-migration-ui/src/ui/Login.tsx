@@ -1,5 +1,4 @@
 import React from 'react';
-import '../styles/App.sass';
 import styled from 'styled-components';
 import {useServices} from './useServices';
 import {RouteComponentProps} from 'react-router-dom';

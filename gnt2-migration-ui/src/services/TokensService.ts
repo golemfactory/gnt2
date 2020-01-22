@@ -1,8 +1,9 @@
 import {JsonRpcProvider} from 'ethers/providers';
 import {BigNumber} from 'ethers/utils';
-import {NewGolemNetworkTokenFactory, GolemNetworkTokenBatchingFactory, GolemNetworkTokenFactory} from 'gnt2-contracts';
+import {GolemNetworkTokenBatchingFactory, GolemNetworkTokenFactory, NewGolemNetworkTokenFactory} from 'gnt2-contracts';
 import {ContractAddressService} from './ContractAddressService';
 import {gasLimit} from '../config';
+import {mapCodeToError} from '../utils/mapCodeToError';
 
 export class TokensService {
   constructor(
@@ -22,9 +23,13 @@ export class TokensService {
     return newTokenContract.balanceOf(address);
   }
 
-  async migrateTokens(value: string) {
+  async migrateAllTokens(account: string): Promise<string | undefined> {
     const oldTokenContract = GolemNetworkTokenFactory.connect(this.tokenContractsAddresses().oldGolemToken, this.provider().getSigner());
-    await oldTokenContract.migrate(value, {gasLimit});
+    try {
+      return (await oldTokenContract.migrate(await this.balanceOfOldTokens(account), {gasLimit})).hash;
+    } catch (error) {
+      throw mapCodeToError(error);
+    }
   }
 
   async balanceOfBatchingTokens(address: string) {

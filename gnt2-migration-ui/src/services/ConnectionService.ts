@@ -9,7 +9,7 @@ export enum ConnectionState {
   CONNECTED
 }
 
-const networkNameFrom = (chainId: Chain | string): string => {
+const networkNameFrom = (chainId: Chain | string): NetworkName => {
   let chain;
   if (typeof chainId === 'string') {
     chain = chainId;
@@ -18,7 +18,7 @@ const networkNameFrom = (chainId: Chain | string): string => {
   }
   if (['4', '1579614826572'].includes(chain)) {
     if (chain === '4') {
-      return 'Rinkeby';
+      return 'rinkeby';
     } else {
       return 'local';
     }
@@ -28,15 +28,15 @@ const networkNameFrom = (chainId: Chain | string): string => {
 
 export class ConnectionService {
   private provider: JsonRpcProvider | undefined;
-  private networkState: State<string>;
-  network: Property<string>;
+  private networkState: State<NetworkName>;
+  network: Property<NetworkName>;
   connectionState: ConnectionState;
   account: State<string>;
 
   constructor(private injectedMetaMaskEthereum: MetamaskEthereum | undefined) {
     this.connectionState = ConnectionState.UNKNOWN;
     this.account = new State<string>('');
-    this.networkState = new State('');
+    this.networkState = new State<NetworkName>('local');
     this.network = this.networkState.pipe(withSubscription(async () => {
       await this.checkNetwork();
     }, this));
@@ -94,8 +94,7 @@ export class ConnectionService {
   }
 
   async checkNetwork() {
-    const network = await this.metamaskEthereum.send('net_version');
-    this.handleNetworkChange(network);
+    this.handleNetworkChange(await this.getProvider().send('net_version', []));
   }
 
   private handleNetworkChange(chainId: Chain | string) {
@@ -107,5 +106,9 @@ export class ConnectionService {
       throw new Error('Metamask requested, but not yet initialized');
     }
     return this.injectedMetaMaskEthereum;
+  }
+
+  isConnected() {
+    return this.connectionState === ConnectionState.CONNECTED;
   }
 }

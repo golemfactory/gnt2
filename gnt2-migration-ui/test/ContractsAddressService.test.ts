@@ -3,6 +3,7 @@ import '../src/types';
 import {ContractAddressService} from '../src/services/ContractAddressService';
 import {State} from 'reactive-properties';
 import {ConnectionService} from '../src/services/ConnectionService';
+import {NetworkName, tokenContractsAddresses} from '../src/config';
 
 describe('Contract Address Service', () => {
   it('updates contract addresses on network change', async () => {
@@ -12,9 +13,9 @@ describe('Contract Address Service', () => {
         callback = cb;
         return () => { /* do nothing */ };
       },
-      network: new State('4')
+      network: new State<NetworkName>('local')
     };
-    const contractAddressService = new ContractAddressService(connectionService as unknown as ConnectionService);
+    const contractAddressService = new ContractAddressService(connectionService as unknown as ConnectionService, tokenContractsAddresses);
     contractAddressService.golemNetworkTokenAddress.subscribe(() => { /* do nothing */ });
     expect(contractAddressService.golemNetworkTokenAddress.get()).to.deep.eq({
       oldGolemToken: '0x924442A66cFd812308791872C4B242440c108E19',

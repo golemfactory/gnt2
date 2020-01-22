@@ -102,6 +102,11 @@ const config: Configuration = {
   devServer: {
     stats: 'errors-warnings',
     historyApiFallback: true
+  },
+
+  performance: {
+    maxEntrypointSize: 1200000,
+    maxAssetSize: 1200000
   }
 };
 
