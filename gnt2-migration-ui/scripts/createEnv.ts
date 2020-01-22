@@ -1,4 +1,4 @@
-import {GolemContractsDevDeployment} from '../../gnt2-contracts/src/deployment/deployDevGolemContracts';
+import {GolemContractsDevDeployment} from '../../gnt2-contracts/src/deployment/interfaces';
 
 function createEnv({oldGolemToken, newGolemToken, batchingGolemToken}: GolemContractsDevDeployment) {
   return {

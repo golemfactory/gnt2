@@ -99,4 +99,8 @@ export class ConnectionService {
     }
     return this.injectedMetaMaskEthereum;
   }
+
+  isConnected() {
+    return this.connectionState === ConnectionState.CONNECTED;
+  }
 }

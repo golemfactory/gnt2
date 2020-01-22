@@ -1,6 +1,6 @@
 import {TokensService} from '../src/services/TokensService';
 import {createMockProvider, getWallets, solidity} from 'ethereum-waffle';
-import {deployDevGolemContracts, GolemNetworkTokenFactory} from '../../gnt2-contracts';
+import {deployDevGolemContracts, GolemNetworkTokenFactory, GolemContractsDeploymentAddresses} from 'gnt2-contracts';
 import sinon from 'sinon';
 import {GolemNetworkToken} from 'gnt2-contracts/build/contract-types/GolemNetworkToken';
 import {ContractTransaction, errors, utils} from 'ethers';
@@ -11,7 +11,6 @@ import {State} from 'reactive-properties';
 import {MetamaskError, TransactionDenied, UnknownError} from '../src/errors';
 import {GolemTokenAddresses} from '../src/config';
 import {AddressZero} from 'ethers/constants';
-import {GolemContractsDevDeployment} from '../../gnt2-contracts/src/deployment/deployDevGolemContracts';
 
 chai.use(solidity);
 chai.use(chaiAsPromised);
@@ -33,7 +32,7 @@ describe('Token Service', () => {
 
   describe('migrateTokens', () => {
     let tokensService: TokensService;
-    let addresses: GolemContractsDevDeployment;
+    let addresses: GolemContractsDeploymentAddresses;
 
     beforeEach(async () => {
       addresses = await deployDevGolemContracts(provider, deployWallet, holder, {log: () => { /* no op */ }});
