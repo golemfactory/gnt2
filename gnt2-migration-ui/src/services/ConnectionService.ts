@@ -1,6 +1,7 @@
 import {JsonRpcProvider, Web3Provider} from 'ethers/providers';
 import '../types';
 import {Property, State, withSubscription} from 'reactive-properties';
+import {NetworkName} from '../config';
 
 export enum ConnectionState {
   UNKNOWN,
@@ -9,9 +10,9 @@ export enum ConnectionState {
   CONNECTED
 }
 
-const selectChain = (chainId: string | undefined): string => {
+const networkNameFrom = (chainId: string | void): NetworkName => {
   if (chainId === '4') {
-    return 'Rinkeby';
+    return 'rinkeby';
   } else {
     return 'local';
   }
@@ -19,15 +20,15 @@ const selectChain = (chainId: string | undefined): string => {
 
 export class ConnectionService {
   private provider: JsonRpcProvider | undefined;
-  private networkState: State<string>;
-  network: Property<string>;
+  private networkState: State<NetworkName>;
+  network: Property<NetworkName>;
   connectionState: ConnectionState;
   account: State<string>;
 
-  constructor(private globalEthereum: MetamaskEthereum | undefined) {
+  constructor(private injectedMetaMaskEthereum: MetamaskEthereum | undefined) {
     this.connectionState = ConnectionState.UNKNOWN;
     this.account = new State<string>('');
-    this.networkState = new State('');
+    this.networkState = new State<NetworkName>('local');
     this.network = this.networkState.pipe(withSubscription(async () => {
       await this.checkNetwork();
     }, this));
@@ -40,10 +41,9 @@ export class ConnectionService {
   }
 
   private createProvider() {
-    const metamaskProvider = this.globalEthereum;
-    if (metamaskProvider !== undefined && metamaskProvider.isMetaMask) {
-      this.provider = new Web3Provider(metamaskProvider);
-      metamaskProvider.on('accountsChanged', (accounts: string[]) => {
+    if (this.injectedMetaMaskEthereum !== undefined && this.injectedMetaMaskEthereum.isMetaMask) {
+      this.provider = new Web3Provider(this.injectedMetaMaskEthereum);
+      this.injectedMetaMaskEthereum.on('accountsChanged', (accounts: string[]) => {
         this.handleAccountsChange(accounts);
       });
       this.connectionState = ConnectionState.NOT_CONNECTED;
@@ -52,19 +52,19 @@ export class ConnectionService {
     this.connectionState = ConnectionState.NO_METAMASK;
   }
 
+  getProvider() {
+    if (this.provider === undefined) {
+      throw new Error('Provider requested, but not yet initialized');
+    }
+    return this.provider;
+  }
+
   async checkConnection() {
     this.handleAccountsChange(await this.getProvider().listAccounts());
   }
 
   async connect() {
     this.handleAccountsChange(await this.getProvider().send('eth_requestAccounts', []));
-  }
-
-  getProvider() {
-    if (this.provider === undefined) {
-      throw new Error('Provider requested, but not yet initialized');
-    }
-    return this.provider;
   }
 
   private handleAccountsChange(accounts: string[]) {
@@ -78,26 +78,25 @@ export class ConnectionService {
 
   subscribe(callback: Callback): Callback {
     const listener = (chainId: string) => {
-      this.networkState.set(selectChain(chainId));
+      this.handleNetworkChange(chainId);
       callback();
     };
-    if (this.globalEthereum === undefined) {
-      throw new Error('Metamask requested, but not yet initialized');
-    }
-    this.globalEthereum.on('networkChanged', listener);
-    return () => {
-      if (this.globalEthereum === undefined) {
-        throw new Error('Metamask requested, but not yet initialized');
-      }
-      return this.globalEthereum.off('networkChanged', listener);
-    };
+    this.metamaskEthereum.on('networkChanged', listener);
+    return () => this.metamaskEthereum.off('networkChanged', listener);
   }
 
   async checkNetwork() {
-    if (this.globalEthereum === undefined) {
+    this.handleNetworkChange(await this.getProvider().send('net_version', []));
+  }
+
+  private handleNetworkChange(chainId: string | void) {
+    this.networkState.set(networkNameFrom(chainId));
+  }
+
+  private get metamaskEthereum() {
+    if (this.injectedMetaMaskEthereum === undefined) {
       throw new Error('Metamask requested, but not yet initialized');
     }
-    const selectedChain = selectChain(this.globalEthereum.networkVersion);
-    await this.networkState.set(selectedChain);
+    return this.injectedMetaMaskEthereum;
   }
 }

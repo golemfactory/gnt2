@@ -83,7 +83,8 @@ const config: Configuration = {
       chunkFilename: '[id].[hash].css',
     }),
     new HtmlWebpackPlugin({
-      template: 'src/index.html'
+      template: 'src/index.html',
+      favicon: 'src/assets/favicon.png'
     }),
     new IgnorePlugin(/\/iconv-loader$/),
     new DefinePlugin({

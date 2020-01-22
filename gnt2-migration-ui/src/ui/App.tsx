@@ -6,11 +6,13 @@ import {Dashboard} from './Dashboard';
 import {useServices} from './useServices';
 import styled from 'styled-components';
 import {useAsync} from './hooks/useAsync';
+import {ConnectionState} from '../services/ConnectionService';
 
 const App: React.FC = () => {
 
   const [ready, setReady] = useState(false);
   const services = useServices();
+  const {connectionService} = useServices();
 
   useAsync(async () => {
     await services.startServices();
@@ -18,6 +20,12 @@ const App: React.FC = () => {
   }, []);
 
   if (!ready) return null;
+
+  if (connectionService.connectionState === ConnectionState.NO_METAMASK) {
+    return (
+      <Body>Sorry, you must have metamask installed</Body>
+    );
+  }
 
   return (
     <Body>
