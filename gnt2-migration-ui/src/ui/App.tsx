@@ -5,8 +5,9 @@ import {hot} from 'react-hot-loader/root';
 import {Dashboard} from './Dashboard';
 import {useServices} from './useServices';
 import styled from 'styled-components';
-import {useAsync} from './hooks/useAsync';
 import {ConnectionState} from '../services/ConnectionService';
+import {useAsyncEffect} from './hooks/useAsyncEffect';
+import {BrowserRouter} from 'react-router-dom';
 
 const App: React.FC = () => {
 
@@ -14,7 +15,7 @@ const App: React.FC = () => {
   const services = useServices();
   const {connectionService} = useServices();
 
-  useAsync(async () => {
+  useAsyncEffect(async () => {
     await services.startServices();
     setReady(true);
   }, []);
@@ -29,7 +30,9 @@ const App: React.FC = () => {
 
   return (
     <Body>
-      <Dashboard/>
+      <BrowserRouter>
+        <Dashboard/>
+      </BrowserRouter>
     </Body>
   );
 };

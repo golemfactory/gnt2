@@ -1,19 +1,12 @@
 import {utils, Wallet} from 'ethers';
-import {NewGolemNetworkTokenFactory} from 'gnt2-contracts';
-import {GolemNetworkTokenFactory} from '../../build/contract-types/GolemNetworkTokenFactory';
+import {NewGolemNetworkTokenFactory, GolemNetworkTokenBatchingFactory, GolemNetworkTokenFactory} from 'gnt2-contracts';
 import {JsonRpcProvider, Provider} from 'ethers/providers';
 import {ConsoleLogger, Logger} from '../utils/logger';
-import {GolemNetworkTokenBatchingFactory} from '../../build/contract-types/GolemNetworkTokenBatchingFactory';
 import {GolemNetworkTokenBatching} from '../../build/contract-types/GolemNetworkTokenBatching';
 import {GolemNetworkToken} from '../../build/contract-types/GolemNetworkToken';
+import {GolemContractsDevDeployment} from './interfaces';
 import {GNTDepositFactory} from '../../build/contract-types/GNTDepositFactory';
 
-export interface GolemContractsDevDeployment {
-  oldGolemToken: string;
-  newGolemToken: string;
-  batchingGolemToken: string;
-  depositGolemToken: string;
-}
 
 async function mineEmptyBlock(provider: Provider) {
   await (provider as JsonRpcProvider).send('evm_mine', []);

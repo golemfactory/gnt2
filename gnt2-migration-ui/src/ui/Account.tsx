@@ -6,6 +6,7 @@ import {BigNumber} from 'ethers/utils';
 import {useAsyncEffect} from './hooks/useAsyncEffect';
 import {useProperty} from './hooks/useProperty';
 import '../types';
+import {useSnackbar} from './hooks/useSnackbar';
 import Jazzicon, {jsNumberForAddress} from 'react-jazzicon';
 
 export const Account = () => {
@@ -15,10 +16,12 @@ export const Account = () => {
   const [batchingTokensBalance, setBatchingTokensBalance] = useState<BigNumber | undefined>(undefined);
   const [depositTokensBalance, setDepositTokensBalance] = useState<BigNumber | undefined>(undefined);
   const [refresh, setRefresh] = useState(false);
+  const [transactionHash, setTransactionHash] = useState<string | undefined>('');
 
   const {accountService, tokensService, contractAddressService, connectionService} = useServices();
   const tokenAddresses = useProperty(contractAddressService.golemNetworkTokenAddress);
   const account = useProperty(connectionService.account);
+  const {show} = useSnackbar();
 
   useAsyncEffect(async () => {
     setBalance(await accountService.balanceOf(account));
@@ -29,11 +32,17 @@ export const Account = () => {
   }, [refresh, account, tokenAddresses]);
 
   const migrateTokens = async () => {
-    await tokensService.migrateTokens((await tokensService.balanceOfOldTokens(await accountService.getDefaultAccount())).toString());
-    setRefresh(!refresh);
+    try {
+      const tx = await tokensService.migrateAllTokens(account);
+      setTransactionHash(tx);
+      setRefresh(!refresh);
+    } catch (e) {
+      show(e.message);
+    }
   };
 
   const format = (value: BigNumber, digits = 3) => formatValue(value.toString(), digits);
+
   return (
     <div>
       <div>Your address:</div>
@@ -52,8 +61,9 @@ export const Account = () => {
       <div>Your ETH balance:</div>
       {balance && <div data-testid='ETH-balance'>{format(balance, 4)}</div>}
       <Migrate data-testid="button" onClick={migrateTokens} disabled={oldTokensBalance?.eq(new BigNumber('0'))}>
-          Migrate
+        Migrate
       </Migrate>
+      {transactionHash && <div>{transactionHash}</div>}
     </div>
   );
 };
