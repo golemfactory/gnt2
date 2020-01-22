@@ -2,7 +2,7 @@ import {JsonRpcProvider} from 'ethers/providers';
 import {AccountService} from '../../src/services/AccountsService';
 import sinon from 'sinon';
 import {ConnectionService} from '../../src/services/ConnectionService';
-import {deployDevGolemContracts, GolemContractsDevDeployment} from 'gnt2-contracts';
+import {deployDevGolemContracts, GolemContractsDeploymentAddresses} from 'gnt2-contracts';
 import {ContractAddressService} from '../../src/services/ContractAddressService';
 import {GolemTokenAddresses} from '../../src/config';
 import {Services} from '../../src/services';
@@ -34,7 +34,7 @@ async function testConnectionService(provider: JsonRpcProvider) {
   return connectionService;
 }
 
-function testContractAddressService(connectionService: ConnectionService, addresses: GolemContractsDevDeployment) {
+function testContractAddressService(connectionService: ConnectionService, addresses: GolemContractsDeploymentAddresses) {
 
   return new ContractAddressService(connectionService, {
     local: addresses as GolemTokenAddresses,
