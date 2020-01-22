@@ -107,15 +107,14 @@ describe('Connections Service', () => {
   });
 
   it('sets network state based on MetaMask', async () => {
-    connectionService = new ConnectionService(mockedEthereum);
     sinon.stub(connectionService, 'getProvider').returns(mockedEthereum as unknown as JsonRpcProvider);
     await connectionService.checkNetwork();
     expect(connectionService.network.get()).to.eq('rinkeby');
   });
 
-  it('throws error when asked to check network with no MetaMask', () => {
+  it('throws error when asked to check network with no MetaMask', async () => {
     connectionService = new ConnectionService(undefined);
-    expect(connectionService.checkNetwork()).to.be.rejectedWith(/Metamask requested, but not yet initialized/);
+    await expect(connectionService.checkNetwork()).to.be.rejectedWith(/Provider requested, but not yet initialized/);
   });
 
   function tryToCreateProvider() {

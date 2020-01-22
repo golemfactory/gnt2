@@ -6,9 +6,9 @@ export interface GolemTokenAddresses {
   batchingGolemToken: string;
 }
 
-export type Network = 'rinkeby' | 'local';
+export type NetworkName = 'rinkeby' | 'local';
 
-export type TokenContractsAddresses = Record<Network, GolemTokenAddresses>;
+export type TokenContractsAddresses = Record<NetworkName, GolemTokenAddresses>;
 
 export const tokenContractsAddresses: TokenContractsAddresses = Object.freeze({
   rinkeby: {
