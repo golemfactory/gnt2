@@ -1,6 +1,7 @@
 import {JsonRpcProvider, Web3Provider} from 'ethers/providers';
 import '../types';
 import {Property, State, withSubscription} from 'reactive-properties';
+import {NetworkName} from '../config';
 
 export enum ConnectionState {
   UNKNOWN,
@@ -9,9 +10,9 @@ export enum ConnectionState {
   CONNECTED
 }
 
-const networkNameFrom = (chainId: string | void): string => {
+const networkNameFrom = (chainId: string | void): NetworkName => {
   if (chainId === '4') {
-    return 'Rinkeby';
+    return 'rinkeby';
   } else {
     return 'local';
   }
@@ -19,15 +20,15 @@ const networkNameFrom = (chainId: string | void): string => {
 
 export class ConnectionService {
   private provider: JsonRpcProvider | undefined;
-  private networkState: State<string>;
-  network: Property<string>;
+  private networkState: State<NetworkName>;
+  network: Property<NetworkName>;
   connectionState: ConnectionState;
   account: State<string>;
 
   constructor(private injectedMetaMaskEthereum: MetamaskEthereum | undefined) {
     this.connectionState = ConnectionState.UNKNOWN;
     this.account = new State<string>('');
-    this.networkState = new State('');
+    this.networkState = new State<NetworkName>('local');
     this.network = this.networkState.pipe(withSubscription(async () => {
       await this.checkNetwork();
     }, this));
@@ -85,7 +86,7 @@ export class ConnectionService {
   }
 
   async checkNetwork() {
-    this.handleNetworkChange(await this.metamaskEthereum.send('net_version'));
+    this.handleNetworkChange(await this.getProvider().send('net_version', []));
   }
 
   private handleNetworkChange(chainId: string | void) {
