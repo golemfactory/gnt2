@@ -31,7 +31,7 @@ export const Account = () => {
 
   const migrateTokens = async () => {
     try {
-      const tx =await tokensService.migrateAllTokens(account);
+      const tx = await tokensService.migrateAllTokens(account);
       setTransactionHash(tx);
       setRefresh(!refresh);
     } catch (e) {

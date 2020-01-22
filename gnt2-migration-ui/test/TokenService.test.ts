@@ -6,9 +6,11 @@ import {GolemNetworkToken} from 'gnt2-contracts/build/contract-types/GolemNetwor
 import {ContractTransaction, errors, utils} from 'ethers';
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
-import {ContractAddressService, GolemTokenAddresses} from '../src/services/ContractAddressService';
+import {ContractAddressService} from '../src/services/ContractAddressService';
 import {State} from 'reactive-properties';
 import {MetamaskError, TransactionDenied, UnknownError} from '../src/errors';
+import {GolemTokenAddresses} from '../src/config';
+import {AddressZero} from 'ethers/constants';
 
 chai.use(chaiAsPromised);
 const expect = chai.expect;
@@ -29,6 +31,7 @@ describe('Token Service', () => {
 
   describe('migrateTokens', () => {
     let tokensService: TokensService;
+    let oldTokenContract: GolemNetworkToken;
 
     beforeEach(async () => {
       const addresses = await deployDevGolemContracts(provider, holder, deployWallet, {log: () => { /* do nothing */ }});
@@ -36,15 +39,18 @@ describe('Token Service', () => {
         golemNetworkTokenAddress: new State<GolemTokenAddresses>(addresses)
       } as unknown as ContractAddressService;
       tokensService = new TokensService(() => provider, contractAddressService);
+      oldTokenContract = GolemNetworkTokenFactory.connect(addresses.oldGolemToken, provider);
     });
 
     it(`returns unknown error upon transaction revert`, async () => {
-      const tokens = utils.parseEther('500000000').toString();
-      await expect(tokensService.migrateTokens(tokens)).to.be.rejectedWith(UnknownError);
+      await expect(tokensService.migrateAllTokens(AddressZero)).to.be.rejectedWith(UnknownError);
     });
 
+    it('gets account balance', () => {
+      expect(tokensService.balanceOfOldTokens(holder.address)).to.eq('150000000');
+    });
     it(`returns transaction hash`, async () => {
-      const result = await tokensService.migrateTokens('100');
+      const result = await tokensService.migrateAllTokens(holder.address);
       expect(result).to.match(/0x[0-9a-fA-F]{64}/);
     });
 
@@ -55,9 +61,8 @@ describe('Token Service', () => {
       it(`returns error with message '${expectedError.name}'`, async () => {
         sinon.restore();
 
-        sinon.stub(GolemNetworkTokenFactory, 'connect').callsFake(() => ({migrate: simulatedError} as unknown as GolemNetworkToken));
-
-        await expect(tokensService.migrateTokens('10000')).to.be.rejectedWith(expectedError);
+        sinon.stub(GolemNetworkTokenFactory, 'connect').callsFake(() => ({...oldTokenContract, migrate: simulatedError} as unknown as GolemNetworkToken));
+        await expect(tokensService.migrateAllTokens(holder.address)).to.be.rejectedWith(expectedError);
       });
     });
   });

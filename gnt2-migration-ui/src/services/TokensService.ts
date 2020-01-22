@@ -25,10 +25,10 @@ export class TokensService {
 
   async migrateAllTokens(account: string): Promise<string | undefined> {
     const oldTokenContract = GolemNetworkTokenFactory.connect(this.tokenContractsAddresses().oldGolemToken, this.provider().getSigner());
-    await oldTokenContract.migrate((await this.balanceOfOldTokens(account)).toString(), {gasLimit});
     try {
       return (await oldTokenContract.migrate((await this.balanceOfOldTokens(account)).toString(), {gasLimit})).hash;
     } catch (error) {
+      console.log(error);
       throw mapCodeToError(error);
     }
   }
