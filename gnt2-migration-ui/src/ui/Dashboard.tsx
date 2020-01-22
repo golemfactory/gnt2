@@ -1,5 +1,5 @@
 import React from 'react';
-import {BrowserRouter, Redirect, Route, Switch} from 'react-router-dom';
+import {Redirect, Route, Switch} from 'react-router-dom';
 import {Login} from './Login';
 import {Account} from './Account';
 import {useServices} from './useServices';
@@ -27,12 +27,10 @@ export const Dashboard = () => {
 
   return (
     <div>
-      <BrowserRouter>
-        <Switch>
-          <Route exact path='/account' render={accountOrRedirectToLoginWhenNotConnected}/>
-          <Route exact path='/' render={loginOrRedirectToAccountWhenConnected}/>
-        </Switch>
-      </BrowserRouter>
+      <Switch>
+        <Route exact path='/account' render={accountOrRedirectToLoginWhenNotConnected}/>
+        <Route exact path='/' render={loginOrRedirectToAccountWhenConnected}/>
+      </Switch>
     </div>
   );
 };

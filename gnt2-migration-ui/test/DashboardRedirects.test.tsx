@@ -1,42 +1,49 @@
 import React from 'react';
-import {State} from 'reactive-properties';
-import {fireEvent, render, wait, waitForElement} from '@testing-library/react';
-import {createMockProvider, getWallets} from 'ethereum-waffle';
-import {Account} from '../src/ui/Account';
+import {render} from '@testing-library/react';
 import {ServiceContext} from '../src/ui/useServices';
 import {Services} from '../src/services';
-import {TokensService} from '../src/services/TokensService';
-import {deployDevGolemContracts} from '../../gnt2-contracts';
-import {AccountService} from '../src/services/AccountsService';
-import {JsonRpcProvider} from 'ethers/providers';
 import sinon from 'sinon';
 import chai, {expect} from 'chai';
 import chaiDom from 'chai-dom';
-import {ContractAddressService} from '../src/services/ContractAddressService';
-import {ConnectionService} from '../src/services/ConnectionService';
 import {Dashboard} from '../src/ui/Dashboard';
 import {MemoryRouter} from 'react-router-dom';
+import {createTestServices} from './helpers/testServices';
+import {createMockProvider} from 'ethereum-waffle';
 
 chai.use(chaiDom);
 
 describe('Dashboard', () => {
-  let services;
-  it('redirects to Account page when connected to MetaMask', async () => {
+  let services: Services;
 
-    services = {
-      connectionService: {
-        isConnected: sinon.stub()
-      }
-    };
+  beforeEach(async () => {
+    services = await createTestServices(createMockProvider());
+  });
+  it('redirects from Login to Account page when connected to MetaMask', async () => {
+    sinon.stub(services.connectionService, 'isConnected').returns(true);
 
-    services.connectionService.isConnected.resolves(true);
-    const {queryByText} = await render(
+    const {getByText} = await render(
       <MemoryRouter initialEntries={['/']}>
-        <ServiceContext.Provider value={services as unknown as Services}>
+        <ServiceContext.Provider value={services}>
           <Dashboard/>
         </ServiceContext.Provider>
       </MemoryRouter>
     );
 
+    expect(getByText('Your address:')).to.exist;
+
+  });
+
+  it('redirects from Account page to Login when not connected to MetaMask', async () => {
+    sinon.stub(services.connectionService, 'isConnected').returns(false);
+
+    const {getByText} = await render(
+      <MemoryRouter initialEntries={['/account']}>
+        <ServiceContext.Provider value={services}>
+          <Dashboard/>
+        </ServiceContext.Provider>
+      </MemoryRouter>
+    );
+
+    expect(getByText('Connect with MetaMask')).to.be.exist;
   });
 });

@@ -7,6 +7,7 @@ import {useServices} from './useServices';
 import styled from 'styled-components';
 import {ConnectionState} from '../services/ConnectionService';
 import {useAsyncEffect} from './hooks/useAsyncEffect';
+import {BrowserRouter} from 'react-router-dom';
 
 const App: React.FC = () => {
 
@@ -29,7 +30,9 @@ const App: React.FC = () => {
 
   return (
     <Body>
-      <Dashboard/>
+      <BrowserRouter>
+        <Dashboard/>
+      </BrowserRouter>
     </Body>
   );
 };
