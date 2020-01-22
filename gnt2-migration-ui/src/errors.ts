@@ -4,13 +4,6 @@ class ServiceError extends Error {
   }
 }
 
-export class InsufficientFunds extends ServiceError {
-  constructor(wrappedError: Error) {
-    super(`Insufficient funds.`, wrappedError);
-    Object.setPrototypeOf(this, InsufficientFunds.prototype);
-  }
-}
-
 export class TransactionDenied extends ServiceError {
   constructor(wrappedError: Error) {
     super(`User denied transaction signature.`, wrappedError);

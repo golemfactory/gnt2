@@ -38,9 +38,9 @@ describe('Token Service', () => {
       tokensService = new TokensService(() => provider, contractAddressService);
     });
 
-    it(`returns error with message 'Insufficient funds.'`, async () => {
+    it(`returns unknown error upon transaction revert`, async () => {
       const tokens = utils.parseEther('500000000').toString();
-      await expect(tokensService.migrateTokens(tokens)).to.be.rejectedWith('Something went wrong, try again later.');
+      await expect(tokensService.migrateTokens(tokens)).to.be.rejectedWith(UnknownError);
     });
 
     it(`returns transaction hash`, async () => {
