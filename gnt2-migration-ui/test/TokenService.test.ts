@@ -1,5 +1,5 @@
 import {TokensService} from '../src/services/TokensService';
-import {createMockProvider, getWallets} from 'ethereum-waffle';
+import {createMockProvider, getWallets, solidity} from 'ethereum-waffle';
 import {deployDevGolemContracts, GolemNetworkTokenFactory} from '../../gnt2-contracts';
 import sinon from 'sinon';
 import {GolemNetworkToken} from 'gnt2-contracts/build/contract-types/GolemNetworkToken';
@@ -11,7 +11,9 @@ import {State} from 'reactive-properties';
 import {MetamaskError, TransactionDenied, UnknownError} from '../src/errors';
 import {GolemTokenAddresses} from '../src/config';
 import {AddressZero} from 'ethers/constants';
+import {GolemContractsDevDeployment} from '../../gnt2-contracts/src/deployment/deployDevGolemContracts';
 
+chai.use(solidity);
 chai.use(chaiAsPromised);
 const expect = chai.expect;
 
@@ -27,30 +29,31 @@ const providerUnknownError = async (): Promise<ContractTransaction> => {
 
 describe('Token Service', () => {
   const provider = createMockProvider();
-  const [deployWallet, holder] = getWallets(provider);
+  const [holder, deployWallet] = getWallets(provider);
 
   describe('migrateTokens', () => {
     let tokensService: TokensService;
-    let oldTokenContract: GolemNetworkToken;
+    let addresses: GolemContractsDevDeployment;
 
     beforeEach(async () => {
-      const addresses = await deployDevGolemContracts(provider, holder, deployWallet, {log: () => { /* do nothing */ }});
+      addresses = await deployDevGolemContracts(provider, deployWallet, holder, {log: () => { /* no op */ }});
       const contractAddressService = {
         golemNetworkTokenAddress: new State<GolemTokenAddresses>(addresses)
       } as unknown as ContractAddressService;
       tokensService = new TokensService(() => provider, contractAddressService);
-      oldTokenContract = GolemNetworkTokenFactory.connect(addresses.oldGolemToken, provider);
     });
 
-    it(`returns unknown error upon transaction revert`, async () => {
+    it('gets account balance', async () => {
+      expect(await tokensService.balanceOfOldTokens(holder.address)).to.eq(utils.parseEther('140000000.0'));
+    });
+
+    it('returns unknown error upon transaction revert', async () => {
       await expect(tokensService.migrateAllTokens(AddressZero)).to.be.rejectedWith(UnknownError);
     });
 
-    it('gets account balance', () => {
-      expect(tokensService.balanceOfOldTokens(holder.address)).to.eq('150000000');
-    });
-    it(`returns transaction hash`, async () => {
+    it('migrates all tokens and returns transaction hash', async () => {
       const result = await tokensService.migrateAllTokens(holder.address);
+      expect(await tokensService.balanceOfOldTokens(holder.address)).to.eq(0);
       expect(result).to.match(/0x[0-9a-fA-F]{64}/);
     });
 
@@ -60,6 +63,7 @@ describe('Token Service', () => {
     ].forEach(({simulatedError, expectedError}) => {
       it(`returns error with message '${expectedError.name}'`, async () => {
         sinon.restore();
+        const oldTokenContract = GolemNetworkTokenFactory.connect(addresses.oldGolemToken, provider);
 
         sinon.stub(GolemNetworkTokenFactory, 'connect').callsFake(() => ({...oldTokenContract, migrate: simulatedError} as unknown as GolemNetworkToken));
         await expect(tokensService.migrateAllTokens(holder.address)).to.be.rejectedWith(expectedError);
