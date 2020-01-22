@@ -1,10 +1,11 @@
 import {InsufficientFunds, MetamaskError, TransactionDenied, UnknownError} from '../errors';
 
-interface MetamskError extends Error {
+interface ProviderError extends Error {
   code: number;
 }
 
-export const mapCodeToError = (error: MetamskError) => {
+export const mapCodeToError = (error: ProviderError) => {
+  console.log(error);
   if (error.code) {
     switch (error.code.toString()) {
       case '-32000':
