@@ -1,3 +1,5 @@
+import {Chain} from './chain';
+
 type MetamaskEthereum = {
   send: (eventName: string) => Chain;
   isMetaMask: boolean;
@@ -9,12 +11,4 @@ type MetamaskEthereum = {
 
 interface Window {
   ethereum: MetamaskEthereum;
-}
-
-type Callback = () => void;
-
-interface Chain {
-  id: number;
-  jsonrpc: string;
-  result: string;
 }

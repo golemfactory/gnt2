@@ -4,15 +4,17 @@ import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import chaiAsPromised from 'chai-as-promised';
 import {JsonRpcProvider} from 'ethers/providers';
-import {mockedEthereum} from './helpers/mockeEthereum';
+import {MockedEthereum} from './helpers/mockeEthereum';
 
 chai.use(sinonChai);
 chai.use(chaiAsPromised);
 
 describe('Connections Service', () => {
   let connectionService: ConnectionService;
+  let mockedEthereum: any;
 
   beforeEach(() => {
+    mockedEthereum = new MockedEthereum();
     connectionService = new ConnectionService(mockedEthereum);
   });
 
