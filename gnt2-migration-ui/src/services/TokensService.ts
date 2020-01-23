@@ -43,7 +43,7 @@ export class TokensService {
   }
 
   async balanceOfDepositTokens(address: string) {
-    const depositContract = GNTDepositFactory.connect(this.tokenContractsAddresses().depositGolemToken, this.provider());
+    const depositContract = GNTDepositFactory.connect(this.tokenContractsAddresses().gntDeposit, this.provider());
     return depositContract.balanceOf(address);
   }
 }

@@ -57,7 +57,7 @@ export const Account = () => {
       <div>Your GNTB balance:</div>
       {batchingTokensBalance && <div data-testid='GNTB-balance'>{format(batchingTokensBalance)}</div>}
       <div>Your deposit balance:</div>
-      {depositTokensBalance && <div data-testid='GNTD-balance'>{format(depositTokensBalance)}</div>}
+      {depositTokensBalance && <div data-testid='deposit'>{format(depositTokensBalance)}</div>}
       <div>Your ETH balance:</div>
       {balance && <div data-testid='ETH-balance'>{format(balance, 4)}</div>}
       <Migrate data-testid="button" onClick={migrateTokens} disabled={oldTokensBalance?.eq(new BigNumber('0'))}>

@@ -8,7 +8,7 @@ describe('Deposit Golem Network Token', () => {
   const provider = createMockProvider();
   const [, deployer, wallet] = getWallets(provider);
 
-  it('is deployed properly', async () => {
+  it('receives deposit from GNTB', async () => {
     const {holderSignedToken: oldToken} = await deployOldToken(provider, deployer, wallet);
     const token = await new GolemNetworkTokenBatchingFactory(wallet).deploy(oldToken.address);
     const depositToken = await new GNTDepositFactory(wallet).deploy(token.address, token.address, wallet.address, 24 * 60 * 60);
