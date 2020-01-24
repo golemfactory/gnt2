@@ -4,7 +4,7 @@ import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import chaiAsPromised from 'chai-as-promised';
 import {JsonRpcProvider} from 'ethers/providers';
-import {MockedEthereum} from './helpers/mockeEthereum';
+import {MockedEthereum} from './helpers/mockedEthereum';
 
 chai.use(sinonChai);
 chai.use(chaiAsPromised);
@@ -51,7 +51,6 @@ describe('Connections Service', () => {
   });
 
   it('delivers network change event', () => {
-    tryToCreateProvider();
     const callback = sinon.mock();
     connectionService.subscribe(callback);
     mockedEthereum.simulateNetworkChange('4');
@@ -93,7 +92,6 @@ describe('Connections Service', () => {
 
   it('sets network state based on MetaMask', async () => {
     sinon.stub(connectionService, 'getProvider').returns(mockedEthereum as unknown as JsonRpcProvider);
-    tryToCreateProvider();
     await connectionService.checkNetwork();
     expect(connectionService.network.get()).to.eq('rinkeby');
   });

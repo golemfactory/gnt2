@@ -9,7 +9,7 @@ import {Dashboard} from '../src/ui/Dashboard';
 import {MemoryRouter} from 'react-router-dom';
 import {createTestServices} from './helpers/testServices';
 import {createMockProvider} from 'ethereum-waffle';
-import {MockedEthereum} from './helpers/mockeEthereum';
+import {MockedEthereum} from './helpers/mockedEthereum';
 import {JsonRpcProvider} from 'ethers/providers';
 
 chai.use(chaiDom);
