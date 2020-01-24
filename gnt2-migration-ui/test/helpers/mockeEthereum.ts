@@ -4,7 +4,7 @@ import '../../src/types';
 
 export class MockedEthereum implements MetamaskEthereum {
   isMetaMask: true;
-  send = sinon.mock().returns({result: '4'});
+  send = sinon.mock().returns('4');
   private mockedEthereumCallback: (params?: any) => void = () => { /* empty */
   };
 
@@ -24,6 +24,6 @@ export class MockedEthereum implements MetamaskEthereum {
     this.mockedEthereumCallback = callback;
   }
 
-  off(eventName: string, callback: () => void) {
+  off(eventName: string, callback: () => void) { /* do anything */
   }
 }

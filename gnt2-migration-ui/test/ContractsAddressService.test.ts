@@ -4,6 +4,7 @@ import {ContractAddressService} from '../src/services/ContractAddressService';
 import {State} from 'reactive-properties';
 import {ConnectionService} from '../src/services/ConnectionService';
 import {NetworkName, tokenContractsAddresses} from '../src/config';
+import {Callback} from '../src/types/chain';
 
 describe('Contract Address Service', () => {
   it('updates contract addresses on network change', async () => {

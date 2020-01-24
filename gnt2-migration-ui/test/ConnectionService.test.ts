@@ -93,6 +93,7 @@ describe('Connections Service', () => {
 
   it('sets network state based on MetaMask', async () => {
     sinon.stub(connectionService, 'getProvider').returns(mockedEthereum as unknown as JsonRpcProvider);
+    tryToCreateProvider();
     await connectionService.checkNetwork();
     expect(connectionService.network.get()).to.eq('rinkeby');
   });

@@ -88,9 +88,7 @@ export class ConnectionService {
   }
 
   async checkNetwork() {
-    const netVersion = await this.getProvider().send('net_version', []);
-    console.log(`netVersion = ${netVersion}`);
-    this.handleNetworkChange(netVersion.result);
+    this.handleNetworkChange(await this.getProvider().send('net_version', []));
   }
 
   private handleNetworkChange(chainId: string) {
