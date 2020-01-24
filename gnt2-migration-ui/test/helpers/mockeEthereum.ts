@@ -1,27 +1,29 @@
 import sinon from 'sinon';
+import '../../src/types';
 
-let mockedEthereumCallback: (params?: any) => void = () => { /* empty */ };
 
-export class MockedEthereum {
+export class MockedEthereum implements MetamaskEthereum {
   isMetaMask: true;
-  send = sinon.mock().returns('4');
+  send = sinon.mock().returns({result: '4'});
+  private mockedEthereumCallback: (params?: any) => void = () => { /* empty */
+  };
+
   constructor() {
     this.isMetaMask = true;
   }
 
   simulateAccountChanged(accounts: string[] = []) {
-    mockedEthereumCallback(accounts);
+    this.mockedEthereumCallback(accounts);
   }
 
   simulateNetworkChange(network = '') {
-    mockedEthereumCallback(network);
+    this.mockedEthereumCallback(network);
   }
 
   on(eventName: string, callback: () => void) {
-    mockedEthereumCallback = callback;
+    this.mockedEthereumCallback = callback;
   }
 
   off(eventName: string, callback: () => void) {
-    mockedEthereumCallback = callback;
   }
 }

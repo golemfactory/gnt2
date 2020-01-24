@@ -23,7 +23,7 @@ function testAccountService(provider: JsonRpcProvider, address: string) {
 
 async function testConnectionService(provider: JsonRpcProvider) {
   const connectionService = new ConnectionService({
-    send: sinon.mock().returns('4'),
+    send: sinon.mock().returns({result: '4'}),
     isMetaMask: true,
     on: () => { /* empty */ },
     off: () => { /* empty */ }

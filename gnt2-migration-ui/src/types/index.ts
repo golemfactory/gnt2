@@ -1,7 +1,9 @@
-import {Chain} from './chain';
-
 type MetamaskEthereum = {
-  send: (eventName: string) => Chain;
+  send: (eventName: string) => {
+    id: number;
+    jsonrpc: string;
+    result: string;
+  };
   isMetaMask: boolean;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   on: (eventName: string, callback: (param?: any) => void) => void;

@@ -1,7 +1,7 @@
 import {JsonRpcProvider, Web3Provider} from 'ethers/providers';
 import {Property, State, withSubscription} from 'reactive-properties';
 import {NetworkName} from '../config';
-import {Callback, Chain} from '../types/chain';
+import {Callback} from '../types/chain';
 import '../types';
 
 export enum ConnectionState {
@@ -11,19 +11,13 @@ export enum ConnectionState {
   CONNECTED
 }
 
-const networkNameFrom = (chainId: Chain | string, provider: JsonRpcProvider): NetworkName => {
-  let chain;
-  if (typeof chainId === 'string') {
-    chain = chainId;
-  } else {
-    chain = chainId.result;
-  }
-  if (chain === '4') {
+const networkNameFrom = (chainId: string, provider: JsonRpcProvider): NetworkName => {
+  if (chainId === '4') {
     return 'rinkeby';
-  } else if (chain === provider.network.chainId.toString()) {
+  } else if (chainId === provider.network.chainId.toString()) {
     return 'local';
   }
-  throw new Error(`This network is not supported.`);
+  throw new Error(`This network is not supported: ${chainId}.`);
 };
 
 export class ConnectionService {
@@ -94,10 +88,12 @@ export class ConnectionService {
   }
 
   async checkNetwork() {
-    this.handleNetworkChange(await this.getProvider().send('net_version', []));
+    const netVersion = await this.getProvider().send('net_version', []);
+    console.log(`netVersion = ${netVersion}`);
+    this.handleNetworkChange(netVersion.result);
   }
 
-  private handleNetworkChange(chainId: Chain | string) {
+  private handleNetworkChange(chainId: string) {
     this.networkState.set(networkNameFrom(chainId, this.getProvider()));
   }
 
