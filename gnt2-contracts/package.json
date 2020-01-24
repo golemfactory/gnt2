@@ -16,7 +16,7 @@
     "lint:contracts": "solium -d src/contracts",
     "clean": "rimraf build dist",
     "test": "NODE_ENV=test mocha --timeout 20000 -r ts-node/register \"test/**/*.{js,ts}\"",
-    "deploy:ngt2:dev": "ts-node src/deployment/deployGNT2.ts"
+    "deploy:ngt2:dev": "ts-node src/deployment/deployAllRinkeby.ts"
   },
   "dependencies": {
     "chalk": "^2.4.2",

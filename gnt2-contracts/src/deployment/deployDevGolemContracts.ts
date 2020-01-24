@@ -9,13 +9,6 @@ import {GNTDepositFactory} from '../../build/contract-types/GNTDepositFactory';
 
 const delay = 48 * 60 * 60;
 
-export async function transferGNTB(wallet: Wallet, token: GolemNetworkTokenBatching, oldToken: GolemNetworkToken, value: string) {
-  await token.openGate();
-  const gateAddress = await token.getGateAddress(wallet.address);
-  await oldToken.transfer(gateAddress, value);
-  await token.transferFromGate();
-}
-
 async function mineEmptyBlock(provider: Provider) {
   await (provider as JsonRpcProvider).send('evm_mine', []);
 }
@@ -39,7 +32,8 @@ export async function wrapGNTtoGNTB(wallet: Wallet, gntb: GolemNetworkTokenBatch
   await gntb.openGate();
   const gateAddress = await gntb.getGateAddress(wallet.address);
   await gnt.transfer(gateAddress, value);
-  await gntb.transferFromGate();
+  const transaction = await gntb.transferFromGate();
+  return transaction;
 }
 
 export async function deployDevGolemContracts(provider: Provider,
