@@ -1,5 +1,6 @@
 .idea
 yarn-error.log*
+/report.*.json
 
 node_modules/
 dist/

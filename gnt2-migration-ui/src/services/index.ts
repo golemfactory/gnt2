@@ -1,18 +1,27 @@
 import {AccountService} from './AccountsService';
-import {ConnectionService} from './connectionService';
+import {ConnectionService} from './ConnectionService';
 import {TokensService} from './TokensService';
-import {config} from '../config';
+import {ContractAddressService} from './ContractAddressService';
+import {tokenContractsAddresses} from '../config';
+
 export type Services = ReturnType<typeof createServices>;
 
 export function createServices() {
   const connectionService = ConnectionService.create();
   const getProvider = () => connectionService.getProvider();
   const accountService = new AccountService(getProvider);
-  const tokensService = new TokensService(getProvider, config.oldGolemTokenContractAddress, config.newGolemTokenContractAddress);
+  const contractAddressService = new ContractAddressService(connectionService, tokenContractsAddresses);
+  const tokensService = new TokensService(getProvider, contractAddressService);
+  const startServices = async () => {
+    await connectionService.checkConnection();
+    await connectionService.checkNetwork();
+  };
 
   return {
+    contractAddressService,
     accountService,
     connectionService,
-    tokensService
+    tokensService,
+    startServices
   };
 }

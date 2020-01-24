@@ -1,22 +1,36 @@
 import React from 'react';
-import {BrowserRouter, Route, Switch} from 'react-router-dom';
+import {Redirect, Route, Switch} from 'react-router-dom';
 import {Login} from './Login';
 import {Account} from './Account';
 import {useServices} from './useServices';
+import {RouteComponentProps} from 'react-router';
 
 export const Dashboard = () => {
 
   const {connectionService} = useServices();
-  const Root = connectionService.isInitialized ? Account : Login;
+
+  const loginOrRedirectToAccountWhenConnected = (props: RouteComponentProps) => {
+    return connectionService.isConnected() ? (
+      <Redirect to='/account'/>
+    ) : (
+      <Login {...props}/>
+    );
+  };
+
+  const accountOrRedirectToLoginWhenNotConnected = () => {
+    return connectionService.isConnected() ? (
+      <Account/>
+    ) : (
+      <Redirect to='/'/>
+    );
+  };
 
   return (
     <div>
-      <BrowserRouter>
-        <Switch>
-          <Route exact path='/account' component={Account}/>
-          <Route exact path='/' component={Root}/>
-        </Switch>
-      </BrowserRouter>
+      <Switch>
+        <Route exact path='/account' render={accountOrRedirectToLoginWhenNotConnected}/>
+        <Route exact path='/' render={loginOrRedirectToAccountWhenConnected}/>
+      </Switch>
     </div>
   );
 };

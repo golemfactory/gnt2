@@ -1,15 +1,15 @@
 import React from 'react';
-import '../styles/App.sass';
 import styled from 'styled-components';
 import {useServices} from './useServices';
 import {RouteComponentProps} from 'react-router-dom';
+import {ConnectionState} from '../services/ConnectionService';
 
 export const Login = ({history}: RouteComponentProps) => {
   const {connectionService} = useServices();
 
   const onClick = async () => {
-    const provider = await connectionService.connect();
-    if (provider) {
+    await connectionService.connect();
+    if (connectionService.connectionState === ConnectionState.CONNECTED) {
       history.push('/account');
     }
   };

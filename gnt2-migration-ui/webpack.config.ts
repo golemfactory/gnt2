@@ -83,7 +83,8 @@ const config: Configuration = {
       chunkFilename: '[id].[hash].css',
     }),
     new HtmlWebpackPlugin({
-      template: 'src/index.html'
+      template: 'src/index.html',
+      favicon: 'src/assets/favicon.png'
     }),
     new IgnorePlugin(/\/iconv-loader$/),
     new DefinePlugin({
@@ -91,6 +92,7 @@ const config: Configuration = {
         NODE_ENV: process.env.NODE_ENV,
         OLD_GNT_TOKEN_CONTRACT_ADDRESS: process.env.OLD_GNT_TOKEN_CONTRACT_ADDRESS,
         NEW_GNT_TOKEN_CONTRACT_ADDRESS: process.env.NEW_GNT_TOKEN_CONTRACT_ADDRESS,
+        BATCHING_GNT_TOKEN_CONTRACT_ADDRESS: process.env.BATCHING_GNT_TOKEN_CONTRACT_ADDRESS
       })
     })
   ],
@@ -100,6 +102,11 @@ const config: Configuration = {
   devServer: {
     stats: 'errors-warnings',
     historyApiFallback: true
+  },
+
+  performance: {
+    maxEntrypointSize: 1200000,
+    maxAssetSize: 1200000
   }
 };
 
