@@ -14,11 +14,12 @@ export const Account = () => {
   const [oldTokensBalance, setOldTokensBalance] = useState<BigNumber | undefined>(undefined);
   const [newTokensBalance, setNewTokensBalance] = useState<BigNumber | undefined>(undefined);
   const [batchingTokensBalance, setBatchingTokensBalance] = useState<BigNumber | undefined>(undefined);
+  const [depositTokensBalance, setDepositTokensBalance] = useState<BigNumber | undefined>(undefined);
   const [refresh, setRefresh] = useState(false);
   const [transactionHash, setTransactionHash] = useState<string | undefined>('');
 
   const {accountService, tokensService, contractAddressService, connectionService} = useServices();
-  const tokenAdresses = useProperty(contractAddressService.golemNetworkTokenAddress);
+  const tokenAddresses = useProperty(contractAddressService.golemNetworkTokenAddress);
   const account = useProperty(connectionService.account);
   const {show} = useSnackbar();
 
@@ -27,7 +28,8 @@ export const Account = () => {
     setOldTokensBalance(await tokensService.balanceOfOldTokens(account));
     setNewTokensBalance(await tokensService.balanceOfNewTokens(account));
     setBatchingTokensBalance(await tokensService.balanceOfBatchingTokens(account));
-  }, [refresh, account, tokenAdresses]);
+    setDepositTokensBalance(await tokensService.balanceOfDepositTokens(account));
+  }, [refresh, account, tokenAddresses]);
 
   const migrateTokens = async () => {
     try {
@@ -54,6 +56,8 @@ export const Account = () => {
       {oldTokensBalance && <div data-testid='GNT-balance'>{format(oldTokensBalance)}</div>}
       <div>Your GNTB balance:</div>
       {batchingTokensBalance && <div data-testid='GNTB-balance'>{format(batchingTokensBalance)}</div>}
+      <div>Your deposit balance:</div>
+      {depositTokensBalance && <div data-testid='deposit'>{format(depositTokensBalance)}</div>}
       <div>Your ETH balance:</div>
       {balance && <div data-testid='ETH-balance'>{format(balance, 4)}</div>}
       <Migrate data-testid="button" onClick={migrateTokens} disabled={oldTokensBalance?.eq(new BigNumber('0'))}>

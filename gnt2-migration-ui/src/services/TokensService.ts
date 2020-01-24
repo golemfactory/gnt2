@@ -1,6 +1,11 @@
 import {JsonRpcProvider} from 'ethers/providers';
 import {BigNumber} from 'ethers/utils';
-import {GolemNetworkTokenBatchingFactory, GolemNetworkTokenFactory, NewGolemNetworkTokenFactory} from 'gnt2-contracts';
+import {
+  NewGolemNetworkTokenFactory,
+  GolemNetworkTokenBatchingFactory,
+  GolemNetworkTokenFactory,
+  GNTDepositFactory
+} from 'gnt2-contracts';
 import {ContractAddressService} from './ContractAddressService';
 import {gasLimit} from '../config';
 import {mapCodeToError} from '../utils/mapCodeToError';
@@ -35,5 +40,10 @@ export class TokensService {
   async balanceOfBatchingTokens(address: string) {
     const batchingContract = GolemNetworkTokenBatchingFactory.connect(this.tokenContractsAddresses().batchingGolemToken, this.provider());
     return batchingContract.balanceOf(address);
+  }
+
+  async balanceOfDepositTokens(address: string) {
+    const depositContract = GNTDepositFactory.connect(this.tokenContractsAddresses().gntDeposit, this.provider());
+    return depositContract.balanceOf(address);
   }
 }

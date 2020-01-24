@@ -5,3 +5,4 @@ export {deployDevGolemContracts} from './src/deployment/deployDevGolemContracts'
 export type GolemContractsDeploymentAddresses = GolemContractsDevDeployment;
 export {GolemNetworkTokenBatchingFactory} from './build/contract-types/GolemNetworkTokenBatchingFactory';
 export {GolemNetworkTokenFactory} from './build/contract-types/GolemNetworkTokenFactory';
+export {GNTDepositFactory} from './build/contract-types/GNTDepositFactory';
