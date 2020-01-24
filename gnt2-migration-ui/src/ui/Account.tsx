@@ -5,7 +5,6 @@ import styled from 'styled-components';
 import {BigNumber} from 'ethers/utils';
 import {useAsyncEffect} from './hooks/useAsyncEffect';
 import {useProperty} from './hooks/useProperty';
-import '../types';
 import {useSnackbar} from './hooks/useSnackbar';
 import Jazzicon, {jsNumberForAddress} from 'react-jazzicon';
 

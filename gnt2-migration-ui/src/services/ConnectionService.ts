@@ -1,7 +1,7 @@
 import {JsonRpcProvider, Web3Provider} from 'ethers/providers';
 import {Property, State, withSubscription} from 'reactive-properties';
 import {NetworkName} from '../config';
-import {Callback} from '../types/chain';
+import {Callback} from '../types/callback';
 import '../types';
 
 export enum ConnectionState {
@@ -11,13 +11,12 @@ export enum ConnectionState {
   CONNECTED
 }
 
-const networkNameFrom = (chainId: string, provider: JsonRpcProvider): NetworkName => {
+const networkNameFrom = (chainId: string): NetworkName => {
   if (chainId === '4') {
     return 'rinkeby';
-  } else if (chainId === provider.network.chainId.toString()) {
+  } else {
     return 'local';
   }
-  throw new Error(`This network is not supported: ${chainId}.`);
 };
 
 export class ConnectionService {
@@ -92,7 +91,7 @@ export class ConnectionService {
   }
 
   private handleNetworkChange(chainId: string) {
-    this.networkState.set(networkNameFrom(chainId, this.getProvider()));
+    this.networkState.set(networkNameFrom(chainId));
   }
 
   private get metamaskEthereum() {
