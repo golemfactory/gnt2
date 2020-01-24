@@ -1,7 +1,8 @@
 import {JsonRpcProvider, Web3Provider} from 'ethers/providers';
-import '../types';
 import {Property, State, withSubscription} from 'reactive-properties';
 import {NetworkName} from '../config';
+import {Callback} from '../types/callback';
+import '../types';
 
 export enum ConnectionState {
   UNKNOWN,
@@ -10,7 +11,7 @@ export enum ConnectionState {
   CONNECTED
 }
 
-const networkNameFrom = (chainId: string | void): NetworkName => {
+const networkNameFrom = (chainId: string): NetworkName => {
   if (chainId === '4') {
     return 'rinkeby';
   } else {
@@ -89,7 +90,7 @@ export class ConnectionService {
     this.handleNetworkChange(await this.getProvider().send('net_version', []));
   }
 
-  private handleNetworkChange(chainId: string | void) {
+  private handleNetworkChange(chainId: string) {
     this.networkState.set(networkNameFrom(chainId));
   }
 

@@ -8,6 +8,7 @@ import {GolemTokenAddresses} from '../../src/config';
 import {Services} from '../../src/services';
 import {getWallets} from 'ethereum-waffle';
 import {TokensService} from '../../src/services/TokensService';
+import {MockedEthereum} from './mockedEthereum';
 
 const noOpLogger = {
   log: () => {
@@ -22,12 +23,7 @@ function testAccountService(provider: JsonRpcProvider, address: string) {
 }
 
 async function testConnectionService(provider: JsonRpcProvider) {
-  const connectionService = new ConnectionService({
-    send: sinon.mock(),
-    isMetaMask: true,
-    on: () => { /* empty */ },
-    off: () => { /* empty */ }
-  });
+  const connectionService = new ConnectionService(new MockedEthereum());
   connectionService['provider'] = provider;
   await connectionService.checkConnection();
   await connectionService.checkNetwork();
