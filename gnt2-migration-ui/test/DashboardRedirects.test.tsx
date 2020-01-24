@@ -9,8 +9,6 @@ import {Dashboard} from '../src/ui/Dashboard';
 import {MemoryRouter} from 'react-router-dom';
 import {createTestServices} from './helpers/testServices';
 import {createMockProvider} from 'ethereum-waffle';
-import {MockedEthereum} from './helpers/mockedEthereum';
-import {JsonRpcProvider} from 'ethers/providers';
 
 chai.use(chaiDom);
 
@@ -23,7 +21,6 @@ describe('Dashboard', () => {
 
   it('redirects from Login to Account page when connected to MetaMask', async () => {
     sinon.stub(services.connectionService, 'isConnected').returns(true);
-    sinon.stub(services.connectionService, 'getProvider').returns(new MockedEthereum() as unknown as JsonRpcProvider);
 
     const {getByText} = await render(
       <MemoryRouter initialEntries={['/']}>
