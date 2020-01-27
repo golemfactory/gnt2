@@ -7,6 +7,7 @@ import {useAsyncEffect} from './hooks/useAsyncEffect';
 import {useProperty} from './hooks/useProperty';
 import {useSnackbar} from './hooks/useSnackbar';
 import Jazzicon, {jsNumberForAddress} from 'react-jazzicon';
+import {Modal} from './Modal';
 
 export const Account = () => {
   const [balance, setBalance] = useState<BigNumber | undefined>(undefined);
@@ -16,6 +17,10 @@ export const Account = () => {
   const [depositTokensBalance, setDepositTokensBalance] = useState<BigNumber | undefined>(undefined);
   const [refresh, setRefresh] = useState(false);
   const [transactionHash, setTransactionHash] = useState<string | undefined>('');
+  const [errorMassage, setErrorMessage] = useState<string | undefined>(undefined);
+  const [showModal, setShowModal] = useState(false);
+  const [txInProgress, setTxInProgress] = useState(false);
+
 
   const {accountService, tokensService, contractAddressService, connectionService} = useServices();
   const tokenAddresses = useProperty(contractAddressService.golemNetworkTokenAddress);
@@ -31,12 +36,19 @@ export const Account = () => {
   }, [refresh, account, tokenAddresses]);
 
   const migrateTokens = async () => {
+    setTransactionHash(undefined);
+    setErrorMessage(undefined);
     try {
+      setShowModal(true);
+      setTxInProgress(true);
       const tx = await tokensService.migrateAllTokens(account);
       setTransactionHash(tx);
+      setTxInProgress(false);
       setRefresh(!refresh);
     } catch (e) {
       show(e.message);
+      setErrorMessage(e.message);
+      setTxInProgress(false);
     }
   };
 
@@ -59,10 +71,18 @@ export const Account = () => {
       {depositTokensBalance && <div data-testid='deposit'>{format(depositTokensBalance)}</div>}
       <div>Your ETH balance:</div>
       {balance && <div data-testid='ETH-balance'>{format(balance, 4)}</div>}
-      <Migrate data-testid="button" onClick={migrateTokens} disabled={oldTokensBalance?.eq(new BigNumber('0'))}>
+      <Button data-testid="button" onClick={migrateTokens} disabled={oldTokensBalance?.eq(new BigNumber('0'))}>
         Migrate
-      </Migrate>
+      </Button>
       {transactionHash && <div>{transactionHash}</div>}
+      {showModal &&
+      <Modal onClose={() => setShowModal(false)} inProgress={txInProgress}>
+        <Title>Transaction in progress</Title>
+        <a href={`https://rinkeby.etherscan.io/address/${transactionHash && transactionHash}`} data-testid='etherscan-link'>
+          <Button data-testid='etherscan-button' disabled={errorMassage !== undefined || transactionHash === undefined}>View transaction details</Button>
+        </a>
+        {errorMassage && <div data-testid='error-message'>{errorMassage}</div>}
+      </Modal>}
     </div>
   );
 };
@@ -76,12 +96,12 @@ const Address = styled.div`
   margin-left: 8px;
 `;
 
-const Migrate = styled.button`
+const Button = styled.button`
   background-color: #181EA9;
   border: none;
   color: white;
   padding: 15px 32px;
-  margin: 12px;
+  margin: 12px 0;
   text-align: center;
   text-decoration: none;
   display: inline-block;
@@ -91,4 +111,12 @@ const Migrate = styled.button`
     opacity: 0.3;
     background: grey;
   }
+`;
+
+const Title = styled.p`
+  font-style: normal;
+  font-weight: bold;
+  font-size: 24px;
+  line-height: 29px;
+  color: #181EA9;
 `;

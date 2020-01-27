@@ -7,6 +7,9 @@ import {Services} from '../src/services';
 import chai, {expect} from 'chai';
 import chaiDom from 'chai-dom';
 import {createTestServices} from './helpers/testServices';
+import {TransactionDenied} from '../src/errors';
+import sinon from 'sinon';
+import {SnackbarProvider} from '../src/ui/Snackbar/SnackbarProvider';
 
 chai.use(chaiDom);
 
@@ -44,6 +47,43 @@ describe('Account page', () => {
     await wait(() => {
       expect(queryByTestId('NGNT-balance')).to.have.text('140000000.000');
       expect(queryByTestId('GNT-balance')).to.have.text('0.000');
+    });
+  });
+
+  it('shows modal after migrate', async () => {
+
+    const {getByTestId} = await render(
+      <ServiceContext.Provider value={services}>
+        <Account/>
+      </ServiceContext.Provider>
+    );
+
+    fireEvent.click(getByTestId('button'));
+
+    await wait(() => {
+      expect(getByTestId('modal')).to.exist;
+      expect(getByTestId('etherscan-button')).to.have.text('View transaction details');
+      expect(getByTestId('etherscan-button')).to.not.have.attr('disabled');
+      expect(getByTestId('etherscan-link')).to.have.attr('href').match(/https:\/\/rinkeby.etherscan.io\/address\/0x[0-9a-fA-F]{64}/);
+    });
+  });
+
+  it('shows modal with user denied transaction info', async () => {
+    sinon.stub(services.tokensService, 'migrateAllTokens').rejects(new TransactionDenied(new Error()));
+    const {getByTestId} = await render(
+      <ServiceContext.Provider value={services}>
+        <SnackbarProvider>
+          <Account/>
+        </SnackbarProvider>
+      </ServiceContext.Provider>
+    );
+
+    fireEvent.click(getByTestId('button'));
+
+    await wait(() => {
+      expect(getByTestId('modal')).to.exist;
+      expect(getByTestId('etherscan-button')).to.have.attr('disabled', '');
+      expect(getByTestId('error-message')).to.have.text('User denied transaction signature.');
     });
   });
 });
