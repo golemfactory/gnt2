@@ -22,7 +22,7 @@ export async function deployOldToken(provider: Provider, deployWallet: Wallet, h
     currentBlockNumber + 3
   );
   const holderSignedToken = await token.connect(holder);
-  await holderSignedToken.create({value: utils.parseUnits('150000.0')});
+  await holderSignedToken.create({value: utils.parseUnits('150000.0'), gasLimit: 75000});
   await mineEmptyBlock(provider);
   await token.finalize();
   return {token, holderSignedToken};

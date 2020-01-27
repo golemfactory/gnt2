@@ -17,7 +17,7 @@ async function deployAllContracts() {
 
   console.log(`Deploying GNT ...`);
   const {token: oldGNT, holderSignedToken} = await deployOldToken(provider, deployer, deployer);
-  console.log(`GNTB deployed at address: ${oldGNT.address}`);
+  console.log(`GNT deployed at address: ${oldGNT.address}`);
 
   console.log(`Deploying GNTB ...`);
   const GNTB = await new GolemNetworkTokenBatchingFactory(deployer).deploy(oldGNT.address);
