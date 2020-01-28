@@ -6,6 +6,7 @@ import {GolemNetworkTokenBatching} from '../../build/contract-types/GolemNetwork
 import {GolemNetworkToken} from '../../build/contract-types/GolemNetworkToken';
 import {GolemContractsDevDeployment} from './interfaces';
 import {GNTDepositFactory} from '../../build/contract-types/GNTDepositFactory';
+import {BigNumber} from 'ethers/utils';
 
 const delay = 48 * 60 * 60;
 
@@ -22,7 +23,7 @@ export async function deployOldToken(provider: Provider, deployWallet: Wallet, h
     currentBlockNumber + 3
   );
   const holderSignedToken = await token.connect(holder);
-  await holderSignedToken.create({value: utils.parseUnits('150000.0'), gasLimit: 75000});
+  await holderSignedToken.create({value: new BigNumber('2').toHexString(), gasLimit: 75000});
   await mineEmptyBlock(provider);
   await token.finalize();
   return {token, holderSignedToken};
