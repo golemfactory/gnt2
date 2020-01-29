@@ -1,8 +1,6 @@
 export const getGasLimit = () => {
   if (process.env.NODE_ENV === 'test') {
-    return {};
+    return undefined;
   }
-  return {
-    gasLimit: 75000,
-  };
+  return 75000;
 };

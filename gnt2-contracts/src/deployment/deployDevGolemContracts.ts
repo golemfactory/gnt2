@@ -1,5 +1,5 @@
 import {utils, Wallet} from 'ethers';
-import {GolemNetworkTokenBatchingFactory, GolemNetworkTokenFactory, NewGolemNetworkTokenFactory, GNTDepositFactory} from 'gnt2-contracts';
+import {GNTDepositFactory, GolemNetworkTokenBatchingFactory, GolemNetworkTokenFactory, NewGolemNetworkTokenFactory} from 'gnt2-contracts';
 import {JsonRpcProvider, Provider} from 'ethers/providers';
 import {ConsoleLogger, Logger} from '../utils/logger';
 import {GolemNetworkTokenBatching} from '../../build/contract-types/GolemNetworkTokenBatching';
@@ -9,8 +9,6 @@ import {BigNumber} from 'ethers/utils';
 import {getGasLimit} from '../config';
 
 const delay = 48 * 60 * 60;
-const DEF_GAS = 75000;
-
 function sleep(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -30,6 +28,10 @@ async function waitUntilBlock(provider: Provider, blockNumber: number) {
   }
 }
 
+function defaultOverrides() {
+  return {gasLimit: getGasLimit()};
+}
+
 export async function deployOldToken(provider: Provider, deployWallet: Wallet, holder: Wallet, logger: Logger = new ConsoleLogger()) {
   const currentBlockNumber = await provider.getBlockNumber();
   const fundingStartBlock = currentBlockNumber + 3;
@@ -46,20 +48,20 @@ export async function deployOldToken(provider: Provider, deployWallet: Wallet, h
   const holderSignedToken = await token.connect(holder);
   await waitUntilBlock(provider, fundingStartBlock);
   logger.log('Mining...');
-  await holderSignedToken.create({value: new BigNumber('15000000000000000'), gasLimit: DEF_GAS});
+  await holderSignedToken.create({...defaultOverrides(), value: new BigNumber('15000000000000000')});
   await waitUntilBlock(provider, fundingEndBlock);
   logger.log('Finalizing...');
-  await token.finalize({gasLimit: DEF_GAS});
+  await token.finalize(defaultOverrides());
   logger.log('Done!');
   return {token, holderSignedToken};
 }
 
 export async function wrapGNTtoGNTB(wallet: Wallet, gntb: GolemNetworkTokenBatching, gnt: GolemNetworkToken, value: string) {
-  const contractTransaction = await gntb.openGate(getGasLimit());
+  const contractTransaction = await gntb.openGate({gasLimit: 300000});
   await contractTransaction.wait();
   const gateAddress = await gntb.getGateAddress(wallet.address);
-  await gnt.transfer(gateAddress, value, getGasLimit());
-  return gntb.transferFromGate(getGasLimit());
+  await (await gnt.transfer(gateAddress, value, defaultOverrides())).wait();
+  return gntb.transferFromGate({gasLimit: 100000});
 }
 
 export async function deployDevGolemContracts(provider: Provider,

@@ -1,4 +1,4 @@
-import {Wallet, providers, utils} from 'ethers';
+import {providers, utils, Wallet} from 'ethers';
 import {deployOldToken, wrapGNTtoGNTB} from './deployDevGolemContracts';
 import {GolemNetworkTokenBatchingFactory, NewGolemNetworkTokenFactory} from 'gnt2-contracts';
 import {GNTDepositFactory} from '../..';
@@ -31,12 +31,34 @@ async function deployAllContracts() {
   console.log(`NGNT deployed at address: ${NGNT.address}`);
 
   console.log(`Wrapping oldGNT to GNTB ...`);
-  const wrapHash = await wrapGNTtoGNTB(deployer, GNTB, holderSignedToken, utils.parseUnits('10000000').toString());
-  console.log(`done. hash: ${wrapHash.hash}`);
+  const wrappedTokens = await wrapGNTtoGNTB(deployer, GNTB, holderSignedToken, utils.parseEther('10000000').toString());
+  await wrappedTokens.wait();
+  console.log(`done. tx hash: ${wrappedTokens.hash}`);
 
   console.log(`Transfer funds to deposit ...`);
-  const depositHash = await GNTB.transferAndCall(GNTD.address, utils.parseUnits('100'), [], {gasLimit: 100000});
-  console.log(`done. hash: ${depositHash.hash}`);
+  const deposit = await GNTB.transferAndCall(GNTD.address, utils.parseEther('100'), [], {gasLimit: 100000});
+  await deposit.wait();
+  console.log(`done. tx hash: ${deposit.hash}`);
+
+  console.log('Distributing tokens');
+
+  const ganacheWallets = ['0x17ec8597ff92C3F44523bDc65BF0f1bE632917ff',
+    '0x63FC2aD3d021a4D7e64323529a55a9442C444dA0',
+    '0xD1D84F0e28D6fedF03c73151f98dF95139700aa7',
+    '0xd59ca627Af68D29C547B91066297a7c469a7bF72',
+    '0xc2FCc7Bcf743153C58Efd44E6E723E9819E9A10A',
+    '0x2ad611e02E4F7063F515C8f190E5728719937205',
+    '0x5e8b3a7e6241CeE1f375924985F9c08706f41d34',
+    '0xFC6F167a5AB77Fe53C4308a44d6893e8F2E54131',
+    '0xDe41151d0762CB537921c99208c916f1cC7dA04D',
+    '0x121199e18C70ac458958E8eB0BC97c0Ba0A36979'];
+
+  for (let i = 0; i < 10; i++) {
+    const contractTransaction = await holderSignedToken.transfer(ganacheWallets[i], utils.parseEther('10000'));
+    await contractTransaction.wait();
+    process.stdout.write('.');
+  }
+  console.log('\ndone!');
 
   const data = {
     deployer: {
