@@ -1,7 +1,6 @@
 import {Wallet, providers, utils} from 'ethers';
 import {deployOldToken, wrapGNTtoGNTB} from './deployDevGolemContracts';
-import {GolemNetworkTokenBatchingFactory} from '../../build/contract-types/GolemNetworkTokenBatchingFactory';
-import {NewGolemNetworkTokenFactory} from '../../build/contract-types/NewGolemNetworkTokenFactory';
+import {GolemNetworkTokenBatchingFactory, NewGolemNetworkTokenFactory} from 'gnt2-contracts';
 import {GNTDepositFactory} from '../..';
 
 import {writeFile} from 'fs';
@@ -52,7 +51,7 @@ async function deployAllContracts() {
     }
   };
 
-  writeFile('deploy.json', JSON.stringify({data}), (err) => err && console.log(JSON.stringify(err)));
+  writeFile('rinkeby-deployment.json', JSON.stringify({data}, null, 2), (err) => err && console.log(JSON.stringify(err)));
 }
 
 deployAllContracts();

@@ -25,7 +25,7 @@ describe('Account page', () => {
       </ServiceContext.Provider>
     );
 
-    expect(await waitForElement(() => getByTestId('ETH-balance'))).to.have.text('9999999999849999.9871');
+    expect(await waitForElement(() => getByTestId('ETH-balance'))).to.have.text('9999999999999999.9721');
     expect(await waitForElement(() => getByTestId('GNT-balance'))).to.have.text('140000000.000');
     expect(await waitForElement(() => getByTestId('NGNT-balance'))).to.have.text('0.000');
     expect(await waitForElement(() => getByTestId('GNTB-balance'))).to.have.text('9999900.000');

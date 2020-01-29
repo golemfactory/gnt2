@@ -13,11 +13,11 @@ contract GolemNetworkToken {
     string public constant symbol = "GNT";
     uint8 public constant decimals = 18;  // 18 decimal places, the same as ETH.
 
-    uint256 public constant tokenCreationRate = 10^26; //change from 1000 to deploy on test net
+    uint256 public constant tokenCreationRate = 10**10; // CHANGED FOR TESTING (previously 1000)
 
     // The funding cap in weis.
-    uint256 public constant tokenCreationCap = 820000 ether * tokenCreationRate;
-    uint256 public constant tokenCreationMin = 150000 ether * tokenCreationRate;
+    uint256 public constant tokenCreationCap = 820000 ether * 1000; // CHANGED FOR TESTING (previously 820000 ether * tokenCreationRate)
+    uint256 public constant tokenCreationMin = 150000 ether * 1000; // CHANGED FOR TESTING (previously 150000 ether * tokenCreationRate)
 
     uint256 public fundingStartBlock;
     uint256 public fundingEndBlock;
