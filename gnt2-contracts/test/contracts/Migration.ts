@@ -13,7 +13,7 @@ describe('GNT to NGNT Migration', () => {
   const [deployWallet, holder] = getWallets(provider);
 
   it('migrates token', async () => {
-    const {token, holderSignedToken} = await deployOldToken(provider, deployWallet, holder);
+    const {token, holderSignedToken} = await deployOldToken(provider, deployWallet, holder, {log: () => { /* do nothing */ }});
 
     const newToken = await new NewGolemNetworkTokenFactory(deployWallet).deploy();
     await token.setMigrationAgent(newToken.address);
