@@ -18,6 +18,7 @@ describe('Dashboard', () => {
   beforeEach(async () => {
     services = await createTestServices(createMockProvider());
   });
+
   it('redirects from Login to Account page when connected to MetaMask', async () => {
     sinon.stub(services.connectionService, 'isConnected').returns(true);
 

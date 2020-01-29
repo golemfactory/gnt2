@@ -4,33 +4,17 @@ import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import chaiAsPromised from 'chai-as-promised';
 import {JsonRpcProvider} from 'ethers/providers';
+import {MockedEthereum} from './helpers/mockedEthereum';
 
 chai.use(sinonChai);
 chai.use(chaiAsPromised);
 
 describe('Connections Service', () => {
-  let mockedEthereum: MetamaskEthereum & { simulateAccountChanged: (accounts: string[]) => void, simulateNetworkChange: (network: string) => void };
-
   let connectionService: ConnectionService;
+  let mockedEthereum: any;
 
   beforeEach(() => {
-    let mockedEthereumCallback: (params?: any) => void = () => { /* empty */ };
-    mockedEthereum = {
-      simulateAccountChanged: function (accounts = []) {
-        mockedEthereumCallback(accounts);
-      },
-      simulateNetworkChange: function (network = '') {
-        mockedEthereumCallback(network);
-      },
-      send: sinon.mock().returns('4'),
-      isMetaMask: true,
-      on: (eventName, callback) => {
-        mockedEthereumCallback = callback;
-      },
-      off: (eventName, callback) => {
-        mockedEthereumCallback = callback;
-      }
-    };
+    mockedEthereum = new MockedEthereum();
     connectionService = new ConnectionService(mockedEthereum);
   });
 

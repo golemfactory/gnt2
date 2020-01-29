@@ -1,5 +1,9 @@
 type MetamaskEthereum = {
-  send: (eventName: string) => void | string;
+  send: (eventName: string) => {
+    id: number;
+    jsonrpc: string;
+    result: string;
+  };
   isMetaMask: boolean;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   on: (eventName: string, callback: (param?: any) => void) => void;
@@ -10,5 +14,3 @@ type MetamaskEthereum = {
 interface Window {
   ethereum: MetamaskEthereum;
 }
-
-type Callback = () => void;
