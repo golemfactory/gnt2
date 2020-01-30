@@ -1,4 +1,4 @@
-import React, {MouseEvent, ReactNode, useEffect} from 'react';
+import React, {ReactNode} from 'react';
 import styled from 'styled-components';
 import {Spinner} from './Spinner';
 
@@ -8,38 +8,16 @@ export interface ModalProps {
   inProgress: boolean;
 }
 
-export const Modal = ({children, onClose, inProgress}: ModalProps) => {
-  const onBackdropClick = (event: MouseEvent) => {
-    if (event.target === event.currentTarget) {
-      onClose();
-    }
-  };
-  const onEscapeKeyDown = (event: KeyboardEvent) => {
-    if (event.key === 'Escape') {
-      onClose();
-    }
-  };
-
-  useEffect(() => {
-    document.addEventListener('keydown', onEscapeKeyDown, false);
-    return () => {
-      document.removeEventListener('keydown', onEscapeKeyDown, false);
-    };
-  });
-
-  return (
-    <ModalBackdrop className='modal-backdrop' onClick={onBackdropClick} data-testid='modal'>
-      <ModalBody className={'modal-body'}>
-        {inProgress
-          ? <Spinner/>
-          : <CloseButton className='modal-close' onClick={onClose}/>
-        }
-        {children}
-      </ModalBody>
-    </ModalBackdrop>
-  );
-};
-
+export const Modal = ({children, onClose, inProgress}: ModalProps) =>
+  (<ModalBackdrop className='modal-backdrop' data-testid='modal'>
+    <ModalBody className={'modal-body'}>
+      {inProgress
+        ? <Spinner/>
+        : <CloseButton className='modal-close' onClick={onClose}/>
+      }
+      {children}
+    </ModalBody>
+  </ModalBackdrop>);
 
 const ModalBackdrop = styled.div`
   position: fixed;

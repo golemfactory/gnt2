@@ -13,6 +13,16 @@ import {SnackbarProvider} from '../src/ui/Snackbar/SnackbarProvider';
 
 chai.use(chaiDom);
 
+async function renderAccount(services: Services) {
+  return render(
+    <ServiceContext.Provider value={services}>
+      <SnackbarProvider>
+        <Account/>
+      </SnackbarProvider>
+    </ServiceContext.Provider>
+  );
+}
+
 describe('Account page', () => {
 
   let services: Services;
@@ -22,11 +32,7 @@ describe('Account page', () => {
   });
 
   it('shows balances', async () => {
-    const {getByTestId} = await render(
-      <ServiceContext.Provider value={services}>
-        <Account/>
-      </ServiceContext.Provider>
-    );
+    const {getByTestId} = await renderAccount(services);
 
     expect(await waitForElement(() => getByTestId('ETH-balance'))).to.have.text('9999999999999999.9721');
     expect(await waitForElement(() => getByTestId('GNT-balance'))).to.have.text('140000000.000');
@@ -36,27 +42,18 @@ describe('Account page', () => {
   });
 
   it('shows migrated tokens', async () => {
-    const {queryByTestId, getByTestId} = await render(
-      <ServiceContext.Provider value={services}>
-        <Account/>
-      </ServiceContext.Provider>
-    );
+    const {getByTestId} = await renderAccount(services);
 
     fireEvent.click(getByTestId('button'));
 
     await wait(() => {
-      expect(queryByTestId('NGNT-balance')).to.have.text('140000000.000');
-      expect(queryByTestId('GNT-balance')).to.have.text('0.000');
+      expect(getByTestId('NGNT-balance')).to.have.text('140000000.000');
+      expect(getByTestId('GNT-balance')).to.have.text('0.000');
     });
   });
 
-  it('shows modal after migrate', async () => {
-
-    const {getByTestId} = await render(
-      <ServiceContext.Provider value={services}>
-        <Account/>
-      </ServiceContext.Provider>
-    );
+  it('shows modal on migrate', async () => {
+    const {getByTestId} = await renderAccount(services);
 
     fireEvent.click(getByTestId('button'));
 
@@ -68,21 +65,15 @@ describe('Account page', () => {
     });
   });
 
-  it('shows modal with user denied transaction info', async () => {
+  it('shows error in modal with when user denied transaction', async () => {
     sinon.stub(services.tokensService, 'migrateAllTokens').rejects(new TransactionDenied(new Error()));
-    const {getByTestId} = await render(
-      <ServiceContext.Provider value={services}>
-        <SnackbarProvider>
-          <Account/>
-        </SnackbarProvider>
-      </ServiceContext.Provider>
-    );
+    const {getByTestId} = await renderAccount(services);
 
     fireEvent.click(getByTestId('button'));
 
     await wait(() => {
       expect(getByTestId('modal')).to.exist;
-      expect(getByTestId('etherscan-button')).to.have.attr('disabled', '');
+      expect(getByTestId('etherscan-button')).to.have.attr('disabled');
       expect(getByTestId('error-message')).to.have.text('User denied transaction signature.');
     });
   });
