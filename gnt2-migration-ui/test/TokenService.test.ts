@@ -37,7 +37,7 @@ describe('Token Service', () => {
     beforeEach(async () => {
       addresses = await deployDevGolemContracts(provider, deployWallet, holder, {log: () => { /* no op */ }});
       const contractAddressService = {
-        golemNetworkTokenAddress: new State<ContractAddresses>(addresses)
+        contractAddresses: new State<ContractAddresses>(addresses)
       } as unknown as ContractAddressService;
       tokensService = new TokensService(() => provider, contractAddressService);
     });

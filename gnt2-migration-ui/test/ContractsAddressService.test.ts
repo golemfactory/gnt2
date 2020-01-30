@@ -19,10 +19,10 @@ describe('Contract Address Service', () => {
     });
     connectionService.network.set('rinkeby');
     expect(contractAddressService.contractAddresses.get()).to.deep.eq({
-      oldGolemToken: '0x924442A66cFd812308791872C4B242440c108E19',
-      newGolemToken: '0xef6A0668be10276f6B74eB80593B01B5d0606a2f',
-      batchingGolemToken: '0x123438d379BAbD07134d1d4d7dFa0BCbd56ca3F3',
-      gntDeposit: '0x884443710CDe8Bb56D10E81059513fb1c4Bf32A3'
+      oldGolemToken: '0x5f04440eeBE94581152C1654fF06726043114461',
+      newGolemToken: '0x3D775f0285ce59B470cFb21F82B5C6Aa2B931f16',
+      batchingGolemToken: '0x22f8707c775aEF9243B751F6831B59BfC85A4175',
+      gntDeposit: '0xD08D7EAd2b8FFA32dcF32754280484F4982c3c4B'
     });
   });
 });

@@ -11,33 +11,29 @@ import {Modal} from './Modal';
 import {useModal} from './hooks/useModal';
 import {TransactionProgress} from './TransactionProgres';
 import {CTAButton} from './commons/CTAButton';
+import {useAsync} from './hooks/useAsync';
 
 
 export const Account = () => {
-  const [balance, setBalance] = useState<BigNumber | undefined>(undefined);
-  const [oldTokensBalance, setOldTokensBalance] = useState<BigNumber | undefined>(undefined);
-  const [newTokensBalance, setNewTokensBalance] = useState<BigNumber | undefined>(undefined);
-  const [batchingTokensBalance, setBatchingTokensBalance] = useState<BigNumber | undefined>(undefined);
-  const [depositTokensBalance, setDepositTokensBalance] = useState<BigNumber | undefined>(undefined);
+  const {accountService, tokensService, contractAddressService, connectionService} = useServices();
+  const {show} = useSnackbar();
+
+  const contractAddresses = useProperty(contractAddressService.contractAddresses);
+  const account = useProperty(connectionService.account);
   const [refresh, setRefresh] = useState(false);
+
+  const useAsyncBalance = (execute: () => Promise<BigNumber | undefined>) => useAsync(execute, [account, contractAddresses, refresh]);
+
+  const [oldTokensBalance, oldBalanceTokenError] = useAsyncBalance(async () => tokensService.balanceOfOldTokens(account));
+  const [balance] = useAsyncBalance(async () => accountService.balanceOf(account));
+  const [newTokensBalance] = useAsyncBalance(async () => tokensService.balanceOfNewTokens(account));
+  const [batchingTokensBalance] = useAsyncBalance(async () => tokensService.balanceOfBatchingTokens(account));
+  const [depositBalance] = useAsyncBalance(async () => tokensService.balanceOfDepositTokens(account));
+
   const [transactionHash, setTransactionHash] = useState<string | undefined>('');
   const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
   const [txInProgress, setTxInProgress] = useState(false);
   const [isTransactionModalVisible, openTransactionModal, closeTransactionModal] = useModal();
-
-
-  const {accountService, tokensService, contractAddressService, connectionService} = useServices();
-  const contractAddresses = useProperty(contractAddressService.contractAddresses);
-  const account = useProperty(connectionService.account);
-  const {show} = useSnackbar();
-
-  useAsyncEffect(async () => {
-    setBalance(await accountService.balanceOf(account));
-    setOldTokensBalance(await tokensService.balanceOfOldTokens(account));
-    setNewTokensBalance(await tokensService.balanceOfNewTokens(account));
-    setBatchingTokensBalance(await tokensService.balanceOfBatchingTokens(account));
-    setDepositTokensBalance(await tokensService.balanceOfDepositTokens(account));
-  }, [refresh, account, contractAddresses]);
 
   const migrateTokens = async () => {
     setTransactionHash(undefined);
@@ -60,6 +56,7 @@ export const Account = () => {
 
   return (
     <div>
+      {oldBalanceTokenError && oldBalanceTokenError.toString()}
       <div>Your address:</div>
       <JazziconAddress>
         {account && <Jazzicon diameter={46} seed={jsNumberForAddress(account)}/>}
@@ -72,7 +69,7 @@ export const Account = () => {
       <div>Your GNTB balance:</div>
       {batchingTokensBalance && <div data-testid='GNTB-balance'>{format(batchingTokensBalance)}</div>}
       <div>Your deposit balance:</div>
-      {depositTokensBalance && <div data-testid='deposit'>{format(depositTokensBalance)}</div>}
+      {depositBalance && <div data-testid='deposit'>{format(depositBalance)}</div>}
       <div>Your ETH balance:</div>
       {balance && <div data-testid='ETH-balance'>{format(balance, 4)}</div>}
       <CTAButton data-testid="button" onClick={migrateTokens} disabled={oldTokensBalance?.eq(new BigNumber('0'))}>
