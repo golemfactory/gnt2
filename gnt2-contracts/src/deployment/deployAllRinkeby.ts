@@ -30,6 +30,10 @@ async function deployAllContracts() {
   const NGNT = await new NewGolemNetworkTokenFactory(deployer).deploy();
   console.log(`NGNT deployed at address: ${NGNT.address}`);
 
+  console.log('Setting migration agent ...');
+  await oldGNT.setMigrationAgent(NGNT.address);
+  console.log('Set!');
+
   console.log(`Wrapping oldGNT to GNTB ...`);
   const wrappedTokens = await wrapGNTtoGNTB(deployer, GNTB, holderSignedToken, utils.parseEther('10000000').toString());
   await wrappedTokens.wait();
