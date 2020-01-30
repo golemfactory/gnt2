@@ -41,9 +41,8 @@ const App: React.FC = () => {
 export default hot(App);
 
 const Body = styled.div`
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    min-height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 90vh;
 `;

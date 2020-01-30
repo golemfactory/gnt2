@@ -7,6 +7,11 @@ import {useAsyncEffect} from './hooks/useAsyncEffect';
 import {useProperty} from './hooks/useProperty';
 import {useSnackbar} from './hooks/useSnackbar';
 import Jazzicon, {jsNumberForAddress} from 'react-jazzicon';
+import {Modal} from './Modal';
+import {useModal} from './hooks/useModal';
+import {TransactionProgress} from './TransactionProgres';
+import {CTAButton} from './commons/CTAButton';
+
 
 export const Account = () => {
   const [balance, setBalance] = useState<BigNumber | undefined>(undefined);
@@ -16,6 +21,10 @@ export const Account = () => {
   const [depositTokensBalance, setDepositTokensBalance] = useState<BigNumber | undefined>(undefined);
   const [refresh, setRefresh] = useState(false);
   const [transactionHash, setTransactionHash] = useState<string | undefined>('');
+  const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
+  const [txInProgress, setTxInProgress] = useState(false);
+  const [isTransactionModalVisible, openTransactionModal, closeTransactionModal] = useModal();
+
 
   const {accountService, tokensService, contractAddressService, connectionService} = useServices();
   const tokenAddresses = useProperty(contractAddressService.golemNetworkTokenAddress);
@@ -31,12 +40,19 @@ export const Account = () => {
   }, [refresh, account, tokenAddresses]);
 
   const migrateTokens = async () => {
+    setTransactionHash(undefined);
+    setErrorMessage(undefined);
     try {
+      openTransactionModal();
+      setTxInProgress(true);
       const tx = await tokensService.migrateAllTokens(account);
       setTransactionHash(tx);
+      setTxInProgress(false);
       setRefresh(!refresh);
     } catch (e) {
       show(e.message);
+      setErrorMessage(e.message);
+      setTxInProgress(false);
     }
   };
 
@@ -59,10 +75,13 @@ export const Account = () => {
       {depositTokensBalance && <div data-testid='deposit'>{format(depositTokensBalance)}</div>}
       <div>Your ETH balance:</div>
       {balance && <div data-testid='ETH-balance'>{format(balance, 4)}</div>}
-      <Migrate data-testid="button" onClick={migrateTokens} disabled={oldTokensBalance?.eq(new BigNumber('0'))}>
+      <CTAButton data-testid="button" onClick={migrateTokens} disabled={oldTokensBalance?.eq(new BigNumber('0'))}>
         Migrate
-      </Migrate>
-      {transactionHash && <div>{transactionHash}</div>}
+      </CTAButton>
+      {isTransactionModalVisible &&
+      <Modal onClose={closeTransactionModal} inProgress={txInProgress}>
+        <TransactionProgress transactionHash={transactionHash} errorMessage={errorMessage}/>
+      </Modal>}
     </div>
   );
 };
@@ -74,21 +93,4 @@ const JazziconAddress = styled.div`
 
 const Address = styled.div`
   margin-left: 8px;
-`;
-
-const Migrate = styled.button`
-  background-color: #181EA9;
-  border: none;
-  color: white;
-  padding: 15px 32px;
-  margin: 12px;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 16px;
-  border-radius: 8px;
-  &:disabled {
-    opacity: 0.3;
-    background: grey;
-  }
 `;
