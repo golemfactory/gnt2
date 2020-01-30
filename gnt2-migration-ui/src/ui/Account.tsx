@@ -27,7 +27,7 @@ export const Account = () => {
 
 
   const {accountService, tokensService, contractAddressService, connectionService} = useServices();
-  const tokenAddresses = useProperty(contractAddressService.golemNetworkTokenAddress);
+  const contractAddresses = useProperty(contractAddressService.contractAddresses);
   const account = useProperty(connectionService.account);
   const {show} = useSnackbar();
 
@@ -37,7 +37,7 @@ export const Account = () => {
     setNewTokensBalance(await tokensService.balanceOfNewTokens(account));
     setBatchingTokensBalance(await tokensService.balanceOfBatchingTokens(account));
     setDepositTokensBalance(await tokensService.balanceOfDepositTokens(account));
-  }, [refresh, account, tokenAddresses]);
+  }, [refresh, account, contractAddresses]);
 
   const migrateTokens = async () => {
     setTransactionHash(undefined);

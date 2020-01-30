@@ -1,6 +1,6 @@
 import {getEnv} from './getEnv';
 
-export interface GolemTokenAddresses {
+export interface ContractAddresses {
   oldGolemToken: string;
   newGolemToken: string;
   batchingGolemToken: string;
@@ -9,9 +9,9 @@ export interface GolemTokenAddresses {
 
 export type NetworkName = 'rinkeby' | 'local';
 
-export type TokenContractsAddresses = Record<NetworkName, GolemTokenAddresses>;
+export type ContractAddressesByNetwork = Record<NetworkName, ContractAddresses>;
 
-export const tokenContractsAddresses: TokenContractsAddresses = Object.freeze({
+export const contractAddressesConfig: ContractAddressesByNetwork = Object.freeze({
   rinkeby: {
     oldGolemToken: getEnv('OLD_GNT_TOKEN_CONTRACT_ADDRESS_RINKEBY', '0x924442A66cFd812308791872C4B242440c108E19'),
     newGolemToken: getEnv('NEW_GNT_TOKEN_CONTRACT_ADDRESS_RINKEBY', '0xef6A0668be10276f6B74eB80593B01B5d0606a2f'),

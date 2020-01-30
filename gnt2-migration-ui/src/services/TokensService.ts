@@ -16,7 +16,7 @@ export class TokensService {
     private contractAddressService: ContractAddressService
   ) {}
 
-  tokenContractsAddresses() { return this.contractAddressService.golemNetworkTokenAddress.get(); }
+  tokenContractsAddresses() { return this.contractAddressService.contractAddresses.get(); }
 
   async balanceOfOldTokens(address: string): Promise<BigNumber> {
     const oldTokenContract = GolemNetworkTokenFactory.connect(this.tokenContractsAddresses().oldGolemToken, this.provider());
