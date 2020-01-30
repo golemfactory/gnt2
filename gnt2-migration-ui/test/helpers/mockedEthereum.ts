@@ -3,25 +3,26 @@ import '../../src/types';
 
 
 export class MockedEthereum implements MetamaskEthereum {
-  isMetaMask: true;
+  isMetaMask = true;
   send = sinon.mock().returns('4');
-  private mockedEthereumCallback: (params?: any) => void = () => { /* empty */
-  };
+  private networkCallback: (params?: any) => void = () => { /* empty */ };
 
-  constructor() {
-    this.isMetaMask = true;
-  }
+  private accountCallback: (params?: any) => void = () => { /* empty */ };
 
   simulateAccountChanged(accounts: string[] = []) {
-    this.mockedEthereumCallback(accounts);
+    this.accountCallback(accounts);
   }
 
   simulateNetworkChange(network = '') {
-    this.mockedEthereumCallback(network);
+    this.networkCallback(network);
   }
 
   on(eventName: string, callback: () => void) {
-    this.mockedEthereumCallback = callback;
+    if (eventName === 'accountsChanged') {
+      this.accountCallback = callback;
+    } else {
+      this.networkCallback = callback;
+    }
   }
 
   off(eventName: string, callback: () => void) { /* do anything */

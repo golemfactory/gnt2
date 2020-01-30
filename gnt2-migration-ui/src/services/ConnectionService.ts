@@ -1,7 +1,6 @@
 import {JsonRpcProvider, Web3Provider} from 'ethers/providers';
-import {Property, State, withSubscription} from 'reactive-properties';
+import {State} from 'reactive-properties';
 import {NetworkName} from '../config';
-import {Callback} from '../types/callback';
 import '../types';
 
 export enum ConnectionState {
@@ -21,18 +20,14 @@ const networkNameFrom = (chainId: string): NetworkName => {
 
 export class ConnectionService {
   private provider: JsonRpcProvider | undefined;
-  private networkState: State<NetworkName>;
-  network: Property<NetworkName>;
+  network: State<NetworkName>;
   connectionState: ConnectionState;
   account: State<string>;
 
   constructor(private injectedMetaMaskEthereum: MetamaskEthereum | undefined) {
     this.connectionState = ConnectionState.UNKNOWN;
     this.account = new State<string>('');
-    this.networkState = new State<NetworkName>('local');
-    this.network = this.networkState.pipe(withSubscription(async () => {
-      await this.checkNetwork();
-    }, this));
+    this.network = new State<NetworkName>('local');
   }
 
   static create() {
@@ -47,6 +42,10 @@ export class ConnectionService {
       this.injectedMetaMaskEthereum.on('accountsChanged', (accounts: string[]) => {
         this.handleAccountsChange(accounts);
       });
+      const listener = (chainId: string) => {
+        this.handleNetworkChange(chainId);
+      };
+      this.metamaskEthereum.on('networkChanged', listener);
       this.connectionState = ConnectionState.NOT_CONNECTED;
       return;
     }
@@ -77,21 +76,12 @@ export class ConnectionService {
     this.connectionState = ConnectionState.CONNECTED;
   }
 
-  subscribe(callback: Callback): Callback {
-    const listener = (chainId: string) => {
-      this.handleNetworkChange(chainId);
-      callback();
-    };
-    this.metamaskEthereum.on('networkChanged', listener);
-    return () => this.metamaskEthereum.off('networkChanged', listener);
-  }
-
   async checkNetwork() {
     this.handleNetworkChange(await this.getProvider().send('net_version', []));
   }
 
   private handleNetworkChange(chainId: string) {
-    this.networkState.set(networkNameFrom(chainId));
+    this.network.set(networkNameFrom(chainId));
   }
 
   private get metamaskEthereum() {

@@ -51,8 +51,9 @@ describe('Connections Service', () => {
   });
 
   it('delivers network change event', () => {
+    tryToCreateProvider();
     const callback = sinon.mock();
-    connectionService.subscribe(callback);
+    connectionService.network.subscribe(callback);
     mockedEthereum.simulateNetworkChange('4');
     expect(connectionService.network.get()).to.eq('rinkeby');
     expect(callback).to.have.been.called;
