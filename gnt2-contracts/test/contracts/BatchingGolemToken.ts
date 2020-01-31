@@ -3,6 +3,7 @@ import {createMockProvider, getWallets} from 'ethereum-waffle';
 import {GolemNetworkTokenFactory, GolemNetworkTokenBatchingFactory} from 'gnt2-contracts';
 
 import {deployOldToken, wrapGNTtoGNTB} from '../../src/deployment/deployDevGolemContracts';
+import {NOPLogger} from './utils';
 
 describe('Batching Golem Network Token', () => {
   const provider = createMockProvider();
@@ -18,7 +19,7 @@ describe('Batching Golem Network Token', () => {
   });
 
   it('wraps GNT tokens as GNTB', async () => {
-    const {holderSignedToken: oldToken} = await deployOldToken(provider, deployer, wallet, {log: () => { /* do nothing */ }});
+    const {holderSignedToken: oldToken} = await deployOldToken(provider, deployer, wallet, NOPLogger);
     token = await new GolemNetworkTokenBatchingFactory(wallet).deploy(oldToken.address);
     await wrapGNTtoGNTB(wallet, token, oldToken, '100');
     expect((await token.balanceOf(wallet.address)).toString()).to.eq('100');
