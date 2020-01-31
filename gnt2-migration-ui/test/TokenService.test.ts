@@ -1,6 +1,11 @@
-import {TokensService} from '../src/services/TokensService';
+import {depositState, TokensService} from '../src/services/TokensService';
 import {createMockProvider, getWallets, solidity} from 'ethereum-waffle';
-import {deployDevGolemContracts, GolemNetworkTokenFactory, GolemContractsDeploymentAddresses} from 'gnt2-contracts';
+import {
+  deployDevGolemContracts,
+  GolemNetworkTokenFactory,
+  GolemContractsDeploymentAddresses,
+  GNTDepositFactory
+} from 'gnt2-contracts';
 import sinon from 'sinon';
 import {GolemNetworkToken} from 'gnt2-contracts/build/contract-types/GolemNetworkToken';
 import {ContractTransaction, errors, utils} from 'ethers';
@@ -11,6 +16,8 @@ import {State} from 'reactive-properties';
 import {MetamaskError, TransactionDenied, UnknownError} from '../src/errors';
 import {ContractAddresses} from '../src/config';
 import {AddressZero} from 'ethers/constants';
+import {NOPLogger} from '../../gnt2-contracts/test/contracts/utils';
+import {parseEther} from 'ethers/utils';
 
 chai.use(solidity);
 chai.use(chaiAsPromised);
@@ -28,14 +35,14 @@ const providerUnknownError = async (): Promise<ContractTransaction> => {
 
 describe('Token Service', () => {
   const provider = createMockProvider();
-  const [holder, deployWallet] = getWallets(provider);
+  const [holder, deployWallet, wallet] = getWallets(provider);
 
   describe('migrateTokens', () => {
     let tokensService: TokensService;
     let addresses: GolemContractsDeploymentAddresses;
 
     beforeEach(async () => {
-      addresses = await deployDevGolemContracts(provider, deployWallet, holder, {log: () => { /* no op */ }});
+      addresses = await deployDevGolemContracts(provider, deployWallet, holder, NOPLogger);
       const contractAddressService = {
         contractAddresses: new State<ContractAddresses>(addresses)
       } as unknown as ContractAddressService;
@@ -67,6 +74,35 @@ describe('Token Service', () => {
         sinon.stub(GolemNetworkTokenFactory, 'connect').callsFake(() => ({...oldTokenContract, migrate: simulatedError} as unknown as GolemNetworkToken));
         await expect(tokensService.migrateAllTokens(holder.address)).to.be.rejectedWith(expectedError);
       });
+    });
+  });
+
+  describe('getDepositState', () => {
+    let tokensService: TokensService;
+    let addresses: GolemContractsDeploymentAddresses;
+
+    beforeEach(async () => {
+      addresses = await deployDevGolemContracts(provider, deployWallet, holder, NOPLogger);
+      const contractAddressService = {
+        contractAddresses: new State<ContractAddresses>(addresses)
+      } as unknown as ContractAddressService;
+      tokensService = new TokensService(() => provider, contractAddressService);
+    });
+    it('returns state of lock deposit', async () => {
+      const GNTDeposit = GNTDepositFactory.connect(addresses.gntDeposit, provider);
+      expect(await GNTDeposit.balanceOf(holder.address)).to.eq(parseEther('100'));
+      expect(await tokensService.isDepositLocked(holder.address)).to.be.eq(depositState.LOCK);
+    });
+    it('returns state of empty deposit', async () => {
+      const GNTDeposit = GNTDepositFactory.connect(addresses.gntDeposit, provider);
+      expect(await GNTDeposit.balanceOf(wallet.address)).to.eq(parseEther('0'));
+      expect(await tokensService.isDepositLocked(wallet.address)).to.be.eq(depositState.EMPTY);
+    });
+    it('returns state of time lock deposit', async () => {
+      const GNTDeposit = GNTDepositFactory.connect(addresses.gntDeposit, provider.getSigner());
+      expect(await GNTDeposit.balanceOf(holder.address)).to.eq(parseEther('100'));
+      (await GNTDeposit.unlock()).wait();
+      expect(await tokensService.isDepositLocked(holder.address)).to.be.eq(depositState.TIMELOCK);
     });
   });
 });

@@ -10,6 +10,13 @@ import {ContractAddressService} from './ContractAddressService';
 import {gasLimit} from '../config';
 import {mapCodeToError} from '../utils/mapCodeToError';
 
+export enum depositState {
+  LOCK,
+  TIMELOCK,
+  UNLOCK,
+  EMPTY
+}
+
 export class TokensService {
   constructor(
     private provider: () => JsonRpcProvider,
@@ -45,5 +52,23 @@ export class TokensService {
   async balanceOfDepositTokens(address: string) {
     const depositContract = GNTDepositFactory.connect(this.tokenContractsAddresses().gntDeposit, this.provider());
     return depositContract.balanceOf(address);
+  }
+
+  async isDepositLocked(address: string) {
+    const depositContract = GNTDepositFactory.connect(this.tokenContractsAddresses().gntDeposit, this.provider().getSigner());
+    if ((await depositContract.balanceOf(address)).toString() === '0') {
+      return depositState.EMPTY;
+    } else if (await depositContract.isLocked(address)) {
+      return depositState.LOCK;
+    } else if (await depositContract.isUnlocked(address)) {
+      return depositState.UNLOCK;
+    } else {
+      return depositState.TIMELOCK;
+    }
+  }
+
+  async getDepositUnlockTime(address: string) {
+    const depositContract = GNTDepositFactory.connect(this.tokenContractsAddresses().gntDeposit, this.provider().getSigner());
+    return depositContract.getTimelock(address);
   }
 }
