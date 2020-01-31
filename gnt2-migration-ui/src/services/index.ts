@@ -2,7 +2,7 @@ import {AccountService} from './AccountsService';
 import {ConnectionService} from './ConnectionService';
 import {TokensService} from './TokensService';
 import {ContractAddressService} from './ContractAddressService';
-import {tokenContractsAddresses} from '../config';
+import {contractAddressesConfig} from '../config';
 
 export type Services = ReturnType<typeof createServices>;
 
@@ -10,7 +10,7 @@ export function createServices() {
   const connectionService = ConnectionService.create();
   const getProvider = () => connectionService.getProvider();
   const accountService = new AccountService(getProvider);
-  const contractAddressService = new ContractAddressService(connectionService, tokenContractsAddresses);
+  const contractAddressService = new ContractAddressService(connectionService, contractAddressesConfig);
   const tokensService = new TokensService(getProvider, contractAddressService);
   const startServices = async () => {
     await connectionService.checkConnection();

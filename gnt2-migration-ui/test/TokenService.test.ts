@@ -9,7 +9,7 @@ import chaiAsPromised from 'chai-as-promised';
 import {ContractAddressService} from '../src/services/ContractAddressService';
 import {State} from 'reactive-properties';
 import {MetamaskError, TransactionDenied, UnknownError} from '../src/errors';
-import {GolemTokenAddresses} from '../src/config';
+import {ContractAddresses} from '../src/config';
 import {AddressZero} from 'ethers/constants';
 
 chai.use(solidity);
@@ -37,7 +37,7 @@ describe('Token Service', () => {
     beforeEach(async () => {
       addresses = await deployDevGolemContracts(provider, deployWallet, holder, {log: () => { /* no op */ }});
       const contractAddressService = {
-        golemNetworkTokenAddress: new State<GolemTokenAddresses>(addresses)
+        contractAddresses: new State<ContractAddresses>(addresses)
       } as unknown as ContractAddressService;
       tokensService = new TokensService(() => provider, contractAddressService);
     });

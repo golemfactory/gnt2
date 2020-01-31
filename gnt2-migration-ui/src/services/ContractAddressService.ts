@@ -1,20 +1,11 @@
-import {Property, State, withSubscription} from 'reactive-properties';
-import {GolemTokenAddresses, NetworkName, TokenContractsAddresses} from '../config';
+import {map, Property} from 'reactive-properties';
+import {ContractAddresses, ContractAddressesByNetwork} from '../config';
 import {ConnectionService} from './ConnectionService';
 
 export class ContractAddressService {
-  golemNetworkTokenAddress: Property<GolemTokenAddresses>;
-  private golemNetworkTokenAddressState: State<GolemTokenAddresses>;
+  contractAddresses: Property<ContractAddresses>;
 
-  constructor(connectionService: ConnectionService, private tokenContractsAddresses: TokenContractsAddresses) {
-    this.golemNetworkTokenAddressState = new State(tokenContractsAddresses.rinkeby);
-    this.golemNetworkTokenAddress = this.golemNetworkTokenAddressState.pipe(withSubscription(() => {
-      const tokenContractsAddresses = this.getGNTAddress(connectionService.network.get());
-      this.golemNetworkTokenAddressState.set(tokenContractsAddresses);
-    }, connectionService));
-  }
-
-  private getGNTAddress(network: NetworkName) {
-    return this.tokenContractsAddresses[network];
+  constructor(connectionService: ConnectionService, private contractAddressesConfig: ContractAddressesByNetwork) {
+    this.contractAddresses = connectionService.network.pipe(map(networkName => this.contractAddressesConfig[networkName]));
   }
 }

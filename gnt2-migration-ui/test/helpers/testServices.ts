@@ -4,7 +4,7 @@ import sinon from 'sinon';
 import {ConnectionService} from '../../src/services/ConnectionService';
 import {deployDevGolemContracts, GolemContractsDeploymentAddresses} from 'gnt2-contracts';
 import {ContractAddressService} from '../../src/services/ContractAddressService';
-import {GolemTokenAddresses} from '../../src/config';
+import {ContractAddresses} from '../../src/config';
 import {Services} from '../../src/services';
 import {getWallets} from 'ethereum-waffle';
 import {TokensService} from '../../src/services/TokensService';
@@ -33,8 +33,8 @@ async function testConnectionService(provider: JsonRpcProvider) {
 function testContractAddressService(connectionService: ConnectionService, addresses: GolemContractsDeploymentAddresses) {
 
   return new ContractAddressService(connectionService, {
-    local: addresses as GolemTokenAddresses,
-    rinkeby: addresses as GolemTokenAddresses
+    local: addresses as ContractAddresses,
+    rinkeby: addresses as ContractAddresses
   });
 }
 export async function createTestServices(provider: JsonRpcProvider): Promise<Services> {
