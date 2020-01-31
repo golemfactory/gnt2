@@ -43,19 +43,20 @@ describe('Account page', () => {
 
   it('shows migrated tokens', async () => {
     const {getByTestId} = await renderAccount(services);
-
-    fireEvent.click(getByTestId('button'));
+    expect(getByTestId('migrate-button')).to.not.have.attr('disabled');
+    fireEvent.click(getByTestId('migrate-button'));
 
     await wait(() => {
       expect(getByTestId('NGNT-balance')).to.have.text('140000000.000');
       expect(getByTestId('GNT-balance')).to.have.text('0.000');
+      expect(getByTestId('migrate-button')).to.have.attr('disabled');
     });
   });
 
   it('shows modal on migrate', async () => {
     const {getByTestId} = await renderAccount(services);
 
-    fireEvent.click(getByTestId('button'));
+    fireEvent.click(getByTestId('migrate-button'));
 
     await wait(() => {
       expect(getByTestId('modal')).to.exist;
@@ -69,7 +70,7 @@ describe('Account page', () => {
     sinon.stub(services.tokensService, 'migrateAllTokens').rejects(new TransactionDenied(new Error()));
     const {getByTestId} = await renderAccount(services);
 
-    fireEvent.click(getByTestId('button'));
+    fireEvent.click(getByTestId('migrate-button'));
 
     await wait(() => {
       expect(getByTestId('modal')).to.exist;
