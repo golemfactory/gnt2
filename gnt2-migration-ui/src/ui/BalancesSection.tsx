@@ -4,6 +4,7 @@ import {useAsync} from './hooks/useAsync';
 import {Balance} from './Balance';
 import {useServices} from './useServices';
 import {useProperty} from './hooks/useProperty';
+import {DepositTimer} from './DepositTimer';
 
 interface BalancesSectionProps {
   refreshTrigger: boolean;
@@ -30,6 +31,7 @@ export const BalancesSection = ({refreshTrigger, setGNTBalance}: BalancesSection
     <Balance testId='GNT-balance' tokenName='GNT' balance={oldTokensBalance}/>
     <Balance testId='GNTB-balance' tokenName='NGNB' balance={batchingTokensBalance}/>
     <Balance testId='deposit' tokenName='deposit' balance={depositBalance}/>
+    <DepositTimer/>
     <Balance testId='ETH-balance' tokenName='ETH' balance={balance} digits={4}/>
   </>);
 };
