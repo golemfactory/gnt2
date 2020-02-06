@@ -10,10 +10,10 @@ import {ContractAddressService} from './ContractAddressService';
 import {gasLimit} from '../config';
 import {mapCodeToError} from '../utils/mapCodeToError';
 
-export enum depositState {
-  LOCK,
-  TIMELOCK,
-  UNLOCK,
+export enum DepositState {
+  LOCKED,
+  TIME_LOCKED,
+  UNLOCKED,
   EMPTY
 }
 
@@ -55,20 +55,20 @@ export class TokensService {
   }
 
   async isDepositLocked(address: string) {
-    const depositContract = GNTDepositFactory.connect(this.tokenContractsAddresses().gntDeposit, this.provider().getSigner());
+    const depositContract = GNTDepositFactory.connect(this.tokenContractsAddresses().gntDeposit, this.provider());
     if ((await depositContract.balanceOf(address)).toString() === '0') {
-      return depositState.EMPTY;
+      return DepositState.EMPTY;
     } else if (await depositContract.isLocked(address)) {
-      return depositState.LOCK;
+      return DepositState.LOCKED;
     } else if (await depositContract.isUnlocked(address)) {
-      return depositState.UNLOCK;
+      return DepositState.UNLOCKED;
     } else {
-      return depositState.TIMELOCK;
+      return DepositState.TIME_LOCKED;
     }
   }
 
   async getDepositUnlockTime(address: string) {
-    const depositContract = GNTDepositFactory.connect(this.tokenContractsAddresses().gntDeposit, this.provider().getSigner());
+    const depositContract = GNTDepositFactory.connect(this.tokenContractsAddresses().gntDeposit, this.provider());
     return depositContract.getTimelock(address);
   }
 }
