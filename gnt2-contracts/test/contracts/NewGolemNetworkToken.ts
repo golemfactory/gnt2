@@ -2,7 +2,7 @@ import chai, {expect} from 'chai';
 import {createMockProvider, getWallets, solidity} from 'ethereum-waffle';
 import {NewGolemNetworkTokenFactory} from '../..';
 import {
-  BigNumber, BigNumberish,
+  BigNumberish,
   keccak256,
   parseEther,
   SigningKey,
@@ -10,7 +10,10 @@ import {
 } from 'ethers/utils';
 import {ethers} from 'ethers';
 import {NewGolemNetworkToken} from '../../build/contract-types/NewGolemNetworkToken';
-chai.use(solidity)
+
+chai.use(solidity);
+
+const DEFAULT_TEST_OVERRIDES = {gasLimit: 1000000};
 
 describe('New Golem Network Token', () => {
   const provider = createMockProvider();
@@ -25,26 +28,31 @@ describe('New Golem Network Token', () => {
   });
 
   async function mint(token: NewGolemNetworkToken, account: string, amount: BigNumberish) {
-    await NewGolemNetworkTokenFactory.connect(token.address, provider.getSigner(minter.address)).mint(account, amount);
+    await NewGolemNetworkTokenFactory.connect(token.address, provider.getSigner(minter.address)).mint(account, amount, DEFAULT_TEST_OVERRIDES);
   }
 
   it('can approve by signature', async () => {
-    const token = await new NewGolemNetworkTokenFactory(deployWallet).deploy(minter.address, 4);
+    const token = await deployNGNT();
     const signature = await signPermitDigest(token, holder.address, spender.address, 0, 0, true);
-    await token.permit(holder.address, spender.address, 0, 0, true, signature.v!, signature.r, signature.s, {gasLimit: 1000000});
+    await token.permit(holder.address, spender.address, 0, 0, true, signature.v!, signature.r, signature.s, DEFAULT_TEST_OVERRIDES);
   });
 
-  it('can spent approved token', async () => {
-    const token = await new NewGolemNetworkTokenFactory(deployWallet).deploy(minter.address, 4);
-    await mint(token, holder.address, parseEther('100'))
+  it('can spend approved token', async () => {
+    const token = await deployNGNT();
+    await mint(token, holder.address, parseEther('100'));
     const signature = await signPermitDigest(token, holder.address, spender.address, 0, 0, true);
-    await token.permit(holder.address, spender.address, 0, 0, true, signature.v!, signature.r, signature.s, {gasLimit: 1000000});
+    await token.permit(holder.address, spender.address, 0, 0, true, signature.v!, signature.r, signature.s, DEFAULT_TEST_OVERRIDES);
     const tokenAsSpender = NewGolemNetworkTokenFactory.connect(token.address, spender);
-    await tokenAsSpender.transferFrom(holder.address, thirdWallet.address, parseEther('100'), {gasLimit: 2000000})
-    await expect(() => tokenAsSpender.transferFrom(holder.address, thirdWallet.address, parseEther('100')))
-      .to.changeBalances([holder, thirdWallet], [parseEther('-100'), parseEther('100')]);
 
+    await tokenAsSpender.transferFrom(holder.address, thirdWallet.address, parseEther('100'), DEFAULT_TEST_OVERRIDES);
+
+    expect(await token.balanceOf(holder.address)).to.equal(0);
+    expect(await token.balanceOf(thirdWallet.address)).to.equal(parseEther('100'));
   });
+
+  async function deployNGNT() {
+    return new NewGolemNetworkTokenFactory(deployWallet).deploy(minter.address, 4);
+  }
 
   async function signPermitDigest(
     token: NewGolemNetworkToken,

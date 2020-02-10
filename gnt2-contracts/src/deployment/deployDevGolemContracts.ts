@@ -8,6 +8,7 @@ import {GolemContractsDevDeployment} from './interfaces';
 import {BigNumber} from 'ethers/utils';
 import {getGasLimit} from '../config';
 import {GNTMigrationAgentFactory} from '../../build/contract-types/GNTMigrationAgentFactory';
+import {getChainId} from '../utils/network';
 
 const delay = 48 * 60 * 60;
 
@@ -75,12 +76,12 @@ export async function deployDevGolemContracts(provider: Provider,
   const {token: oldToken, holderSignedToken} = await deployOldToken(provider, deployWallet, holderWallet, logger);
   logger.log(`Old Golem Network Token address: ${oldToken.address}`);
 
-  console.log(`Deploying Migration Agent ...`);
+  logger.log(`Deploying Migration Agent ...`);
   const migrationAgent = await new GNTMigrationAgentFactory(deployWallet).deploy(oldToken.address);
-  console.log(`Migration Agent deployed at address: ${migrationAgent.address}`);
+  logger.log(`Migration Agent deployed at address: ${migrationAgent.address}`);
 
   logger.log('Deploying New Golem Network Token...');
-  const newToken = await new NewGolemNetworkTokenFactory(deployWallet).deploy(migrationAgent.address);
+  const newToken = await new NewGolemNetworkTokenFactory(deployWallet).deploy(migrationAgent.address, await getChainId(provider));
   logger.log(`New Golem Network Token address: ${newToken.address}`);
 
   const batchingToken = await new GolemNetworkTokenBatchingFactory(holderWallet).deploy(oldToken.address);

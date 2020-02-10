@@ -16,6 +16,8 @@ async function balance(token, holder: Wallet) {
   return utils.formatUnits(await token.balanceOf(holder.address), 'ether');
 }
 
+const DEFAULT_CHAIN_ID = 4;
+
 describe('GNT to NGNT Migration', () => {
   const provider = createMockProvider();
   const [deployWallet, holder] = getWallets(provider);
@@ -23,7 +25,7 @@ describe('GNT to NGNT Migration', () => {
   it('migrates token', async () => {
     const {token, holderSignedToken} = await deployOldToken(provider, deployWallet, holder, NOPLogger);
     const migrationAgent = await new GNTMigrationAgentFactory(deployWallet).deploy(token.address);
-    const newToken = await new NewGolemNetworkTokenFactory(deployWallet).deploy(migrationAgent.address);
+    const newToken = await new NewGolemNetworkTokenFactory(deployWallet).deploy(migrationAgent.address, DEFAULT_CHAIN_ID);
     await migrationAgent.setTarget(newToken.address);
     await token.setMigrationAgent(migrationAgent.address);
 
@@ -43,7 +45,7 @@ describe('GNT to NGNT Migration', () => {
 
   async function deployMigrationAgent(token: GolemNetworkToken) {
     const migrationAgent = await new GNTMigrationAgentFactory(deployWallet).deploy(token.address);
-    const newToken = await new NewGolemNetworkTokenFactory(deployWallet).deploy(migrationAgent.address);
+    const newToken = await new NewGolemNetworkTokenFactory(deployWallet).deploy(migrationAgent.address, DEFAULT_CHAIN_ID);
     await migrationAgent.setTarget(newToken.address);
     await token.setMigrationAgent(migrationAgent.address);
     return migrationAgent;

@@ -7,7 +7,7 @@ contract NewGolemNetworkToken is ERC20Mintable {
     string public name = "New Golem Network Token";
     string public symbol = "NGNT";
     uint8 public decimals = 18;
-    string  public constant version  = "1";
+    string  public constant version = "1";
     mapping(address => uint) public nonces;
 
     // --- EIP712 niceties ---
@@ -18,13 +18,15 @@ contract NewGolemNetworkToken is ERC20Mintable {
     constructor(address _migrationAgent, uint256 _chainId) public {
         addMinter(_migrationAgent);
         renounceMinter();
-        DOMAIN_SEPARATOR = keccak256(abi.encode(
+        DOMAIN_SEPARATOR = keccak256(
+            abi.encode(
                 keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"),
                 keccak256(bytes(name)),
                 keccak256(bytes(version)),
                 _chainId,
                 address(this)
-            ));
+            )
+        );
     }
 
     function transferFrom(address sender, address recipient, uint256 amount) public returns (bool) {
@@ -36,18 +38,23 @@ contract NewGolemNetworkToken is ERC20Mintable {
     }
 
     // --- Approve by signature ---
-    function permit(address holder, address spender, uint256 nonce, uint256 expiry,
+    function permit(
+        address holder, address spender, uint256 nonce, uint256 expiry,
         bool allowed, uint8 v, bytes32 r, bytes32 s) external {
-        bytes32 digest =
-        keccak256(abi.encodePacked(
+        bytes32 digest = keccak256(
+            abi.encodePacked(
                 "\x19\x01",
                 DOMAIN_SEPARATOR,
-                keccak256(abi.encode(PERMIT_TYPEHASH,
-                holder,
-                spender,
-                nonce,
-                expiry,
-                allowed))
+                keccak256(
+                    abi.encode(
+                        PERMIT_TYPEHASH,
+                        holder,
+                        spender,
+                        nonce,
+                        expiry,
+                        allowed
+                    )
+                )
             ));
 
         require(holder != address(0), "Dai/invalid-address-0");
