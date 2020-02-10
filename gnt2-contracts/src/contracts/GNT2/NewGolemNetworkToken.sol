@@ -1,17 +1,24 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.5.10;
 
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20Mintable.sol";
+import "./GNTMigrationAgent.sol";
 
-interface MigrationAgent {
-    function migrateFrom(address _from, uint256 _value) external;
-}
-
-contract NewGolemNetworkToken is ERC20, MigrationAgent {
+contract NewGolemNetworkToken is ERC20Mintable {
     string public name = "New Golem Network Token";
     string public symbol = "NGNT";
     uint8 public decimals = 18;
 
-    function migrateFrom(address _from, uint256 _value) public {
-        _mint(_from, _value);
+
+    constructor(address _migrationAgent) public {
+        addMinter(_migrationAgent);
+        renounceMinter();
+    }
+
+    function transferFrom(address sender, address recipient, uint256 amount) public returns (bool) {
+        _transfer(sender, recipient, amount);
+        if (sender != msg.sender && allowance(sender, msg.sender) != uint(-1)) {
+            _approve(sender, msg.sender, allowance(sender, msg.sender).sub(amount));
+        }
+        return true;
     }
 }

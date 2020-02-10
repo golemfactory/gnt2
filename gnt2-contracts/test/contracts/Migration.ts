@@ -4,6 +4,7 @@ import {NewGolemNetworkTokenFactory} from '../..';
 import {utils, Wallet} from 'ethers';
 import {deployOldToken} from '../../src/deployment/deployDevGolemContracts';
 import {NOPLogger} from './utils';
+import {GNTMigrationAgentFactory} from '../../build/contract-types/GNTMigrationAgentFactory';
 
 async function balance(token, holder: Wallet) {
   return utils.formatUnits(await token.balanceOf(holder.address), 'ether');
@@ -16,8 +17,10 @@ describe('GNT to NGNT Migration', () => {
   it('migrates token', async () => {
     const {token, holderSignedToken} = await deployOldToken(provider, deployWallet, holder, NOPLogger);
 
-    const newToken = await new NewGolemNetworkTokenFactory(deployWallet).deploy();
-    await token.setMigrationAgent(newToken.address);
+    const migrationAgent = await new GNTMigrationAgentFactory(deployWallet).deploy();
+    const newToken = await new NewGolemNetworkTokenFactory(deployWallet).deploy(migrationAgent.address);
+    await migrationAgent.setTarget(newToken.address);
+    await token.setMigrationAgent(migrationAgent.address);
 
     await holderSignedToken.migrate(utils.parseEther('150000000.0'));
 
