@@ -10,11 +10,18 @@ interface MigrationAgent {
 contract GNTMigrationAgent is MigrationAgent, Ownable {
 
     ERC20Mintable private target;
+    address private oldToken;
 
-    constructor() public{
+    modifier onlyToken() {
+        require(msg.sender == address(oldToken), "Token only method");
+        _;
     }
 
-    function migrateFrom(address _from, uint256 _value) public {
+    constructor(address _oldToken) public{
+        oldToken = _oldToken;
+    }
+
+    function migrateFrom(address _from, uint256 _value) public onlyToken {
         target.mint(_from, _value);
     }
 
