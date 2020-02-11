@@ -25,8 +25,8 @@ contract GNTMigrationAgent is MigrationAgent, Ownable {
         require(msg.sender == address(oldToken), "Token only method");
         migratedForHolder[_from] = migratedForHolder[_from].add(_value);
 
-        uint256 toMint = migratedForHolder[_from].sub(mintedForTarget[target][_from]);
-        mintedForTarget[target][_from] = mintedForTarget[target][_from].add(toMint);
+        uint256 toMint = migratedForHolder[_from].sub(mintedForTarget[address(target)][_from]);
+        mintedForTarget[address(target)][_from] = mintedForTarget[address(target)][_from].add(toMint);
         target.mint(_from, toMint);
     }
 
