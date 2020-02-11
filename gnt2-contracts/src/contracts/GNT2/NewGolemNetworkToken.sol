@@ -57,10 +57,10 @@ contract NewGolemNetworkToken is ERC20Mintable {
             )
         );
 
-        require(holder != address(0), "Dai/invalid-address-0");
-        require(holder == ecrecover(digest, v, r, s), "Dai/invalid-permit");
-        require(expiry == 0 || now <= expiry, "Dai/permit-expired");
-        require(nonce == nonces[holder]++, "Dai/invalid-nonce");
+        require(holder != address(0), "Ngnt/invalid-address-0");
+        require(holder == ecrecover(digest, v, r, s), "Ngnt/invalid-permit");
+        require(expiry == 0 || now <= expiry, "Ngnt/permit-expired");
+        require(nonce == nonces[holder]++, "Ngnt/invalid-nonce");
         uint wad = allowed ? uint(- 1) : 0;
         _approve(holder, spender, wad);
     }
