@@ -6,7 +6,7 @@ contract NewGolemNetworkToken is ERC20Mintable {
     string public name = "New Golem Network Token";
     string public symbol = "NGNT";
     uint8 public decimals = 18;
-    string  public constant version = "1";
+    string public constant version = "1";
     mapping(address => uint) public nonces;
 
     // --- EIP712 niceties ---
@@ -54,7 +54,8 @@ contract NewGolemNetworkToken is ERC20Mintable {
                         allowed
                     )
                 )
-            ));
+            )
+        );
 
         require(holder != address(0), "Dai/invalid-address-0");
         require(holder == ecrecover(digest, v, r, s), "Dai/invalid-permit");
