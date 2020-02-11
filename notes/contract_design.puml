@@ -1,13 +1,22 @@
 @startuml
 
+
 interface MigrationAgent {
-    migrateFrom(_from, _value)
+    migrateFrom(from, value)
 }
+
+class Ownable {
+  transferOwnership(address newOwner)
+  renounceOwnership()
+}
+
 class GNTMigrationAgent {
     target: NewGolemNetworkToken
 }
+
 GNTMigrationAgent -> NewGolemNetworkToken : mints
 GNTMigrationAgent <|-- MigrationAgent
+GNTMigrationAgent <|-- Ownable
 
 class ERC20Mintable {
 }
