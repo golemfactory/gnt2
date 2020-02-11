@@ -11,6 +11,7 @@ import {
 import {ethers} from 'ethers';
 import {NewGolemNetworkToken} from '../../build/contract-types/NewGolemNetworkToken';
 import {DEFAULT_TEST_OVERRIDES} from '../utils';
+import {AddressZero} from 'ethers/constants';
 
 chai.use(solidity);
 
@@ -47,6 +48,13 @@ describe('New Golem Network Token', () => {
 
     expect(await token.balanceOf(holder.address)).to.equal(0);
     expect(await token.balanceOf(thirdWallet.address)).to.equal(parseEther('100'));
+  });
+
+  it('cannot approve address 0', async () => {
+    const token = await deployNGNT();
+    const signature = await signPermitDigest(token, AddressZero, spender.address, 0, 0, true);
+    await expect(token.permit(AddressZero, spender.address, 0, 0, true, signature.v!, signature.r, signature.s, DEFAULT_TEST_OVERRIDES))
+      .to.be.revertedWith('Dai/invalid-address-0');
   });
 
   async function deployNGNT() {
