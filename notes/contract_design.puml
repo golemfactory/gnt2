@@ -1,0 +1,21 @@
+@startuml
+
+interface MigrationAgent {
+    migrateFrom(_from, _value)
+}
+class GNTMigrationAgent {
+    target: NewGolemNetworkToken
+}
+GNTMigrationAgent -> NewGolemNetworkToken : mints
+GNTMigrationAgent <|-- MigrationAgent
+
+class ERC20Mintable {
+}
+
+class NewGolemNetworkToken {
+    approveBySignature()
+}
+
+NewGolemNetworkToken <|-- ERC20Mintable
+
+@enduml

@@ -1,7 +1,6 @@
 pragma solidity ^0.5.10;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20Mintable.sol";
-import "./GNTMigrationAgent.sol";
 
 contract NewGolemNetworkToken is ERC20Mintable {
     string public name = "New Golem Network Token";
