@@ -10,10 +10,9 @@ import {
 } from 'ethers/utils';
 import {ethers} from 'ethers';
 import {NewGolemNetworkToken} from '../../build/contract-types/NewGolemNetworkToken';
+import {DEFAULT_TEST_OVERRIDES} from '../utils';
 
 chai.use(solidity);
-
-const DEFAULT_TEST_OVERRIDES = {gasLimit: 1000000};
 
 describe('New Golem Network Token', () => {
   const provider = createMockProvider();

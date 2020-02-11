@@ -1,6 +1,6 @@
 import {expect} from 'chai';
 import {createMockProvider, getWallets} from 'ethereum-waffle';
-import {GolemNetworkTokenFactory} from '../../src/contractsWrappers';
+import {GolemNetworkTokenFactory} from '../..';
 
 describe('Current GNT token', () => {
   const provider = createMockProvider();

@@ -3,7 +3,7 @@ import {createMockProvider, getWallets, solidity} from 'ethereum-waffle';
 import {NewGolemNetworkTokenFactory} from '../..';
 import {utils, Wallet} from 'ethers';
 import {deployOldToken} from '../../src/deployment/deployDevGolemContracts';
-import {NOPLogger} from './utils';
+import {DEFAULT_TEST_OVERRIDES, NOPLogger} from '../utils';
 import {GNTMigrationAgentFactory} from '../../build/contract-types/GNTMigrationAgentFactory';
 import {parseEther} from 'ethers/utils';
 import chaiAsPromised from 'chai-as-promised';
@@ -40,7 +40,8 @@ describe('GNT to NGNT Migration', () => {
     const migrationAgent = await deployMigrationAgent(token);
     const migrationAgentAsHolder = MigrationAgentFactory.connect(migrationAgent.address, holder);
 
-    await expect(migrationAgentAsHolder.migrateFrom(holder.address, parseEther('100'))).to.be.reverted;
+    await expect(migrationAgentAsHolder.migrateFrom(holder.address, parseEther('100'), DEFAULT_TEST_OVERRIDES))
+      .to.be.revertedWith('Ngnt/migration-non-token-call');
   });
 
   async function deployMigrationAgent(token: GolemNetworkToken) {
