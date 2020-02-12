@@ -1,7 +1,7 @@
 import chai, {expect} from 'chai';
 import {createMockProvider, getWallets, solidity} from 'ethereum-waffle';
 import {NewGolemNetworkTokenFactory} from '../..';
-import {utils, Wallet} from 'ethers';
+import {ContractFactory, utils, Wallet} from 'ethers';
 import {deployOldToken} from '../../src/deployment/deployDevGolemContracts';
 import {DEFAULT_TEST_OVERRIDES, NOPLogger} from '../utils';
 import {GNTMigrationAgentFactory} from '../../build/contract-types/GNTMigrationAgentFactory';
@@ -62,9 +62,9 @@ describe('GNT Migration Agent', () => {
   });
 
   it('cannot be deployed with address of old GNT token set to 0', async () => {
-    const unsignedTransaction = new GNTMigrationAgentFactory(deployWallet).getDeployTransaction(AddressZero);
-    unsignedTransaction.gasLimit = 1000000;
-    await expect(provider.sendTransaction(deployWallet.sign(unsignedTransaction))).to.be.revertedWith('Ngnt/migration-invalid-old-token');
+    const {interface: abi, bytecode} = new GNTMigrationAgentFactory(deployWallet);
+    const factory = new ContractFactory(abi, bytecode, deployWallet);
+    await expect(factory.deploy(AddressZero, DEFAULT_TEST_OVERRIDES)).to.be.revertedWith('Ngnt/migration-invalid-old-token');
   });
 
   async function deployMigrationAgent(token: GolemNetworkToken) {
