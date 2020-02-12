@@ -1,9 +1,14 @@
 import {providers, utils, Wallet} from 'ethers';
 import {deployOldToken, wrapGNTtoGNTB} from './deployDevGolemContracts';
-import {GolemNetworkTokenBatchingFactory, NewGolemNetworkTokenFactory} from 'gnt2-contracts';
+import {
+  GolemNetworkTokenBatchingFactory,
+  NewGolemNetworkTokenFactory
+} from 'gnt2-contracts';
 import {GNTDepositFactory} from '../..';
 
 import {writeFile} from 'fs';
+import {GNTMigrationAgentFactory} from '../../build/contract-types/GNTMigrationAgentFactory';
+import {getChainId} from '../utils/network';
 
 const infuraAddress = 'https://rinkeby.infura.io/v3/e9c991e7745b46908ce2b091a4cf643a';
 const walletPrivateKeyAddress = '0xACE228774FDCDD8CEF12E94FE561747C7CD3601C9119AA389ECB43D9909E0BDC';
@@ -26,12 +31,17 @@ async function deployAllContracts() {
   const GNTD = await new GNTDepositFactory(deployer).deploy(GNTB.address, oldGNT.address, deployer.address, delay);
   console.log(`Deposit contract deployed at address: ${GNTD.address}`);
 
+  console.log(`Deploying Migration Agent ...`);
+  const migrationAgent = await new GNTMigrationAgentFactory(deployer).deploy(oldGNT.address);
+  console.log(`Migration Agent deployed at address: ${migrationAgent.address}`);
+
   console.log(`Deploying NGNT ...`);
-  const NGNT = await new NewGolemNetworkTokenFactory(deployer).deploy();
+  const NGNT = await new NewGolemNetworkTokenFactory(deployer).deploy(migrationAgent.address, await getChainId(provider));
   console.log(`NGNT deployed at address: ${NGNT.address}`);
 
   console.log('Setting migration agent ...');
-  await oldGNT.setMigrationAgent(NGNT.address);
+  await migrationAgent.setTarget(NGNT.address);
+  await oldGNT.setMigrationAgent(migrationAgent.address);
   console.log('Set!');
 
   console.log(`Wrapping oldGNT to GNTB ...`);

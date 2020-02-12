@@ -16,7 +16,7 @@ import {State} from 'reactive-properties';
 import {MetamaskError, TransactionDenied, UnknownError} from '../src/errors';
 import {ContractAddresses} from '../src/config';
 import {AddressZero} from 'ethers/constants';
-import {NOPLogger} from '../../gnt2-contracts/test/contracts/utils';
+import {NOPLogger} from '../../gnt2-contracts/test/utils';
 import {parseEther} from 'ethers/utils';
 
 chai.use(solidity);

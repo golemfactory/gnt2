@@ -7,6 +7,8 @@ import {GolemNetworkToken} from '../../build/contract-types/GolemNetworkToken';
 import {GolemContractsDevDeployment} from './interfaces';
 import {BigNumber} from 'ethers/utils';
 import {getGasLimit} from '../config';
+import {GNTMigrationAgentFactory} from '../../build/contract-types/GNTMigrationAgentFactory';
+import {getChainId} from '../utils/network';
 
 const delay = 48 * 60 * 60;
 
@@ -73,18 +75,26 @@ export async function deployDevGolemContracts(provider: Provider,
   logger.log('Deploying Old Golem Network Token...');
   const {token: oldToken, holderSignedToken} = await deployOldToken(provider, deployWallet, holderWallet, logger);
   logger.log(`Old Golem Network Token address: ${oldToken.address}`);
+
+  logger.log(`Deploying Migration Agent ...`);
+  const migrationAgent = await new GNTMigrationAgentFactory(deployWallet).deploy(oldToken.address);
+  logger.log(`Migration Agent deployed at address: ${migrationAgent.address}`);
+
   logger.log('Deploying New Golem Network Token...');
-  const newToken = await new NewGolemNetworkTokenFactory(deployWallet).deploy();
+  const newToken = await new NewGolemNetworkTokenFactory(deployWallet).deploy(migrationAgent.address, await getChainId(provider));
   logger.log(`New Golem Network Token address: ${newToken.address}`);
+
   const batchingToken = await new GolemNetworkTokenBatchingFactory(holderWallet).deploy(oldToken.address);
   await wrapGNTtoGNTB(holderWallet, batchingToken, holderSignedToken, utils.parseUnits('10000000').toString());
+
   logger.log(`Golem Network Token Batching address: ${batchingToken.address}`);
   const tokenDeposit = await new GNTDepositFactory(holderWallet)
     .deploy(batchingToken.address, oldToken.address, deployWallet.address, delay);
   await batchingToken.transferAndCall(tokenDeposit.address, utils.parseUnits('100'), [], {gasLimit: 100000});
   logger.log(`Golem Network Token Deposit address: ${tokenDeposit.address}`);
   logger.log('Setting new token as migration agent');
-  await oldToken.setMigrationAgent(newToken.address);
+  await oldToken.setMigrationAgent(migrationAgent.address);
+  await migrationAgent.setTarget(newToken.address);
   logger.log('Migration agent set');
   logger.log(`Dev account: ${holderWallet.address} - ${holderWallet.privateKey}`);
   return {

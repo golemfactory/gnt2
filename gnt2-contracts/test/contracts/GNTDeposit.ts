@@ -3,9 +3,9 @@ import {createMockProvider, getWallets} from 'ethereum-waffle';
 import {GNTDepositFactory} from 'gnt2-contracts';
 import {deployOldToken, wrapGNTtoGNTB} from '../../src/deployment/deployDevGolemContracts';
 import {GolemNetworkTokenBatchingFactory} from '../..';
-import {NOPLogger} from './utils';
+import {NOPLogger} from '../utils';
 
-describe('Deposit Golem Network Token', () => {
+describe('Golem Network Token Deposit', () => {
   const provider = createMockProvider();
   const [, deployer, wallet] = getWallets(provider);
 
