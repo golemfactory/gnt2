@@ -47,6 +47,11 @@ describe('New Golem Network Token', () => {
       expect(await token.balanceOf(third)).to.equal(parseEther('100'));
     });
 
+    it('emits approval event', async () => {
+      const signature = signDefaultPermit({holder, spender});
+      await expect(permit(signature, {holder, spender})).to.emit(token, 'Approval').withArgs(holder, spender, MaxUint256);
+    });
+
     it('cannot approve address 0', async () => {
       const signature = signDefaultPermit({holder: AddressZero});
       await expect(permit(signature, {holder: AddressZero})).to.be.revertedWith('Ngnt/invalid-address-0');
