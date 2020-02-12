@@ -9,6 +9,7 @@ import {parseEther} from 'ethers/utils';
 import chaiAsPromised from 'chai-as-promised';
 import {MigrationAgentFactory} from '../../build/contract-types/MigrationAgentFactory';
 import {GolemNetworkToken} from '../../build/contract-types/GolemNetworkToken';
+
 chai.use(chaiAsPromised);
 chai.use(solidity);
 
@@ -34,6 +35,22 @@ describe('GNT to NGNT Migration', () => {
     expect(await balance(token, holder)).to.eq('0.0');
     expect(await balance(newToken, holder)).to.eq('150000000.0');
   });
+
+  it('cannot migrate when target is not set (when called from old token)', async () => {
+    const {token, holderSignedToken} = await deployOldToken(provider, deployWallet, holder, NOPLogger);
+    const migrationAgent = await new GNTMigrationAgentFactory(deployWallet).deploy(token.address);
+    await token.setMigrationAgent(migrationAgent.address);
+
+    await expect(holderSignedToken.migrate(utils.parseEther('150000000.0'), DEFAULT_TEST_OVERRIDES))
+      .to.be.rejected;
+  });
+
+  it('cannot migrate when target is not set', async () => {
+    const migrationAgent = await new GNTMigrationAgentFactory(deployWallet).deploy(deployWallet.address);
+    await expect(migrationAgent.migrateFrom(holder.address, utils.parseEther('150000000.0'), DEFAULT_TEST_OVERRIDES))
+      .to.be.revertedWith('Ngnt/migration-target-not-set');
+  });
+
 
   it('only token can migrate', async () => {
     const {token} = await deployOldToken(provider, deployWallet, holder, NOPLogger);

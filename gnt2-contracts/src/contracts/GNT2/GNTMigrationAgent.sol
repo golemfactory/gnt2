@@ -23,6 +23,7 @@ contract GNTMigrationAgent is MigrationAgent, Ownable {
 
     function migrateFrom(address _from, uint256 _value) public {
         require(msg.sender == address(oldToken), "Ngnt/migration-non-token-call");
+        require(address(target) != address(0) , "Ngnt/migration-target-not-set");
         migratedForHolder[_from] = migratedForHolder[_from].add(_value);
 
         uint256 toMint = migratedForHolder[_from].sub(mintedForTarget[address(target)][_from]);
