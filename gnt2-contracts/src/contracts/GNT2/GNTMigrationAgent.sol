@@ -18,6 +18,7 @@ contract GNTMigrationAgent is MigrationAgent, Ownable {
     mapping (address => mapping(address => uint256)) public mintedForTarget;
 
     constructor(address _oldToken) public {
+        require(_oldToken != address(0), "Ngnt/migration-invalid-old-token");
         oldToken = _oldToken;
     }
 

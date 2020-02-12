@@ -9,6 +9,7 @@ import {parseEther} from 'ethers/utils';
 import chaiAsPromised from 'chai-as-promised';
 import {MigrationAgentFactory} from '../../build/contract-types/MigrationAgentFactory';
 import {GolemNetworkToken} from '../../build/contract-types/GolemNetworkToken';
+import {AddressZero} from 'ethers/constants';
 
 chai.use(chaiAsPromised);
 chai.use(solidity);
@@ -19,7 +20,7 @@ async function balance(token, holder: Wallet) {
 
 const DEFAULT_CHAIN_ID = 4;
 
-describe('GNT to NGNT Migration', () => {
+describe('GNT Migration Agent', () => {
   const provider = createMockProvider();
   const [deployWallet, holder] = getWallets(provider);
 
@@ -41,8 +42,7 @@ describe('GNT to NGNT Migration', () => {
     const migrationAgent = await new GNTMigrationAgentFactory(deployWallet).deploy(token.address);
     await token.setMigrationAgent(migrationAgent.address);
 
-    await expect(holderSignedToken.migrate(utils.parseEther('150000000.0'), DEFAULT_TEST_OVERRIDES))
-      .to.be.rejected;
+    await expect(holderSignedToken.migrate(utils.parseEther('150000000.0'), DEFAULT_TEST_OVERRIDES)).to.be.rejected;
   });
 
   it('cannot migrate when target is not set', async () => {
@@ -59,6 +59,12 @@ describe('GNT to NGNT Migration', () => {
 
     await expect(migrationAgentAsHolder.migrateFrom(holder.address, parseEther('100'), DEFAULT_TEST_OVERRIDES))
       .to.be.revertedWith('Ngnt/migration-non-token-call');
+  });
+
+  it('cannot be deployed with address of old GNT token set to 0', async () => {
+    const unsignedTransaction = new GNTMigrationAgentFactory(deployWallet).getDeployTransaction(AddressZero);
+    unsignedTransaction.gasLimit = 1000000;
+    await expect(provider.sendTransaction(deployWallet.sign(unsignedTransaction))).to.be.revertedWith('Ngnt/migration-invalid-old-token');
   });
 
   async function deployMigrationAgent(token: GolemNetworkToken) {
