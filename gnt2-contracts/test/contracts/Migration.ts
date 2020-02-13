@@ -67,6 +67,37 @@ describe('GNT Migration Agent', () => {
     await expect(factory.deploy(AddressZero, DEFAULT_TEST_OVERRIDES)).to.be.revertedWith('Ngnt/migration-invalid-old-token');
   });
 
+  it('mint migrated tokens', async () => {
+    const {token, holderSignedToken} = await deployOldToken(provider, deployWallet, holder, NOPLogger);
+    const migrationAgent = await deployMigrationAgent(token);
+
+    await holderSignedToken.migrate(utils.parseEther('74999990'));
+
+    const secondToken = await new NewGolemNetworkTokenFactory(deployWallet).deploy(migrationAgent.address, DEFAULT_CHAIN_ID);
+
+    await migrationAgent.setTarget(secondToken.address);
+
+    await holderSignedToken.migrate(utils.parseEther('75000010'));
+
+    expect(await balance(token, holder)).to.eq('0.0');
+    expect(await balance(secondToken, holder)).to.eq('150000000.0');
+  });
+
+  it('claim minted tokens', async () => {
+    const {token, holderSignedToken} = await deployOldToken(provider, deployWallet, holder, NOPLogger);
+    const migrationAgent = await deployMigrationAgent(token);
+
+    await holderSignedToken.migrate(utils.parseEther('50000000.0'));
+
+    const secondToken = await new NewGolemNetworkTokenFactory(deployWallet).deploy(migrationAgent.address, DEFAULT_CHAIN_ID);
+    await migrationAgent.setTarget(secondToken.address);
+
+    const gntMigrationAgentAsHolder = GNTMigrationAgentFactory.connect(migrationAgent.address, holder);
+    await gntMigrationAgentAsHolder.claimMintedTokens();
+
+    expect(await balance(secondToken, holder)).to.eq('50000000.0');
+  });
+
   async function deployMigrationAgent(token: GolemNetworkToken) {
     const migrationAgent = await new GNTMigrationAgentFactory(deployWallet).deploy(token.address);
     const newToken = await new NewGolemNetworkTokenFactory(deployWallet).deploy(migrationAgent.address, DEFAULT_CHAIN_ID);
