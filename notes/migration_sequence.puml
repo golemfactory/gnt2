@@ -1,0 +1,80 @@
+@startuml
+hide footbox
+
+actor Owner
+actor "User (Alice)" as Alice
+
+participant "GolemNetworkToken (current)" as GNT
+participant GNTMigrationAgent as MA
+participant NewGolemNetworkToken as NGNT
+participant OtherGolemNetworkToken as NGNT2
+
+group Basic flow
+
+Alice -> GNT: **migrate**(100)
+activate GNT
+
+GNT -> MA: **migrateFrom**(Alice, 100)
+
+activate MA
+
+MA -> NGNT: **mint**(Alice, 100)
+
+return
+
+GNT -> GNT: **Event**: Migrate(Alice, GNTMigrationAgent, 100)
+return
+
+end
+
+group New target
+
+Owner -> MA: **setTarget**(OtherGolemNetworkToken)
+
+alt claim then migrate more
+
+    note over MA: We call claim, because\nGNT cannot migrate 0 tokens
+    Alice -> MA: **claim**()
+    activate MA
+    MA -> NGNT2: **mint**(Alice, 100)
+    return
+
+    Alice -> GNT: **migrate**(50)
+    activate GNT
+
+    GNT -> MA: **migrateFrom**(Alice, 50)
+
+    activate MA
+
+    MA -> NGNT2: **mint**(Alice, 50)
+
+    return
+
+    GNT -> GNT: **Event**: Migrate(Alice, GNTMigrationAgent, 50)
+    return
+
+|||
+
+else just migrate more
+|||
+
+    Alice -> GNT: **migrate**(50)
+    activate GNT
+
+    GNT -> MA: **migrateFrom**(Alice, 50)
+
+    activate MA
+
+    note over MA: We mint 100 that were previously minted\nin NewGolemNetworkToken and the new 50
+    MA -> NGNT2: **mint**(Alice, 150)
+
+    return
+
+    GNT -> GNT: **Event**: Migrate(Alice, GNTMigrationAgent, 50)
+    return
+
+end
+
+end
+
+@enduml
