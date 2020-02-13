@@ -1,0 +1,18 @@
+@startuml
+hide footbox
+
+actor Deployer
+participant GNT
+
+Deployer -> GNTMigrationAgent: **deploy**(GNT)
+return GNTMigrationAgent
+|||
+|||
+Deployer -> NewGolemNetworkToken: **deploy**(GNTMigrationAgent)
+return NewGolemNetworkToken
+|||
+|||
+Deployer -> GNTMigrationAgent: **setTarget**(NewGolemNetworkToken)
+Deployer -> GNT: **setMigrationAgent**(GNTMigrationAgent)
+
+@enduml
