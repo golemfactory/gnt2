@@ -24,16 +24,24 @@ contract GNTMigrationAgent is MigrationAgent, Ownable {
 
     function migrateFrom(address _from, uint256 _value) public {
         require(msg.sender == address(oldToken), "Ngnt/migration-non-token-call");
-        require(address(target) != address(0) , "Ngnt/migration-target-not-set");
+        require(address(target) != address(0), "Ngnt/migration-target-not-set");
         migratedForHolder[_from] = migratedForHolder[_from].add(_value);
 
-        uint256 toMint = migratedForHolder[_from].sub(mintedForTarget[address(target)][_from]);
-        mintedForTarget[address(target)][_from] = mintedForTarget[address(target)][_from].add(toMint);
-        target.mint(_from, toMint);
+        mintMigratedTokens(_from);
     }
 
     function setTarget(ERC20Mintable _target) public onlyOwner {
         target = _target;
+    }
+
+    function claimMintedTokens() public {
+        mintMigratedTokens(msg.sender);
+    }
+
+    function mintMigratedTokens(address _from) private {
+        uint256 toMint = migratedForHolder[_from].sub(mintedForTarget[address(target)][_from]);
+        mintedForTarget[address(target)][_from] = mintedForTarget[address(target)][_from].add(toMint);
+        target.mint(_from, toMint);
     }
 
 }
