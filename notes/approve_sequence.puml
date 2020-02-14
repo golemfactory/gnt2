@@ -1,0 +1,35 @@
+@startuml
+hide footbox
+
+actor Relayer
+actor Holder
+
+participant NewGolemNetworkToken as NGNT
+participant "Side Contract" as Other
+
+Relayer -> Holder ++ : request **PermitSignature** of **PermitData**
+note right: **Relayer** wants to allow **Side Contract**\nto acts as a **spender** of NGNT tokens\non behalf of **holder**
+Holder -> Holder: signs **PermitData**
+note right: **PermitData**: holder, spender, nonce, expiry, allowed
+return **PermitSignature**
+
+|||
+|||
+
+Relayer -> NGNT ++: **permit**(PermitData, PermitSignature)
+NGNT -> NGNT: verify signature
+NGNT -> NGNT: verify PermitData
+NGNT -> NGNT: update allowance
+return
+
+|||
+|||
+Relayer -> Other ++ : useNGNTs
+Other -> NGNT ++: **transferFrom**(holder, recipient, value) as spender
+NGNT -> NGNT: check allowance
+NGNT -> NGNT: **transfer**(from: holder, to: recipient, value)
+return
+Other -> Other: other contract logic
+return
+
+@enduml

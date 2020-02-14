@@ -26,54 +26,43 @@ GNT -> GNT: **Event**: Migrate(Alice, GNTMigrationAgent, 100)
 return
 
 end
-
+|||
+|||
 group New target
+
+Owner -> MA: **setTarget**(0)
+Alice -> GNT: **migrate**(100)
+activate GNT
+
+GNT -> MA: **migrateFrom**(Alice, 100)
+
+activate MA #red
+note right: Setting target to 0\neffectively blocks the migration
+return #red <font color="red><b>revert</b></font>
+return #red <font color="red><b>revert</b></font>
+
+|||
+|||
+|||
 
 Owner -> MA: **setTarget**(OtherGolemNetworkToken)
 
-alt claim then migrate more
 
-    note over MA: We call claim, because\nGNT cannot migrate 0 tokens
-    Alice -> MA: **claim**()
-    activate MA
-    MA -> NGNT2: **mint**(Alice, 100)
-    return
+Alice -> GNT: **migrate**(100)
+activate GNT
 
-    Alice -> GNT: **migrate**(50)
-    activate GNT
+GNT -> MA: **migrateFrom**(Alice, 100)
 
-    GNT -> MA: **migrateFrom**(Alice, 50)
+activate MA
 
-    activate MA
+MA -> NGNT2: **mint**(Alice, 100)
 
-    MA -> NGNT2: **mint**(Alice, 50)
+return
 
-    return
+GNT -> GNT: **Event**: Migrate(Alice, GNTMigrationAgent, 100)
+return
 
-    GNT -> GNT: **Event**: Migrate(Alice, GNTMigrationAgent, 50)
-    return
 
-|||
-
-else just migrate more
-|||
-
-    Alice -> GNT: **migrate**(50)
-    activate GNT
-
-    GNT -> MA: **migrateFrom**(Alice, 50)
-
-    activate MA
-
-    note over MA: We mint 100 that were previously minted\nin NewGolemNetworkToken and the new 50
-    MA -> NGNT2: **mint**(Alice, 150)
-
-    return
-
-    GNT -> GNT: **Event**: Migrate(Alice, GNTMigrationAgent, 50)
-    return
-
-end
 
 end
 
