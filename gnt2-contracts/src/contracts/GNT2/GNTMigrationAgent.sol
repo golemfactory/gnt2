@@ -11,11 +11,13 @@ interface MigrationAgent {
 contract GNTMigrationAgent is MigrationAgent, Ownable {
     using SafeMath for uint;
 
-    ERC20Mintable private target;
-    address private oldToken;
+    ERC20Mintable public target;
+    address public oldToken;
 
     mapping (address => uint256) public migratedForHolder;
-    mapping (address => mapping(address => uint256)) public mintedForTarget;
+
+    event TargetChanged (ERC20Mintable previousTarget, ERC20Mintable changedTarget);
+    event Migrated (address from, ERC20Mintable target, uint256 value);
 
     constructor(address _oldToken) public {
         require(_oldToken != address(0), "Ngnt/migration-invalid-old-token");
@@ -25,23 +27,15 @@ contract GNTMigrationAgent is MigrationAgent, Ownable {
     function migrateFrom(address _from, uint256 _value) public {
         require(msg.sender == address(oldToken), "Ngnt/migration-non-token-call");
         require(address(target) != address(0), "Ngnt/migration-target-not-set");
-        migratedForHolder[_from] = migratedForHolder[_from].add(_value);
 
-        mintMigratedTokens(_from);
+        migratedForHolder[_from] = migratedForHolder[_from].add(_value);
+        target.mint(_from, _value);
+        emit Migrated(_from, target, _value);
     }
 
     function setTarget(ERC20Mintable _target) public onlyOwner {
+        emit TargetChanged(target, _target);
         target = _target;
-    }
-
-    function claimMintedTokens() public {
-        mintMigratedTokens(msg.sender);
-    }
-
-    function mintMigratedTokens(address _from) private {
-        uint256 toMint = migratedForHolder[_from].sub(mintedForTarget[address(target)][_from]);
-        mintedForTarget[address(target)][_from] = mintedForTarget[address(target)][_from].add(toMint);
-        target.mint(_from, toMint);
     }
 
 }
