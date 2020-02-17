@@ -149,8 +149,8 @@ describe('New Golem Network Token', () => {
     });
 
     it('transferFrom fails if allowance to small', async () => {
-      await (expect(asSpender.transferFrom(holder, thirdWallet.address, parseEther('200'), DEFAULT_TEST_OVERRIDES))
-        .to.be.revertedWith('subtraction overflow'));
+      await (expect(asSpender.transferFrom(holder, thirdWallet.address, parseEther('105'), DEFAULT_TEST_OVERRIDES))
+        .to.be.revertedWith('ERC20: transfer amount exceeds allowance'));
     });
 
     it('transferFrom works for msg.sender', async () => {

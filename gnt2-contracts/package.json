@@ -23,7 +23,7 @@
     "ethers": "^4.0.0"
   },
   "devDependencies": {
-    "@openzeppelin/contracts": "2.3.0",
+    "@openzeppelin/contracts": "2.5.0",
     "@types/chai": "^4.1.7",
     "@types/mocha": "^5.2.7",
     "chai": "^4.2.0",
