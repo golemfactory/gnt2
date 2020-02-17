@@ -11,28 +11,46 @@ const DEFAULT_CHAIN_ID = 4;
 
 chai.use(solidity);
 
+
 describe('New Golem Network Token', () => {
   const provider = createMockProvider();
-  const [deployWallet, minter, holderWallet, spenderWallet, thirdWallet] = getWallets(provider);
+  const [deployWallet, minterWallet, holderWallet, spenderWallet, thirdWallet] = getWallets(provider);
   const holder = holderWallet.address;
   const spender = spenderWallet.address;
-  const third = thirdWallet.address;
+  const minter = minterWallet.address;
 
+  const third = thirdWallet.address;
   let token: NewGolemNetworkToken;
   let PERMIT_TYPEHASH: string;
-  let DOMAIN_SEPARATOR: string;
 
+  let DOMAIN_SEPARATOR: string;
   beforeEach(async () => {
     token = await deployNGNT();
     DOMAIN_SEPARATOR = await token.DOMAIN_SEPARATOR();
     PERMIT_TYPEHASH = await token.PERMIT_TYPEHASH();
+
+  });
+  describe('deployment', async () => {
+
+    it('sets token properties', async () => {
+      expect(await token.name()).to.eq('New Golem Network Token');
+      expect(await token.symbol()).to.eq('NGNT');
+      expect(await token.decimals()).to.eq(18);
+    });
+
+    it('sets migration agent as the only minter', async () => {
+      const tokenAsDeployer = await new NewGolemNetworkTokenFactory(deployWallet).deploy(minter, DEFAULT_CHAIN_ID);
+      const tokenAsMinter = NewGolemNetworkTokenFactory.connect(tokenAsDeployer.address, minterWallet);
+
+      await expect(tokenAsDeployer.mint(holder, parseEther('100'), DEFAULT_TEST_OVERRIDES))
+        .to.be.revertedWith('MinterRole: caller does not have the Minter role');
+
+      await tokenAsMinter.mint(holder, parseEther('100'));
+      expect(await tokenAsMinter.balanceOf(holderWallet.address)).to.equal(parseEther('100'));
+    });
+
   });
 
-  it('is deployed properly', async () => {
-    expect(await token.name()).to.eq('New Golem Network Token');
-    expect(await token.symbol()).to.eq('NGNT');
-    expect(await token.decimals()).to.eq(18);
-  });
 
   describe('permit', () => {
 
@@ -41,7 +59,7 @@ describe('New Golem Network Token', () => {
       await permit(signature, {holder, spender, nonce: 0, expiry: 0, allowed: true});
       await mint(token, holder, parseEther('100'));
 
-      await tokenAsSpender().transferFrom(holder, third, parseEther('100'), DEFAULT_TEST_OVERRIDES);
+      await asSpender().transferFrom(holder, third, parseEther('100'), DEFAULT_TEST_OVERRIDES);
 
       expect(await token.balanceOf(holder)).to.equal(0);
       expect(await token.balanceOf(third)).to.equal(parseEther('100'));
@@ -80,39 +98,63 @@ describe('New Golem Network Token', () => {
     it('does not change allowance from permit in transferFrom', async () => {
       await permit(signDefaultPermit());
       await mint(token, holderWallet.address, parseEther('100'));
-      const tokenAsSpender = NewGolemNetworkTokenFactory.connect(token.address, spenderWallet);
+      const asSpender = NewGolemNetworkTokenFactory.connect(token.address, spenderWallet);
 
-      await tokenAsSpender.transferFrom(holderWallet.address, thirdWallet.address, parseEther('100'), DEFAULT_TEST_OVERRIDES);
+      await asSpender.transferFrom(holderWallet.address, thirdWallet.address, parseEther('100'), DEFAULT_TEST_OVERRIDES);
 
       expect(await token.allowance(holder, spender)).to.eq(MaxUint256);
     });
 
   });
 
-  describe('with ERC20 allowance of 100 tokens', () => {
-    let tokenAsSpender: NewGolemNetworkToken;
-    let tokenAsHolder: NewGolemNetworkToken;
+  describe('transferFrom', () => {
+    it('works for msg.sender without approve', async () => {
+      await mint(token, holder, parseEther('110'));
+      const asHolder = NewGolemNetworkTokenFactory.connect(token.address, holderWallet);
+
+      await asHolder.transferFrom(holder, third, parseEther('100'));
+
+      expect(await token.balanceOf(holder)).to.equal(parseEther('10'));
+      expect(await token.balanceOf(third)).to.equal(parseEther('100'));
+    });
+
+    it('uses same allowance storage as permit', async () => {
+      await mint(token, holder, parseEther('100'));
+      const asHolder = NewGolemNetworkTokenFactory.connect(token.address, holderWallet);
+      await asHolder.approve(spender, MaxUint256);
+      const asSpender = NewGolemNetworkTokenFactory.connect(token.address, spenderWallet);
+
+      await asSpender.transferFrom(holder, third, parseEther('100'), DEFAULT_TEST_OVERRIDES);
+
+      expect(await token.allowance(holder, spender)).to.eq(MaxUint256);
+    });
+
+  });
+
+  context('with ERC20 allowance of 100 tokens', () => {
+    let asSpender: NewGolemNetworkToken;
+    let asHolder: NewGolemNetworkToken;
 
     beforeEach(async () => {
       await mint(token, holder, parseEther('110'));
-      tokenAsHolder = NewGolemNetworkTokenFactory.connect(token.address, holderWallet);
-      await tokenAsHolder.approve(spender, parseEther('100'));
-      tokenAsSpender = NewGolemNetworkTokenFactory.connect(token.address, spenderWallet);
+      asHolder = NewGolemNetworkTokenFactory.connect(token.address, holderWallet);
+      await asHolder.approve(spender, parseEther('100'));
+      asSpender = NewGolemNetworkTokenFactory.connect(token.address, spenderWallet);
     });
 
     it('transferFrom reduces the ERC20 allowance', async () => {
-      await tokenAsSpender.transferFrom(holder, third, parseEther('51'), DEFAULT_TEST_OVERRIDES);
+      await asSpender.transferFrom(holder, third, parseEther('51'), DEFAULT_TEST_OVERRIDES);
 
       expect(await token.allowance(holder, spender)).to.eq(parseEther('49'));
     });
 
     it('transferFrom fails if allowance to small', async () => {
-      await (expect(tokenAsSpender.transferFrom(holder, thirdWallet.address, parseEther('200'), DEFAULT_TEST_OVERRIDES))
+      await (expect(asSpender.transferFrom(holder, thirdWallet.address, parseEther('200'), DEFAULT_TEST_OVERRIDES))
         .to.be.revertedWith('subtraction overflow'));
     });
 
     it('transferFrom works for msg.sender', async () => {
-      await tokenAsHolder.transferFrom(holder, third, parseEther('100'));
+      await asHolder.transferFrom(holder, third, parseEther('100'));
 
       expect(await token.balanceOf(holder)).to.equal(parseEther('10'));
       expect(await token.balanceOf(third)).to.equal(parseEther('100'));
@@ -121,11 +163,11 @@ describe('New Golem Network Token', () => {
   });
 
   async function mint(token: NewGolemNetworkToken, account: string, amount: BigNumberish) {
-    await NewGolemNetworkTokenFactory.connect(token.address, provider.getSigner(minter.address)).mint(account, amount, DEFAULT_TEST_OVERRIDES);
+    await NewGolemNetworkTokenFactory.connect(token.address, provider.getSigner(minterWallet.address)).mint(account, amount, DEFAULT_TEST_OVERRIDES);
   }
 
   async function deployNGNT() {
-    return new NewGolemNetworkTokenFactory(deployWallet).deploy(minter.address, DEFAULT_CHAIN_ID);
+    return new NewGolemNetworkTokenFactory(deployWallet).deploy(minterWallet.address, DEFAULT_CHAIN_ID);
   }
 
   function permit(signature, {
@@ -150,7 +192,7 @@ describe('New Golem Network Token', () => {
     return new SigningKey(holderWallet.privateKey).signDigest(message);
   }
 
-  function tokenAsSpender() {
+  function asSpender() {
     return NewGolemNetworkTokenFactory.connect(token.address, spenderWallet);
   }
 
