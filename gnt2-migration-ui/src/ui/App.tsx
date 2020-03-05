@@ -3,7 +3,7 @@ import '../styles/App.sass';
 import {hot} from 'react-hot-loader/root';
 
 import {Dashboard} from './Dashboard';
-import {useServices} from './useServices';
+import {useServices} from './hooks/useServices';
 import styled from 'styled-components';
 import {ConnectionState} from '../services/ConnectionService';
 import {useAsyncEffect} from './hooks/useAsyncEffect';

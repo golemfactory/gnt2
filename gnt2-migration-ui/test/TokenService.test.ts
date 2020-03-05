@@ -10,10 +10,14 @@ import {ContractAddresses} from '../src/config';
 import {NOPLogger} from '../../gnt2-contracts/test/utils';
 import {parseEther} from 'ethers/utils';
 import {GNTDeposit} from 'gnt2-contracts/build/contract-types/GNTDeposit';
+import {advanceEthereumTime} from './helpers/ethereumHelpers';
 
 chai.use(solidity);
 chai.use(chaiAsPromised);
 const expect = chai.expect;
+
+const DEPOSIT_LOCK_DELAY = 48 * 60 * 60;
+
 
 describe('Token Service', () => {
   const provider = createMockProvider();
@@ -45,9 +49,30 @@ describe('Token Service', () => {
   describe('changes deposit state', () => {
 
     it('"Unlock" changes from "Locked" to "Time locked"', async () => {
-      expect(await tokensService.isDepositLocked(holder.address)).to.equal(DepositState.LOCKED);
+      expect(await tokensService.getDepositState(holder.address)).to.equal(DepositState.LOCKED);
       await tokensService.unlockDeposit();
-      expect(await tokensService.isDepositLocked(holder.address)).to.equal(DepositState.TIME_LOCKED);
+      expect(await tokensService.getDepositState(holder.address)).to.equal(DepositState.TIME_LOCKED);
+    });
+
+    it('when time passes from "Time locked" to "Unlocked"', async () => {
+      await tokensService.unlockDeposit();
+      expect(await tokensService.getDepositState(holder.address)).to.equal(DepositState.TIME_LOCKED);
+
+      await advanceEthereumTime(provider, DEPOSIT_LOCK_DELAY + 1);
+
+      expect(await tokensService.getDepositState(holder.address)).to.equal(DepositState.UNLOCKED);
+    });
+
+    it('"Move to wrapped" changes from "Unlocked" to "Empty" and increases GNTB balance', async () => {
+      const gntbBalanceBefore = await tokensService.balanceOfBatchingTokens(holder.address);
+      await tokensService.unlockDeposit();
+      await advanceEthereumTime(provider, DEPOSIT_LOCK_DELAY + 1);
+
+      await tokensService.moveToWrapped();
+
+      expect(await tokensService.getDepositState(holder.address)).to.equal(DepositState.EMPTY);
+      const gntbBalanceAfter = await tokensService.balanceOfBatchingTokens(holder.address);
+      expect(gntbBalanceAfter.sub(gntbBalanceBefore)).to.eq(parseEther('100'));
     });
 
   });
@@ -61,17 +86,17 @@ describe('Token Service', () => {
 
     it('returns state of locked deposit', async () => {
       expect(await gntDeposit.balanceOf(holder.address)).to.equal(parseEther('100'));
-      expect(await tokensService.isDepositLocked(holder.address)).to.equal(DepositState.LOCKED);
+      expect(await tokensService.getDepositState(holder.address)).to.equal(DepositState.LOCKED);
     });
 
     it('returns state of empty deposit', async () => {
       expect(await gntDeposit.balanceOf(anotherWallet.address)).to.equal(parseEther('0'));
-      expect(await tokensService.isDepositLocked(anotherWallet.address)).to.equal(DepositState.EMPTY);
+      expect(await tokensService.getDepositState(anotherWallet.address)).to.equal(DepositState.EMPTY);
     });
 
     it('returns state of time-locked deposit', async () => {
       await (await gntDeposit.unlock()).wait();
-      expect(await tokensService.isDepositLocked(holder.address)).to.equal(DepositState.TIME_LOCKED);
+      expect(await tokensService.getDepositState(holder.address)).to.equal(DepositState.TIME_LOCKED);
     });
   });
 });

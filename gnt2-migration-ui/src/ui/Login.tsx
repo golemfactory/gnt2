@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import {useServices} from './useServices';
+import {useServices} from './hooks/useServices';
 import {RouteComponentProps} from 'react-router-dom';
 import {ConnectionState} from '../services/ConnectionService';
 

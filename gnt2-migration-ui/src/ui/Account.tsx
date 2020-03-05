@@ -7,7 +7,7 @@ import Jazzicon, {jsNumberForAddress} from 'react-jazzicon';
 
 import {TransactionStatus} from './TransactionStatus';
 import {BalancesSection} from './BalancesSection';
-import {useServices} from './useServices';
+import {useServices} from './hooks/useServices';
 import {useProperty} from './hooks/useProperty';
 import {CTAButton} from './commons/CTAButton';
 
@@ -16,11 +16,8 @@ export const Account = () => {
 
   const account = useProperty(connectionService.account);
 
-  const [refresh, setRefresh] = useState(false);
   const [oldTokensBalance, setOldTokensBalance] = useState<BigNumber | undefined>(undefined);
   const [currentTransaction, setCurrentTransaction] = useState<(() => Promise<ContractTransaction>) | undefined>(undefined);
-
-  const refreshBalances = () => setRefresh(!refresh);
 
   const migrateTokens = () => setCurrentTransaction(() => () => tokensService.migrateAllTokens(account));
 
@@ -35,11 +32,11 @@ export const Account = () => {
         {account && <Jazzicon diameter={46} seed={jsNumberForAddress(account)}/>}
         <Address>{account}</Address>
       </JazziconAddress>
-      <BalancesSection refreshTrigger={refresh} setGNTBalance={setOldTokensBalance}/>
+      <BalancesSection setGNTBalance={setOldTokensBalance}/>
       <CTAButton data-testid="migrate-button" onClick={migrateTokens} disabled={oldTokensBalance?.eq(new BigNumber('0'))}>
         Migrate
       </CTAButton>
-      <TransactionStatus onClose={() => closeTransactionModal() } transactionToBeExecuted={currentTransaction} refreshTrigger={() => refreshBalances()}/>
+      <TransactionStatus onClose={() => closeTransactionModal() } transactionToBeExecuted={currentTransaction}/>
     </div>
   );
 };

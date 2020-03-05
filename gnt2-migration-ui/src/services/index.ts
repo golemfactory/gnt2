@@ -3,6 +3,7 @@ import {ConnectionService} from './ConnectionService';
 import {TokensService} from './TokensService';
 import {ContractAddressService} from './ContractAddressService';
 import {contractAddressesConfig} from '../config';
+import {RefreshService} from './RefreshService';
 
 export type Services = ReturnType<typeof createServices>;
 
@@ -16,12 +17,14 @@ export function createServices() {
     await connectionService.checkConnection();
     await connectionService.checkNetwork();
   };
+  const refreshService = new RefreshService();
 
   return {
     contractAddressService,
     accountService,
     connectionService,
     tokensService,
-    startServices
+    startServices,
+    refreshService
   };
 }

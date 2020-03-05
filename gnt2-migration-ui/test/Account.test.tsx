@@ -2,15 +2,21 @@ import React from 'react';
 import {fireEvent, render, wait, waitForElement} from '@testing-library/react';
 import {createMockProvider} from 'ethereum-waffle';
 import {Account} from '../src/ui/Account';
-import {ServiceContext} from '../src/ui/useServices';
+import {ServiceContext} from '../src/ui/hooks/useServices';
 import {Services} from '../src/services';
 import chai, {expect} from 'chai';
 import chaiDom from 'chai-dom';
 import {createTestServices} from './helpers/testServices';
 import {TransactionDenied} from '../src/errors';
 import {SnackbarProvider} from '../src/ui/Snackbar/SnackbarProvider';
+import {advanceEthereumTime} from './helpers/ethereumHelpers';
+import {Web3Provider} from 'ethers/providers';
+import chaiAsPromised from 'chai-as-promised';
 
 chai.use(chaiDom);
+chai.use(chaiAsPromised);
+
+const DEPOSIT_LOCK_DELAY = 48 * 60 * 60;
 
 function renderAccount(services: Services) {
   return render(
@@ -44,8 +50,11 @@ describe('Account page', () => {
   });
 
   context('wallet with tokens', async () => {
+    let provider: Web3Provider;
+
     beforeEach(async () => {
-      services = await createTestServices(createMockProvider());
+      provider = createMockProvider();
+      services = await createTestServices(provider);
     });
 
     it('shows balances', async () => {
@@ -96,6 +105,33 @@ describe('Account page', () => {
         expect(getByTestId('modal')).to.exist;
         expect(getByTestId('error-message')).to.exist;
       });
+    });
+
+  });
+  context('wallet with unlocked deposit', async () => {
+    let provider: Web3Provider;
+
+    beforeEach(async () => {
+      provider = createMockProvider();
+      services = await createTestServices(provider);
+      await (await services.tokensService.unlockDeposit()).wait();
+      await advanceEthereumTime(provider, DEPOSIT_LOCK_DELAY + 100);
+    });
+
+    it('refreshes GNTB after tokens moved from Deposit', async () => {
+      const {getByTestId, queryByTestId} = await renderAccount(services);
+
+      await wait(() => {
+        expect(queryByTestId('action-deposit-button')).to.have.text('Move to wrapped');
+      });
+      const btn = getByTestId('action-deposit-button');
+      fireEvent.click(btn);
+
+      await wait(() => {
+        expect(queryByTestId('action-deposit-button')).to.not.exist;
+        expect(getByTestId('GNTB-balance')).to.have.text('10000000.000');
+      });
+
     });
 
   });

@@ -6,7 +6,7 @@ import {render, wait} from '@testing-library/react';
 import chai, {expect} from 'chai';
 import chaiDom from 'chai-dom';
 import {Services} from '../src/services';
-import {ServiceContext} from '../src/ui/useServices';
+import {ServiceContext} from '../src/ui/hooks/useServices';
 import {createTestServices} from './helpers/testServices';
 import {TransactionStatus} from '../src/ui/TransactionStatus';
 import {SnackbarProvider} from '../src/ui/Snackbar/SnackbarProvider';

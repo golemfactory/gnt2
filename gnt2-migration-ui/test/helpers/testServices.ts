@@ -9,6 +9,7 @@ import {Services} from '../../src/services';
 import {getWallets} from 'ethereum-waffle';
 import {TokensService} from '../../src/services/TokensService';
 import {MockedEthereum} from './mockedEthereum';
+import {RefreshService} from '../../src/services/RefreshService';
 
 const noOpLogger = {
   log: () => {
@@ -50,11 +51,13 @@ export async function createTestServices(provider: JsonRpcProvider, withEmptyWal
   const contractAddressService = testContractAddressService(connectionService, addresses);
   const accountService = testAccountService(provider, wallet);
   const tokensService = new TokensService(() => provider, contractAddressService);
+  const refreshService = new RefreshService();
   return {
     startServices: sinon.stub(),
     tokensService,
     accountService,
     connectionService,
-    contractAddressService
+    contractAddressService,
+    refreshService
   };
 }

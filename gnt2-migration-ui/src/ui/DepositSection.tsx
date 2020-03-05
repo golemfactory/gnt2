@@ -5,7 +5,7 @@ import {BigNumber} from 'ethers/utils';
 import {TransactionStatus} from './TransactionStatus';
 import {Balance} from './Balance';
 import {DepositTimer} from './DepositTimer';
-import {useServices} from './useServices';
+import {useServices} from './hooks/useServices';
 import {useAsync} from './hooks/useAsync';
 import {useAsyncEffect} from './hooks/useAsyncEffect';
 import {CTAButton} from './commons/CTAButton';
@@ -26,14 +26,35 @@ export function DepositSection() {
     [contractAddresses, account, depositLockState]);
 
   useAsyncEffect(async () => {
-    setDepositLockState(await tokensService.isDepositLocked(account));
+    setDepositLockState(await tokensService.getDepositState(account));
   }, [account, tokensService, currentTransaction]);
 
   function exists(balance: BigNumber | undefined) {
     return balance && !balance?.eq(0);
   }
 
-  const unlockDeposit = () => setCurrentTransaction(() => () => tokensService.unlockDeposit());
+  const changeDepositState = async () => {
+    if (currentTransaction) return null;
+
+    if (depositLockState === DepositState.LOCKED) {
+      setCurrentTransaction(() => () => tokensService.unlockDeposit());
+    } else if (depositLockState === DepositState.UNLOCKED) {
+      setCurrentTransaction(() => () => tokensService.moveToWrapped());
+    }
+  };
+
+  const getTitle = () => {
+    switch (depositLockState) {
+      case DepositState.LOCKED:
+        return 'Unlock';
+      case DepositState.TIME_LOCKED:
+        return 'Time lock';
+      case DepositState.UNLOCKED:
+        return 'Move to wrapped';
+      default:
+        return '';
+    }
+  };
 
   const closeTransactionModal = () => {
     setCurrentTransaction(undefined);
@@ -50,9 +71,9 @@ export function DepositSection() {
       <CTAButton
         data-testid="action-deposit-button"
         disabled={depositLockState === DepositState.TIME_LOCKED}
-        onClick={() => unlockDeposit()}
+        onClick={() => changeDepositState()}
       >
-        {depositLockState === 0 ? 'Unlock' : 'Time lock'}
+        {getTitle()}
       </CTAButton>
       <TransactionStatus onClose={() => closeTransactionModal() } transactionToBeExecuted={currentTransaction}/>
     </>

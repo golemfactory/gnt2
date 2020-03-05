@@ -1,7 +1,7 @@
 import React from 'react';
 import {fireEvent, render, wait} from '@testing-library/react';
 import {createMockProvider, getWallets} from 'ethereum-waffle';
-import {ServiceContext} from '../src/ui/useServices';
+import {ServiceContext} from '../src/ui/hooks/useServices';
 import {Services} from '../src/services';
 import chai, {expect} from 'chai';
 import chaiDom from 'chai-dom';
@@ -64,7 +64,7 @@ describe('Deposit UI', () => {
 
   it('shows deposit as unlocked', async () => {
     await unlockDeposit();
-    await advanceEthereumTime(provider, DEPOSIT_LOCK_DELAY);
+    await advanceEthereumTime(provider, DEPOSIT_LOCK_DELAY + 1);
     const {getByTestId} = await renderDeposit(services);
 
     await wait(() => {
@@ -72,14 +72,30 @@ describe('Deposit UI', () => {
     });
   });
 
-  it('unlocks deposit', async () => {
-    const {getByTestId} = await renderDeposit(services);
+
+  it('shows "Move to wrapped" when deposit is Unlocked', async () => {
+    await (await services.tokensService.unlockDeposit()).wait();
+    await advanceEthereumTime(provider, DEPOSIT_LOCK_DELAY + 100);
+    const {queryByTestId} = await renderDeposit(services);
 
     await wait(() => {
-      fireEvent.click(getByTestId('action-deposit-button'));
-      expect(getByTestId('action-deposit-button')).to.have.text('Time lock');
-      expect(getByTestId('deposit-status')).to.have.text('Deposit is time-locked');
-      expect(getByTestId('deposit-timer').textContent).to.match(/Time left to unlock deposit: 47:59:\d\d/);
+      expect(queryByTestId('action-deposit-button')).to.have.text('Move to wrapped');
+    });
+
+  });
+
+  it('moves tokens to wrapped', async () => {
+    await (await services.tokensService.unlockDeposit()).wait();
+    await advanceEthereumTime(provider, DEPOSIT_LOCK_DELAY + 100);
+    const {getByTestId, queryByTestId} = await renderDeposit(services);
+    await wait(() => {
+      expect(queryByTestId('action-deposit-button')).to.have.text('Move to wrapped');
+    });
+
+    fireEvent.click(getByTestId('action-deposit-button'));
+
+    await wait(() => {
+      expect(queryByTestId('action-deposit-button')).to.be.null;
     });
 
   });

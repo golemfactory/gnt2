@@ -1,6 +1,6 @@
 import React from 'react';
 import {render} from '@testing-library/react';
-import {ServiceContext} from '../src/ui/useServices';
+import {ServiceContext} from '../src/ui/hooks/useServices';
 import {Services} from '../src/services';
 import sinon from 'sinon';
 import chai, {expect} from 'chai';

@@ -50,7 +50,7 @@ export class TokensService {
     return depositContract.balanceOf(address);
   }
 
-  async isDepositLocked(address: string) {
+  async getDepositState(address: string): Promise<DepositState> {
     const depositContract = GNTDepositFactory.connect(this.tokenContractsAddresses().gntDeposit, this.provider());
     if ((await depositContract.balanceOf(address)).toString() === '0') {
       return DepositState.EMPTY;
@@ -68,11 +68,10 @@ export class TokensService {
     return depositContract.getTimelock(address);
   }
 
-  async moveToWrapped(address: string) {
-    const depositContract = GNTDepositFactory.connect(this.tokenContractsAddresses().gntDeposit, this.provider().getSigner());
-    console.count();
-    await depositContract.withdraw(address, {gasLimit: gasLimit});
-    console.count();
+  async moveToWrapped(): Promise<ContractTransaction> {
+    const holder = this.provider().getSigner();
+    const depositContract = GNTDepositFactory.connect(this.tokenContractsAddresses().gntDeposit, holder);
+    return depositContract.withdraw(await holder.getAddress(), {gasLimit: gasLimit});
   }
 
   unlockDeposit(): Promise<ContractTransaction> {

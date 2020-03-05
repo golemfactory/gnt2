@@ -2,7 +2,7 @@ import React from 'react';
 import {Redirect, Route, Switch} from 'react-router-dom';
 import {Login} from './Login';
 import {Account} from './Account';
-import {useServices} from './useServices';
+import {useServices} from './hooks/useServices';
 import {RouteComponentProps} from 'react-router';
 
 export const Dashboard = () => {

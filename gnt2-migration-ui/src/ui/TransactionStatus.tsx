@@ -6,22 +6,22 @@ import {useSnackbar} from './hooks/useSnackbar';
 import {TransactionProgress} from './TransactionProgress';
 import {Modal} from './Modal';
 import {mapCodeToError} from '../utils/mapCodeToError';
+import {useServices} from './hooks/useServices';
 
 interface TransactionModalProps {
   transactionToBeExecuted: (() => Promise<ContractTransaction>) | undefined;
   onClose: () => void;
-  refreshTrigger?: () => void;
 }
 
 export const TransactionStatus = ({
   transactionToBeExecuted,
   onClose,
-  refreshTrigger
 }: TransactionModalProps) => {
   const [txInProgress, setTxInProgress] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
   const [currentTx, setCurrentTx] = React.useState<ContractReceipt | undefined>();
   const {show} = useSnackbar();
+  const {refreshService} = useServices();
 
   const closeModal = () => {
     onClose();
@@ -45,9 +45,7 @@ export const TransactionStatus = ({
       setTxInProgress(true);
       try {
         setCurrentTx(await executeTransaction(transactionToBeExecuted));
-        if (refreshTrigger) {
-          refreshTrigger();
-        }
+        refreshService.refresh();
       } catch (e) {
         show(e.message);
         setErrorMessage(e.message);
