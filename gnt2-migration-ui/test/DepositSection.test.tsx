@@ -13,10 +13,9 @@ import {Wallet} from 'ethers';
 import {advanceEthereumTime} from './helpers/ethereumHelpers';
 import {DepositSection} from '../src/ui/DepositSection';
 import {SnackbarProvider} from '../src/ui/Snackbar/SnackbarProvider';
+import {DEPOSIT_LOCK_DELAY} from './helpers/contractConstants';
 
 chai.use(chaiDom);
-
-const DEPOSIT_LOCK_DELAY = 48 * 60 * 60;
 
 async function renderDeposit(services: Services) {
   return render(
@@ -37,11 +36,14 @@ describe('Deposit UI', () => {
   let services: Services;
   let gntDeposit: GNTDeposit;
   let provider: Web3Provider;
+  let holder: string;
   beforeEach(async () => {
     provider = createMockProvider();
     services = await createTestServices(provider);
-    const [holder] = getWallets(provider);
-    gntDeposit = getGntDepositContract(services, provider, holder);
+    const [holderWallet] = getWallets(provider);
+    holder = holderWallet.address;
+
+    gntDeposit = getGntDepositContract(services, provider, holderWallet);
   });
 
   it('shows deposit status when locked', async () => {
@@ -74,8 +76,8 @@ describe('Deposit UI', () => {
 
 
   it('shows "Move to wrapped" when deposit is Unlocked', async () => {
-    await (await services.tokensService.unlockDeposit()).wait();
-    await advanceEthereumTime(provider, DEPOSIT_LOCK_DELAY + 100);
+    await (await services.tokensService.unlockDeposit(holder)).wait();
+    await advanceEthereumTime(provider, DEPOSIT_LOCK_DELAY + 1);
     const {queryByTestId} = await renderDeposit(services);
 
     await wait(() => {
@@ -85,8 +87,8 @@ describe('Deposit UI', () => {
   });
 
   it('moves tokens to wrapped', async () => {
-    await (await services.tokensService.unlockDeposit()).wait();
-    await advanceEthereumTime(provider, DEPOSIT_LOCK_DELAY + 100);
+    await (await services.tokensService.unlockDeposit(holder)).wait();
+    await advanceEthereumTime(provider, DEPOSIT_LOCK_DELAY + 1);
     const {getByTestId, queryByTestId} = await renderDeposit(services);
     await wait(() => {
       expect(queryByTestId('action-deposit-button')).to.have.text('Move to wrapped');

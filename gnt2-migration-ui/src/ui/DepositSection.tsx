@@ -1,6 +1,5 @@
 import React, {useState} from 'react';
 import {ContractTransaction} from 'ethers';
-import {BigNumber} from 'ethers/utils';
 
 import {TransactionStatus} from './TransactionStatus';
 import {Balance} from './Balance';
@@ -11,6 +10,7 @@ import {useAsyncEffect} from './hooks/useAsyncEffect';
 import {CTAButton} from './commons/CTAButton';
 import {useProperty} from './hooks/useProperty';
 import {DepositState} from '../services/TokensService';
+import {isEmpty} from '../utils/bigNumberUtils';
 
 export function DepositSection() {
   const {tokensService, connectionService, contractAddressService} = useServices();
@@ -22,24 +22,20 @@ export function DepositSection() {
   const [depositLockState, setDepositLockState] = useState<DepositState>(DepositState.LOCKED);
 
   const [depositBalance] = useAsync(
-    async () => tokensService.balanceOfDepositTokens(account),
+    async () => tokensService.balanceOfDeposit(account),
     [contractAddresses, account, depositLockState]);
 
   useAsyncEffect(async () => {
     setDepositLockState(await tokensService.getDepositState(account));
   }, [account, tokensService, currentTransaction]);
 
-  function exists(balance: BigNumber | undefined) {
-    return balance && !balance?.eq(0);
-  }
-
   const changeDepositState = async () => {
     if (currentTransaction) return null;
 
     if (depositLockState === DepositState.LOCKED) {
-      setCurrentTransaction(() => () => tokensService.unlockDeposit());
+      setCurrentTransaction(() => () => tokensService.unlockDeposit(account));
     } else if (depositLockState === DepositState.UNLOCKED) {
-      setCurrentTransaction(() => () => tokensService.moveToWrapped());
+      setCurrentTransaction(() => () => tokensService.moveToWrapped(account));
     }
   };
 
@@ -60,7 +56,7 @@ export function DepositSection() {
     setCurrentTransaction(undefined);
   };
 
-  if (!exists(depositBalance)) {
+  if (isEmpty(depositBalance)) {
     return null;
   }
 

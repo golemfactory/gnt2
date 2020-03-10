@@ -26,32 +26,27 @@ export class TokensService {
   tokenContractsAddresses() { return this.contractAddressService.contractAddresses.get(); }
 
   async balanceOfOldTokens(address: string): Promise<BigNumber> {
-    const oldTokenContract = GolemNetworkTokenFactory.connect(this.tokenContractsAddresses().oldGolemToken, this.provider());
-    return oldTokenContract.balanceOf(address);
+    return this.gntContract().balanceOf(address);
   }
 
   async balanceOfNewTokens(address: string) {
-    const newTokenContract = NewGolemNetworkTokenFactory.connect(this.tokenContractsAddresses().newGolemToken, this.provider());
-    return newTokenContract.balanceOf(address);
+    return this.ngntContract().balanceOf(address);
   }
 
-  async migrateAllTokens(account: string): Promise<ContractTransaction> {
-    const oldTokenContract = GolemNetworkTokenFactory.connect(this.tokenContractsAddresses().oldGolemToken, this.provider().getSigner());
-    return oldTokenContract.migrate(await this.balanceOfOldTokens(account), {gasLimit});
+  async migrateAllTokens(address: string): Promise<ContractTransaction> {
+    return this.gntContractAsSigner(address).migrate(await this.balanceOfOldTokens(address), {gasLimit});
   }
 
   async balanceOfBatchingTokens(address: string) {
-    const batchingContract = GolemNetworkTokenBatchingFactory.connect(this.tokenContractsAddresses().batchingGolemToken, this.provider());
-    return batchingContract.balanceOf(address);
+    return this.gntbContract().balanceOf(address);
   }
 
-  async balanceOfDepositTokens(address: string) {
-    const depositContract = GNTDepositFactory.connect(this.tokenContractsAddresses().gntDeposit, this.provider());
-    return depositContract.balanceOf(address);
+  async balanceOfDeposit(address: string) {
+    return this.gntDepositContract().balanceOf(address);
   }
 
   async getDepositState(address: string): Promise<DepositState> {
-    const depositContract = GNTDepositFactory.connect(this.tokenContractsAddresses().gntDeposit, this.provider());
+    const depositContract = this.gntDepositContract();
     if ((await depositContract.balanceOf(address)).toString() === '0') {
       return DepositState.EMPTY;
     } else if (await depositContract.isLocked(address)) {
@@ -64,19 +59,47 @@ export class TokensService {
   }
 
   async getDepositUnlockTime(address: string) {
-    const depositContract = GNTDepositFactory.connect(this.tokenContractsAddresses().gntDeposit, this.provider());
-    return depositContract.getTimelock(address);
+    return this.gntDepositContract().getTimelock(address);
   }
 
-  async moveToWrapped(): Promise<ContractTransaction> {
-    const holder = this.provider().getSigner();
-    const depositContract = GNTDepositFactory.connect(this.tokenContractsAddresses().gntDeposit, holder);
-    return depositContract.withdraw(await holder.getAddress(), {gasLimit: gasLimit});
+  async moveToWrapped(address: string): Promise<ContractTransaction> {
+    return this.gntDepositContractAsSigner(address).withdraw(address, {gasLimit: gasLimit});
   }
 
-  unlockDeposit(): Promise<ContractTransaction> {
-    const depositContract = GNTDepositFactory.connect(this.tokenContractsAddresses().gntDeposit, this.provider().getSigner());
-    return depositContract.unlock();
+  unlockDeposit(address: string): Promise<ContractTransaction> {
+    return this.gntDepositContractAsSigner(address).unlock();
   }
 
+  async unwrap(address: string): Promise<ContractTransaction> {
+    const tokensToUnwrap = await this.balanceOfBatchingTokens(address);
+    return this.gntbContractAsSigner(address).withdraw(tokensToUnwrap);
+  }
+
+  private gntDepositContract() {
+    return GNTDepositFactory.connect(this.tokenContractsAddresses().gntDeposit, this.provider());
+  }
+
+  private gntDepositContractAsSigner(address: string) {
+    return GNTDepositFactory.connect(this.tokenContractsAddresses().gntDeposit, this.provider().getSigner(address));
+  }
+
+  private gntContract() {
+    return GolemNetworkTokenFactory.connect(this.tokenContractsAddresses().oldGolemToken, this.provider());
+  }
+
+  private gntContractAsSigner(address: string) {
+    return GolemNetworkTokenFactory.connect(this.tokenContractsAddresses().oldGolemToken, this.provider().getSigner(address));
+  }
+
+  private ngntContract() {
+    return NewGolemNetworkTokenFactory.connect(this.tokenContractsAddresses().newGolemToken, this.provider());
+  }
+
+  private gntbContract() {
+    return GolemNetworkTokenBatchingFactory.connect(this.tokenContractsAddresses().batchingGolemToken, this.provider());
+  }
+
+  private gntbContractAsSigner(address: string) {
+    return GolemNetworkTokenBatchingFactory.connect(this.tokenContractsAddresses().batchingGolemToken, this.provider().getSigner(address));
+  }
 }

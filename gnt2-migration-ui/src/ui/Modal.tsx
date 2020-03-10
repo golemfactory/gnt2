@@ -13,7 +13,7 @@ export const Modal = ({children, onClose, inProgress}: ModalProps) =>
     <ModalBody className={'modal-body'}>
       {inProgress
         ? <Spinner/>
-        : <CloseButton className='modal-close' onClick={onClose}/>
+        : <CloseButton className='modal-close' data-testid='modal-close' onClick={onClose}/>
       }
       {children}
     </ModalBody>

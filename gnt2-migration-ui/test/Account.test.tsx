@@ -1,6 +1,6 @@
 import React from 'react';
 import {fireEvent, render, wait, waitForElement} from '@testing-library/react';
-import {createMockProvider} from 'ethereum-waffle';
+import {createMockProvider, getWallets} from 'ethereum-waffle';
 import {Account} from '../src/ui/Account';
 import {ServiceContext} from '../src/ui/hooks/useServices';
 import {Services} from '../src/services';
@@ -12,11 +12,10 @@ import {SnackbarProvider} from '../src/ui/Snackbar/SnackbarProvider';
 import {advanceEthereumTime} from './helpers/ethereumHelpers';
 import {Web3Provider} from 'ethers/providers';
 import chaiAsPromised from 'chai-as-promised';
+import {DEPOSIT_LOCK_DELAY} from './helpers/contractConstants';
 
 chai.use(chaiDom);
 chai.use(chaiAsPromised);
-
-const DEPOSIT_LOCK_DELAY = 48 * 60 * 60;
 
 function renderAccount(services: Services) {
   return render(
@@ -32,7 +31,7 @@ describe('Account page', () => {
 
   let services: Services;
 
-  context('wallet without tokens', async () => {
+  context('with wallet without tokens', async () => {
     beforeEach(async () => {
       services = await createTestServices(createMockProvider(), true);
     });
@@ -49,7 +48,7 @@ describe('Account page', () => {
 
   });
 
-  context('wallet with tokens', async () => {
+  context('with wallet with tokens', async () => {
     let provider: Web3Provider;
 
     beforeEach(async () => {
@@ -69,7 +68,7 @@ describe('Account page', () => {
 
     it('shows migrated tokens', async () => {
       const {getByTestId} = await renderAccount(services);
-      expect(getByTestId('migrate-button')).to.not.have.attr('disabled');
+
       fireEvent.click(getByTestId('migrate-button'));
 
       await wait(() => {
@@ -92,7 +91,7 @@ describe('Account page', () => {
       });
     });
 
-    it('shows error in modal with when user denied transaction', async () => {
+    it('shows error in modal when user denied transaction', async () => {
       services.tokensService.migrateAllTokens = async () => {
         throw new TransactionDenied(new Error());
       };
@@ -114,8 +113,9 @@ describe('Account page', () => {
     beforeEach(async () => {
       provider = createMockProvider();
       services = await createTestServices(provider);
-      await (await services.tokensService.unlockDeposit()).wait();
-      await advanceEthereumTime(provider, DEPOSIT_LOCK_DELAY + 100);
+      const [holderWallet] = getWallets(provider);
+      await (await services.tokensService.unlockDeposit(holderWallet.address)).wait();
+      await advanceEthereumTime(provider, DEPOSIT_LOCK_DELAY + 1);
     });
 
     it('refreshes GNTB after tokens moved from Deposit', async () => {
@@ -124,8 +124,8 @@ describe('Account page', () => {
       await wait(() => {
         expect(queryByTestId('action-deposit-button')).to.have.text('Move to wrapped');
       });
-      const btn = getByTestId('action-deposit-button');
-      fireEvent.click(btn);
+
+      fireEvent.click(getByTestId('action-deposit-button'));
 
       await wait(() => {
         expect(queryByTestId('action-deposit-button')).to.not.exist;
