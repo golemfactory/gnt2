@@ -26,12 +26,24 @@ export const BalancesSection = ({refreshTrigger, setGNTBalance}: BalancesSection
 
   setGNTBalance(oldTokensBalance);
 
+  function exists(balance: BigNumber | undefined) {
+    return balance && !balance?.eq(0);
+  }
+
   return (<>
     <Balance testId='NGNT-balance' tokenName='NGNT' balance={newTokensBalance}/>
     <Balance testId='GNT-balance' tokenName='GNT' balance={oldTokensBalance}/>
-    <Balance testId='GNTB-balance' tokenName='NGNB' balance={batchingTokensBalance}/>
-    <Balance testId='deposit' tokenName='deposit' balance={depositBalance}/>
-    <DepositTimer/>
+    {
+      exists(batchingTokensBalance) &&
+      <Balance testId='GNTB-balance' tokenName='GNTB' balance={batchingTokensBalance}/>
+    }
+    {
+      exists(depositBalance) &&
+      <>
+        <Balance testId='deposit' tokenName='deposit' balance={depositBalance}/>
+        <DepositTimer/>
+      </>
+    }
     <Balance testId='ETH-balance' tokenName='ETH' balance={balance} digits={4}/>
   </>);
 };

@@ -36,8 +36,11 @@ export const DepositTimer = () => {
     return () => { if (timer) { clearInterval(timer); } };
   }, [timeLeft, lock, account, contractAddresses]);
 
-  return (<>
-    <div data-testid='deposit-status'>Deposit {depositText}</div>
-    {timer && <div data-testid='deposit-timer'>Time left to unlock deposit: {timer}</div>}
-  </>);
+
+  return (
+    <>
+      <div data-testid='deposit-status'>Deposit {depositText}</div>
+      {timer && <div data-testid='deposit-timer'>Time left to unlock deposit: {timer}</div>}
+    </>
+  );
 };

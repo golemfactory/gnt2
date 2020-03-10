@@ -22,9 +22,14 @@ function testAccountService(provider: JsonRpcProvider, address: string) {
   return accountService;
 }
 
-async function testConnectionService(provider: JsonRpcProvider) {
+async function testConnectionService(provider: JsonRpcProvider, address?: string) {
   const connectionService = new ConnectionService(new MockedEthereum());
   connectionService['provider'] = provider;
+  if (!address) {
+    const wallets = await provider.listAccounts();
+    address = wallets[0];
+  }
+  sinon.stub(provider, 'listAccounts').resolves([address]);
   await connectionService.checkConnection();
   await connectionService.checkNetwork();
   return connectionService;
@@ -37,12 +42,13 @@ function testContractAddressService(connectionService: ConnectionService, addres
     rinkeby: addresses as ContractAddresses
   });
 }
-export async function createTestServices(provider: JsonRpcProvider): Promise<Services> {
-  const [holderWallet, deployWallet] = getWallets(provider);
+export async function createTestServices(provider: JsonRpcProvider, withEmptyWallet?: boolean): Promise<Services> {
+  const [holderWallet, deployWallet, emptyWallet] = getWallets(provider);
+  const wallet = withEmptyWallet ? emptyWallet.address : holderWallet.address;
   const addresses = await deployDevGolemContracts(provider, deployWallet, holderWallet, noOpLogger);
-  const connectionService = await testConnectionService(provider);
+  const connectionService = await testConnectionService(provider, wallet);
   const contractAddressService = testContractAddressService(connectionService, addresses);
-  const accountService = testAccountService(provider, holderWallet.address);
+  const accountService = testAccountService(provider, wallet);
   const tokensService = new TokensService(() => provider, contractAddressService);
   return {
     startServices: sinon.stub(),
