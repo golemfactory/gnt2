@@ -5,6 +5,7 @@ export const CTAButton = styled.button`
   border: none;
   color: white;
   padding: 15px 32px;
+  min-width: 150px;
   margin: 12px 0;
   text-align: center;
   text-decoration: none;

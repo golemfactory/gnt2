@@ -4,7 +4,7 @@ import {useAsync} from './hooks/useAsync';
 import {Balance} from './Balance';
 import {useServices} from './useServices';
 import {useProperty} from './hooks/useProperty';
-import {DepositTimer} from './DepositTimer';
+import {DepositSection} from './DepositSection';
 
 interface BalancesSectionProps {
   refreshTrigger: boolean;
@@ -21,7 +21,6 @@ export const BalancesSection = ({refreshTrigger, setGNTBalance}: BalancesSection
   const [newTokensBalance] = useAsyncBalance(async () => tokensService.balanceOfNewTokens(account));
   const [oldTokensBalance] = useAsyncBalance(async () => tokensService.balanceOfOldTokens(account));
   const [batchingTokensBalance] = useAsyncBalance(async () => tokensService.balanceOfBatchingTokens(account));
-  const [depositBalance] = useAsyncBalance(async () => tokensService.balanceOfDepositTokens(account));
   const [balance] = useAsyncBalance(async () => accountService.balanceOf(account));
 
   setGNTBalance(oldTokensBalance);
@@ -37,13 +36,7 @@ export const BalancesSection = ({refreshTrigger, setGNTBalance}: BalancesSection
       exists(batchingTokensBalance) &&
       <Balance testId='GNTB-balance' tokenName='GNTB' balance={batchingTokensBalance}/>
     }
-    {
-      exists(depositBalance) &&
-      <>
-        <Balance testId='deposit' tokenName='deposit' balance={depositBalance}/>
-        <DepositTimer/>
-      </>
-    }
+    <DepositSection/>
     <Balance testId='ETH-balance' tokenName='ETH' balance={balance} digits={4}/>
   </>);
 };

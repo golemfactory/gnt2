@@ -4,7 +4,7 @@ import {
   NewGolemNetworkTokenFactory,
   GolemNetworkTokenBatchingFactory,
   GolemNetworkTokenFactory,
-  GNTDepositFactory
+  GNTDepositFactory,
 } from 'gnt2-contracts';
 import {ContractAddressService} from './ContractAddressService';
 import {gasLimit} from '../config';
@@ -71,4 +71,17 @@ export class TokensService {
     const depositContract = GNTDepositFactory.connect(this.tokenContractsAddresses().gntDeposit, this.provider());
     return depositContract.getTimelock(address);
   }
+
+  async moveToWrapped(address: string) {
+    const depositContract = GNTDepositFactory.connect(this.tokenContractsAddresses().gntDeposit, this.provider().getSigner());
+    console.count();
+    await depositContract.withdraw(address, {gasLimit: gasLimit});
+    console.count();
+  }
+
+  async unlockDeposit() {
+    const depositContract = GNTDepositFactory.connect(this.tokenContractsAddresses().gntDeposit, this.provider().getSigner());
+    await (await depositContract.unlock()).wait();
+  }
+
 }
