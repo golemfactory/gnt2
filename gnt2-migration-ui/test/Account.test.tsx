@@ -87,7 +87,7 @@ describe('Account page', () => {
         expect(getByTestId('modal')).to.exist;
         expect(getByTestId('etherscan-button')).to.have.text('View transaction details');
         expect(getByTestId('etherscan-button')).to.not.have.attr('disabled');
-        expect(getByTestId('etherscan-link')).to.have.attr('href').match(/https:\/\/rinkeby.etherscan.io\/address\/0x[0-9a-fA-F]{64}/);
+        expect(getByTestId('etherscan-link')).to.have.attr('href').match(/https:\/\/rinkeby.etherscan.io\/tx\/0x[0-9a-fA-F]{64}/);
       });
     });
 

@@ -29,7 +29,7 @@ export const TransactionProgress = ({
       </Title>
       {!errorMessage &&
         <a
-          href={`https://rinkeby.etherscan.io/address/${transactionHash && transactionHash}`}
+          href={`https://rinkeby.etherscan.io/tx/${transactionHash && transactionHash}`}
           data-testid='etherscan-link'
         >
           <CTAButton
