@@ -36,7 +36,7 @@ const ModalBody = styled.div`
   position: relative;
   padding: 30px 40px;
   min-width: 400px;
-  min-height: 200px;
+  min-height: 100px;
   max-height: 95%;
   overflow-y: scroll;
   background-color: #FFFFFF;

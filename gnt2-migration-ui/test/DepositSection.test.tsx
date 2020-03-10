@@ -12,6 +12,7 @@ import {Web3Provider} from 'ethers/providers';
 import {Wallet} from 'ethers';
 import {advanceEthereumTime} from './helpers/ethereumHelpers';
 import {DepositSection} from '../src/ui/DepositSection';
+import {SnackbarProvider} from '../src/ui/Snackbar/SnackbarProvider';
 
 chai.use(chaiDom);
 
@@ -20,7 +21,9 @@ const DEPOSIT_LOCK_DELAY = 48 * 60 * 60;
 async function renderDeposit(services: Services) {
   return render(
     <ServiceContext.Provider value={services}>
-      <DepositSection/>
+      <SnackbarProvider>
+        <DepositSection/>
+      </SnackbarProvider>
     </ServiceContext.Provider>
   );
 }

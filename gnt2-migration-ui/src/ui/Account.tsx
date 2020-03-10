@@ -1,46 +1,31 @@
 import React, {useState} from 'react';
-import {useServices} from './useServices';
+
 import styled from 'styled-components';
+import {ContractTransaction} from 'ethers';
 import {BigNumber} from 'ethers/utils';
-import {useProperty} from './hooks/useProperty';
-import {useSnackbar} from './hooks/useSnackbar';
 import Jazzicon, {jsNumberForAddress} from 'react-jazzicon';
-import {Modal} from './Modal';
-import {useModal} from './hooks/useModal';
-import {TransactionProgress} from './TransactionProgres';
-import {CTAButton} from './commons/CTAButton';
+
+import {TransactionStatus} from './TransactionStatus';
 import {BalancesSection} from './BalancesSection';
+import {useServices} from './useServices';
+import {useProperty} from './hooks/useProperty';
+import {CTAButton} from './commons/CTAButton';
 
 export const Account = () => {
   const {tokensService, connectionService} = useServices();
-  const {show} = useSnackbar();
 
   const account = useProperty(connectionService.account);
-  const [refresh, setRefresh] = useState(false);
 
-  const [transactionHash, setTransactionHash] = useState<string | undefined>('');
-  const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
-  const [txInProgress, setTxInProgress] = useState(false);
-  const [isTransactionModalVisible, openTransactionModal, closeTransactionModal] = useModal();
+  const [refresh, setRefresh] = useState(false);
   const [oldTokensBalance, setOldTokensBalance] = useState<BigNumber | undefined>(undefined);
+  const [currentTransaction, setCurrentTransaction] = useState<(() => Promise<ContractTransaction>) | undefined>(undefined);
 
   const refreshBalances = () => setRefresh(!refresh);
 
-  const migrateTokens = async () => {
-    setTransactionHash(undefined);
-    setErrorMessage(undefined);
-    try {
-      openTransactionModal();
-      setTxInProgress(true);
-      const tx = await tokensService.migrateAllTokens(account);
-      setTransactionHash(tx);
-      setTxInProgress(false);
-      refreshBalances();
-    } catch (e) {
-      show(e.message);
-      setErrorMessage(e.message);
-      setTxInProgress(false);
-    }
+  const migrateTokens = () => setCurrentTransaction(() => () => tokensService.migrateAllTokens(account));
+
+  const closeTransactionModal = () => {
+    setCurrentTransaction(undefined);
   };
 
   return (
@@ -54,10 +39,7 @@ export const Account = () => {
       <CTAButton data-testid="migrate-button" onClick={migrateTokens} disabled={oldTokensBalance?.eq(new BigNumber('0'))}>
         Migrate
       </CTAButton>
-      {isTransactionModalVisible &&
-      <Modal onClose={closeTransactionModal} inProgress={txInProgress}>
-        <TransactionProgress transactionHash={transactionHash} errorMessage={errorMessage}/>
-      </Modal>}
+      <TransactionStatus onClose={() => closeTransactionModal() } transactionToBeExecuted={currentTransaction} refreshTrigger={() => refreshBalances()}/>
     </div>
   );
 };

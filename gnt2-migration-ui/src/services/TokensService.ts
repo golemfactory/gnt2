@@ -1,14 +1,14 @@
 import {JsonRpcProvider} from 'ethers/providers';
 import {BigNumber} from 'ethers/utils';
 import {
-  NewGolemNetworkTokenFactory,
+  GNTDepositFactory,
   GolemNetworkTokenBatchingFactory,
   GolemNetworkTokenFactory,
-  GNTDepositFactory,
+  NewGolemNetworkTokenFactory,
 } from 'gnt2-contracts';
 import {ContractAddressService} from './ContractAddressService';
 import {gasLimit} from '../config';
-import {mapCodeToError} from '../utils/mapCodeToError';
+import {ContractTransaction} from 'ethers';
 
 export enum DepositState {
   LOCKED,
@@ -35,13 +35,9 @@ export class TokensService {
     return newTokenContract.balanceOf(address);
   }
 
-  async migrateAllTokens(account: string): Promise<string | undefined> {
+  async migrateAllTokens(account: string): Promise<ContractTransaction> {
     const oldTokenContract = GolemNetworkTokenFactory.connect(this.tokenContractsAddresses().oldGolemToken, this.provider().getSigner());
-    try {
-      return (await oldTokenContract.migrate(await this.balanceOfOldTokens(account), {gasLimit})).hash;
-    } catch (error) {
-      throw mapCodeToError(error);
-    }
+    return oldTokenContract.migrate(await this.balanceOfOldTokens(account), {gasLimit});
   }
 
   async balanceOfBatchingTokens(address: string) {
@@ -79,9 +75,9 @@ export class TokensService {
     console.count();
   }
 
-  async unlockDeposit() {
+  unlockDeposit(): Promise<ContractTransaction> {
     const depositContract = GNTDepositFactory.connect(this.tokenContractsAddresses().gntDeposit, this.provider().getSigner());
-    await (await depositContract.unlock()).wait();
+    return depositContract.unlock();
   }
 
 }

@@ -8,7 +8,6 @@ import chai, {expect} from 'chai';
 import chaiDom from 'chai-dom';
 import {createTestServices} from './helpers/testServices';
 import {TransactionDenied} from '../src/errors';
-import sinon from 'sinon';
 import {SnackbarProvider} from '../src/ui/Snackbar/SnackbarProvider';
 
 chai.use(chaiDom);
@@ -85,15 +84,17 @@ describe('Account page', () => {
     });
 
     it('shows error in modal with when user denied transaction', async () => {
-      sinon.stub(services.tokensService, 'migrateAllTokens').rejects(new TransactionDenied(new Error()));
+      services.tokensService.migrateAllTokens = async () => {
+        throw new TransactionDenied(new Error());
+      };
+
       const {getByTestId} = await renderAccount(services);
 
       fireEvent.click(getByTestId('migrate-button'));
 
       await wait(() => {
         expect(getByTestId('modal')).to.exist;
-        expect(getByTestId('etherscan-button')).to.have.attr('disabled');
-        expect(getByTestId('error-message')).to.have.text('User denied transaction signature.');
+        expect(getByTestId('error-message')).to.exist;
       });
     });
 
