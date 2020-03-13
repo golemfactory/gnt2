@@ -6,7 +6,7 @@
     "start": "ts-node scripts/startDevEnvironment",
     "start:webpack": "webpack-dev-server --mode development --progress --hot",
     "build": "webpack --mode production",
-    "test": "NODE_ENV=test mocha --timeout 20000 -r ts-node/register/transpile-only -r jsdom-global/register \"test/**/*.test.{ts,tsx}\"",
+    "test": "NODE_ENV=test mocha",
     "lint": "eslint '{src,test}/**/*.{js,ts,tsx}'",
     "clean": "rimraf dist"
   },
@@ -34,7 +34,7 @@
     "@babel/preset-react": "^7.6.3",
     "@babel/preset-typescript": "^7.7.2",
     "@hot-loader/react-dom": "^16.10.2",
-    "@svgr/webpack": "^4.3.3",
+    "@svgr/webpack": "^5.2.0",
     "@testing-library/react": "^9.3.0",
     "@types/big.js": "^4.0.5",
     "@types/chai": "^4.2.7",

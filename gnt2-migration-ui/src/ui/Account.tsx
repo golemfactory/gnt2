@@ -10,6 +10,7 @@ import {BalancesSection} from './BalancesSection';
 import {useServices} from './hooks/useServices';
 import {useProperty} from './hooks/useProperty';
 import {CTAButton} from './commons/CTAButton';
+import {DashboardLayout} from './commons/DashboardLayout/DashboardLayout';
 
 export const Account = () => {
   const {tokensService, connectionService} = useServices();
@@ -26,7 +27,7 @@ export const Account = () => {
   };
 
   return (
-    <div>
+    <DashboardLayout>
       <div>Your address:</div>
       <JazziconAddress>
         {account && <Jazzicon diameter={46} seed={jsNumberForAddress(account)}/>}
@@ -37,7 +38,7 @@ export const Account = () => {
         Migrate
       </CTAButton>
       <TransactionStatus onClose={() => closeTransactionModal() } transactionToBeExecuted={currentTransaction}/>
-    </div>
+    </DashboardLayout>
   );
 };
 

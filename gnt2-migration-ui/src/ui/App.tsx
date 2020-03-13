@@ -1,4 +1,5 @@
 import React, {useState} from 'react';
+import '../styles/reset.css';
 import '../styles/App.sass';
 import {hot} from 'react-hot-loader/root';
 
@@ -29,11 +30,11 @@ const App: React.FC = () => {
   }
 
   return (
-    <Body>
+    <>
       <BrowserRouter>
         <Dashboard/>
       </BrowserRouter>
-    </Body>
+    </>
   );
 };
 
