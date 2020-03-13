@@ -12,7 +12,7 @@ export function createServices() {
   const getProvider = () => connectionService.getProvider();
   const accountService = new AccountService(getProvider);
   const contractAddressService = new ContractAddressService(connectionService, contractAddressesConfig);
-  const tokensService = new TokensService(getProvider, contractAddressService);
+  const tokensService = new TokensService(getProvider, contractAddressService, connectionService);
   const startServices = async () => {
     await connectionService.checkConnection();
     await connectionService.checkNetwork();

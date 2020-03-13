@@ -19,7 +19,7 @@ export const BalancesSection = ({setGNTBalance}: BalancesSectionProps) => {
   const useAsyncBalance = (execute: () => Promise<BigNumber | undefined>) => useAsync(execute, [refreshTrigger, contractAddresses, account]);
 
   const [newTokensBalance] = useAsyncBalance(async () => tokensService.balanceOfNewTokens(account));
-  const [oldTokensBalance] = useAsyncBalance(async () => tokensService.balanceOfOldTokens(account));
+  const oldTokensBalance = useProperty(tokensService.gntBalance);
   const [balance] = useAsyncBalance(async () => accountService.balanceOf(account));
 
   setGNTBalance(oldTokensBalance);

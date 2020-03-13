@@ -10232,10 +10232,10 @@ react@^16.10.2:
     object-assign "^4.1.1"
     prop-types "^15.6.2"
 
-reactive-properties@latest:
-  version "0.1.5"
-  resolved "https://registry.yarnpkg.com/reactive-properties/-/reactive-properties-0.1.5.tgz#14ce6f64a5c1c1fce420a273a49c9c481b2a7333"
-  integrity sha512-HlS6uaOSasRQRNuGFDyNvv0gEqbmS9FJMqQWwEeYw/0GHobpQfmhf7KzD+d0U+vO/2TfRXMkbM7DYxEuR48xNQ==
+reactive-properties@0.1.11:
+  version "0.1.11"
+  resolved "https://registry.yarnpkg.com/reactive-properties/-/reactive-properties-0.1.11.tgz#d8678fa5a66b964c1a520ec92a3137842b8f9d52"
+  integrity sha512-NhOEcAlNSq94ml3WdLroKdndeUo4Idj4PSEieqfaLL5BXZU4BFo+TsOY6yiasR9EVUw27mfW2sYBYhwSUNMrLw==
 
 read-pkg-up@^1.0.1:
   version "1.0.1"

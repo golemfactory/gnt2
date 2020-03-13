@@ -19,7 +19,7 @@
     "react-hot-loader": "^4.12.15",
     "react-jazzicon": "^0.1.3",
     "react-router-dom": "^5.1.2",
-    "reactive-properties": "latest",
+    "reactive-properties": "0.1.11",
     "styled-components": "^4.4.0",
     "use-subscription": "latest"
   },

@@ -1,29 +1,54 @@
 import {JsonRpcProvider} from 'ethers/providers';
 import {BigNumber} from 'ethers/utils';
-import {
-  GNTDepositFactory,
-  GolemNetworkTokenBatchingFactory,
-  GolemNetworkTokenFactory,
-  NewGolemNetworkTokenFactory,
-} from 'gnt2-contracts';
+import {GNTDepositFactory, GolemNetworkTokenBatchingFactory, GolemNetworkTokenFactory, NewGolemNetworkTokenFactory} from 'gnt2-contracts';
 import {ContractAddressService} from './ContractAddressService';
 import {gasLimit} from '../config';
 import {ContractTransaction} from 'ethers';
+import {callEffectForEach, Property, State, withEffect, withSubscription} from 'reactive-properties';
+import {ConnectionService} from './ConnectionService';
 
 export enum DepositState {
-  LOCKED,
-  TIME_LOCKED,
-  UNLOCKED,
-  EMPTY
+  LOCKED, TIME_LOCKED, UNLOCKED, EMPTY
 }
 
-export class TokensService {
-  constructor(
-    private provider: () => JsonRpcProvider,
-    private contractAddressService: ContractAddressService
-  ) {}
+type PossibleBalance = BigNumber | undefined;
 
-  tokenContractsAddresses() { return this.contractAddressService.contractAddresses.get(); }
+export class TokensService {
+
+  private gntBalanceState: State<PossibleBalance>;
+  gntBalance: Property<PossibleBalance>;
+
+  constructor(private provider: () => JsonRpcProvider, private contractAddressService: ContractAddressService, private connectionService: ConnectionService) {
+    this.gntBalanceState = new State<PossibleBalance>(undefined);
+    const contractAddresses = this.contractAddressService.contractAddresses;
+    this.gntBalance = this.gntBalanceState
+      .pipe(
+        withSubscription(async () => {
+          await this.updateGntBalance();
+        }, contractAddresses),
+        withSubscription(async () => {
+          await this.updateGntBalance();
+        }, this.connectionService.account),
+        withEffect(() => contractAddresses.pipe(callEffectForEach(() => {
+          const golemNetworkToken = this.gntContract();
+          const filter = this.migrateEventFilter();
+          const callback = async () => this.updateGntBalance();
+          golemNetworkToken.addListener(filter, callback);
+          return () => golemNetworkToken.removeListener(filter, callback);
+        }))));
+  }
+
+  private migrateEventFilter() {
+    return this.gntContract().filters.Migrate(this.connectionService.account.get(), null, null);
+  }
+
+  private async updateGntBalance() {
+    this.gntBalanceState.set(await this.balanceOfOldTokens(this.connectionService.account.get()));
+  }
+
+  tokenContractsAddresses() {
+    return this.contractAddressService.contractAddresses.get();
+  }
 
   async balanceOfOldTokens(address: string): Promise<BigNumber> {
     return this.gntContract().balanceOf(address);

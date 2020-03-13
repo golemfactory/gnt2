@@ -1,35 +1,31 @@
 import {DepositState, TokensService} from '../src/services/TokensService';
 import {createMockProvider, getWallets, solidity} from 'ethereum-waffle';
-import {deployDevGolemContracts, GolemContractsDeploymentAddresses} from 'gnt2-contracts';
-import {utils} from 'ethers';
+import {utils, Wallet} from 'ethers';
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
-import {ContractAddressService} from '../src/services/ContractAddressService';
-import {State} from 'reactive-properties';
-import {ContractAddresses} from '../src/config';
-import {NOPLogger} from '../../gnt2-contracts/test/utils';
 import {parseEther} from 'ethers/utils';
 import {advanceEthereumTime} from './helpers/ethereumHelpers';
 import {DEPOSIT_LOCK_DELAY, TX_HASH_REGEXP} from './helpers/contractConstants';
+import {createTestServices} from './helpers/testServices';
+import {Web3Provider} from 'ethers/providers';
 
 chai.use(solidity);
 chai.use(chaiAsPromised);
 const expect = chai.expect;
 
 describe('Token Service', () => {
-  const provider = createMockProvider();
-  const [holderWallet, deployWallet, anotherWallet] = getWallets(provider);
-  const holder = holderWallet.address;
-  let addresses: GolemContractsDeploymentAddresses;
+  let provider: Web3Provider;
+  let holderWallet: Wallet, anotherWallet: Wallet;
+  let holder: string;
   let tokensService: TokensService;
   const advanceEthereumTimeBy = (seconds: number) => advanceEthereumTime(provider, seconds);
 
   beforeEach(async () => {
-    addresses = await deployDevGolemContracts(provider, deployWallet, holderWallet, NOPLogger);
-    const contractAddressService = {
-      contractAddresses: new State<ContractAddresses>(addresses)
-    } as unknown as ContractAddressService;
-    tokensService = new TokensService(() => provider, contractAddressService);
+    provider = createMockProvider();
+    [holderWallet, anotherWallet] = getWallets(provider);
+    holder = holderWallet.address;
+    const services = await createTestServices(provider);
+    tokensService = services.tokensService;
   });
 
   it('gets account balance', async () => {
