@@ -6,7 +6,6 @@
       "es2015",
       "dom"
     ],
-    "outDir": "dist",
     "target": "es5"
   },
   "extends": "../tsconfig.json"
