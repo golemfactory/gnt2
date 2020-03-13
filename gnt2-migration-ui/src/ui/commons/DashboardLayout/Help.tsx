@@ -16,7 +16,7 @@ export const Help = () => (
   </HelpView>
 );
 
-const HelpView = styled.p`
+const HelpView = styled.div`
   max-width: 370px;
   margin-left: 30px;
   text-align: right;
