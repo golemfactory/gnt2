@@ -1,22 +1,25 @@
 import React, {useState} from 'react';
 import styled from 'styled-components';
-import {useServices} from './hooks/useServices';
+import {useServices} from '../hooks/useServices';
 import {RouteComponentProps} from 'react-router-dom';
-import {ConnectionState} from '../services/ConnectionService';
-import {DashboardLayout} from './commons/DashboardLayout/DashboardLayout';
-import {MainTitle} from './commons/Text/MainTitle';
-import {Text} from './commons/Text/Text';
-import {Checkbox} from './commons/Form/Checkbox';
-import {BlockTitle} from './commons/Text/BockTitle';
-import {ButtonSecondary} from './commons/Buttons/ButtonSecondary';
-import {InfoBlock} from './commons/InfoBlock';
-import metamaskIcon from '../assets/icons/metamask.svg';
-import trezorIcon from '../assets/icons/trezor.svg';
-import ledgerIcon from '../assets/icons/ledger.svg';
+import {ConnectionState} from '../../services/ConnectionService';
+import {DashboardLayout} from '../commons/DashboardLayout/DashboardLayout';
+import {MainTitle} from '../commons/Text/MainTitle';
+import {Text} from '../commons/Text/Text';
+import {Checkbox} from '../commons/Form/Checkbox';
+import {BlockTitle} from '../commons/Text/BockTitle';
+import {ButtonSecondary} from '../commons/Buttons/ButtonSecondary';
+import {InfoBlock} from '../commons/InfoBlock';
+import metamaskIcon from '../../assets/icons/metamask.svg';
+import trezorIcon from '../../assets/icons/trezor.svg';
+import ledgerIcon from '../../assets/icons/ledger.svg';
+import {Modal} from '../Modal';
+import {TrezorLedgerInstruction} from './TrezorLedgerInstruction';
 
 export const Login = ({history}: RouteComponentProps) => {
   const [isChecked, setIsChecked] = useState(false);
   const {connectionService} = useServices();
+  const [isModalVisible, setIsModalVisible] = useState(false);
 
   const onMetamaskClick = async () => {
     await connectionService.connect();
@@ -41,13 +44,16 @@ export const Login = ({history}: RouteComponentProps) => {
             <img src={metamaskIcon} alt="metamask logo"/> MetaMask
           </MetaMaskButton>
           <TextSeparator>OR</TextSeparator>
-          <ConnectButton>
+          <ConnectButton onClick={() => setIsModalVisible(true)}>
             <WalletName icon={trezorIcon}>Trezor</WalletName>
             <WalletName icon={ledgerIcon}>Ledger</WalletName>
           </ConnectButton>
         </ButtonsRow>
         <InfoBlock>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce vehicula vehicula odio, ut scelerisque massa.Learn more</InfoBlock>
       </ConnectionBlock>
+      <Modal isVisible={isModalVisible} onClose={() => setIsModalVisible(false)}>
+        <TrezorLedgerInstruction/>
+      </Modal>
     </DashboardLayout>
   );
 };
