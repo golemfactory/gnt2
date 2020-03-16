@@ -29,7 +29,7 @@ export const Login = ({history}: RouteComponentProps) => {
   };
 
   return (
-    <DashboardLayout>
+    <DashboardLayout title="WELCOME TO">
       <MainTitle>Golem token migrator</MainTitle>
       <StyledText>Use Token Migrator to move your GNT into new version. Connect your wallet to view available migrations on your account.</StyledText>
       <Checkbox
@@ -38,7 +38,7 @@ export const Login = ({history}: RouteComponentProps) => {
         label={<>Lorem ipsum dolor sit amet enim etiam <Link href="">Terms and Conditions</Link>.</>}
       />
       <ConnectionBlock>
-        <BlockTitle>Connect TO:</BlockTitle>
+        <BlockTitle>Connect to:</BlockTitle>
         <ButtonsRow>
           <MetaMaskButton onClick={onMetamaskClick}>
             <img src={metamaskIcon} alt="metamask logo"/> MetaMask

@@ -45,6 +45,6 @@ describe('Dashboard', () => {
       </MemoryRouter>
     );
 
-    expect(getByText('Connect with MetaMask')).to.be.exist;
+    expect(getByText('WELCOME TO')).to.be.exist;
   });
 });
