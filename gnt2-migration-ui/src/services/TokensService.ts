@@ -17,9 +17,12 @@ export class TokensService {
 
   private gntBalanceState: State<PossibleBalance>;
   gntBalance: Property<PossibleBalance>;
+  private gntbBalanceState: State<PossibleBalance>;
+  gntbBalance: Property<PossibleBalance>;
 
   constructor(private provider: () => JsonRpcProvider, private contractAddressService: ContractAddressService, private connectionService: ConnectionService) {
     this.gntBalanceState = new State<PossibleBalance>(undefined);
+    this.gntbBalanceState = new State<PossibleBalance>(undefined);
     const contractAddresses = this.contractAddressService.contractAddresses;
     this.gntBalance = this.gntBalanceState
       .pipe(
@@ -36,14 +39,52 @@ export class TokensService {
           golemNetworkToken.addListener(filter, callback);
           return () => golemNetworkToken.removeListener(filter, callback);
         }))));
+    this.gntbBalance = this.gntbBalanceState
+      .pipe(
+        withSubscription(async () => {
+          await this.updateGntbBalance();
+        }, contractAddresses),
+        withSubscription(async () => {
+          await this.updateGntbBalance();
+        }, this.connectionService.account)
+        ,
+        withEffect(() => contractAddresses.pipe(callEffectForEach(() => {
+          const golemNetworkToken = this.gntContract();
+          const filter = this.gntTransferEventFilter();
+          const callback = async () => this.updateGntbBalance();
+          golemNetworkToken.addListener(filter, callback);
+          return () => golemNetworkToken.removeListener(filter, callback);
+        }))),
+        withEffect(() => contractAddresses.pipe(callEffectForEach(() => {
+          const golemNetworkTokenBatching = this.gntbContract();
+          const filter = this.gntbTransferEventFilter();
+          const callback = async () => this.updateGntbBalance();
+          golemNetworkTokenBatching.addListener(golemNetworkTokenBatching.filters.Transfer(null, null, null), callback);
+          // golemNetworkTokenBatching.addListener(golemNetworkTokenBatching.filters.Minted(null, null), callback);
+          // golemNetworkTokenBatching.addListener(golemNetworkTokenBatching.filters.Burned(null, null), callback);
+          return () => golemNetworkTokenBatching.removeListener(filter, callback);
+        })))
+      );
   }
 
   private migrateEventFilter() {
     return this.gntContract().filters.Migrate(this.connectionService.account.get(), null, null);
   }
 
+  private gntTransferEventFilter() {
+    return this.gntContract().filters.Transfer(null, null, null);
+  }
+
+  private gntbTransferEventFilter() {
+    return this.gntbContract().filters.Transfer(null, null, null);
+  }
+
   private async updateGntBalance() {
     this.gntBalanceState.set(await this.balanceOfOldTokens(this.connectionService.account.get()));
+  }
+
+  private async updateGntbBalance() {
+    this.gntbBalanceState.set(await this.balanceOfBatchingTokens(this.connectionService.account.get()));
   }
 
   tokenContractsAddresses() {

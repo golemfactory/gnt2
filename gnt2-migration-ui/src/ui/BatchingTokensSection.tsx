@@ -1,26 +1,20 @@
 import React, {useState} from 'react';
 import {ContractTransaction} from 'ethers';
-import {BigNumber} from 'ethers/utils';
 
 import {Balance} from './Balance';
 import {useServices} from './hooks/useServices';
 import {TransactionStatus} from './TransactionStatus';
-import {useAsync} from './hooks/useAsync';
 import {useProperty} from './hooks/useProperty';
 import {CTAButton} from './commons/CTAButton';
 import {isEmpty} from '../utils/bigNumberUtils';
 
 export const BatchingTokensSection = () => {
-  const {tokensService, connectionService, contractAddressService, refreshService} = useServices();
+  const {tokensService, connectionService} = useServices();
   const account = useProperty(connectionService.account);
-  const contractAddresses = useProperty(contractAddressService.contractAddresses);
-  const refreshTrigger = useProperty(refreshService.refreshTrigger);
 
   const [isBtnClicked, setBtnClicked] = React.useState(false);
 
-  const useAsyncBalance = (execute: () => Promise<BigNumber | undefined>) => useAsync(execute, [contractAddresses, account, refreshTrigger]);
-
-  const [batchingTokensBalance] = useAsyncBalance(async () => tokensService.balanceOfBatchingTokens(account));
+  const batchingTokensBalance = useProperty(tokensService.gntbBalance);
   const [currentTransaction, setCurrentTransaction] = useState<(() => Promise<ContractTransaction>) | undefined>(undefined);
 
   const unwrapTokens = async () => {
