@@ -23,7 +23,7 @@ async function mineEmptyBlock(provider: Provider) {
 async function waitUntilBlock(provider: Provider, blockNumber: number) {
 
   while (await provider.getBlockNumber() < blockNumber) {
-    if ((await provider.getNetwork()).name !== 'rinkeby') {
+    if ((await provider.getNetwork()).name === 'unknown') {
       await mineEmptyBlock(provider);
     } else {
       await sleep(5000);
@@ -47,14 +47,16 @@ export async function deployOldToken(provider: Provider, deployWallet: Wallet, h
     fundingStartBlock,
     fundingEndBlock
   );
+  await token.deployed();
   logger.log(`Deployed at ${token.address}`);
   const holderSignedToken = await token.connect(holder);
+  await holderSignedToken.deployed();
   await waitUntilBlock(provider, fundingStartBlock);
   logger.log('Mining...');
-  await holderSignedToken.create({...defaultOverrides(), value: new BigNumber('15000000000000000')});
+  await (await holderSignedToken.create({...defaultOverrides(), value: new BigNumber('15000000000000000')})).wait();
   await waitUntilBlock(provider, fundingEndBlock);
   logger.log('Finalizing...');
-  await token.finalize(defaultOverrides());
+  await (await token.finalize(defaultOverrides())).wait();
   logger.log('Done!');
   return {token, holderSignedToken};
 }
