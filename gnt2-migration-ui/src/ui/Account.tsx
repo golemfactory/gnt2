@@ -17,7 +17,7 @@ export const Account = () => {
 
   const account = useProperty(connectionService.account);
 
-  const oldTokensBalance = useProperty(tokensService.gntbBalance);
+  const oldTokensBalance = useProperty(tokensService.gntBalance);
   const [currentTransaction, setCurrentTransaction] = useState<(() => Promise<ContractTransaction>) | undefined>(undefined);
 
   const migrateTokens = () => setCurrentTransaction(() => () => tokensService.migrateAllTokens(account));
