@@ -19,7 +19,6 @@ import {Property} from 'reactive-properties';
 chai.use(solidity);
 chai.use(chaiAsPromised);
 const expect = chai.expect;
-export const flushAllPromises = () => new Promise((resolve) => setImmediate(resolve));
 
 describe('Token Service', () => {
   let provider: Web3Provider;
@@ -41,6 +40,7 @@ describe('Token Service', () => {
     tokensService = services.tokensService;
     tokensService.gntbBalance.subscribe(sinon.stub());
     tokensService.gntBalance.subscribe(sinon.stub());
+    tokensService.ngntBalance.subscribe(sinon.stub());
   });
 
   function expectBalanceProp(balanceProp: Property<PossibleBalance>) {
@@ -84,11 +84,26 @@ describe('Token Service', () => {
 
   describe('migrateTokens', () => {
 
-    it('migrates all tokens and returns transaction hash', async () => {
-      const result = await tokensService.migrateAllTokens(holder);
-      await expectBalanceProp(tokensService.gntBalance).to.eqEth('0');
+    it('migrate specific number of tokens and return transaction hash', async () => {
+      const toMigrate = parseEther('70000000.0');
+
+      const result = await tokensService.migrateTokens(holder, toMigrate);
+
+      await expectBalanceProp(tokensService.ngntBalance).to.eqEth('70000000');
+      await expectBalanceProp(tokensService.gntBalance).to.eqEth('70000000');
       expect(result.hash).to.match(TX_HASH_REGEXP);
     });
+
+    [
+      ['150000000.0', 'grater then GNT-balance'],
+      ['-1000', 'lower then 0'],
+      ['0', 'equal to 0']
+    ].forEach(([tokensToMigrate, message]) => {
+      it(`reverted for number of tokens ${message}`, async () => {
+        await expect(tokensService.migrateTokens(holder, parseEther(tokensToMigrate))).to.be.rejected;
+      });
+    });
+
   });
 
   describe('changes deposit state', () => {
