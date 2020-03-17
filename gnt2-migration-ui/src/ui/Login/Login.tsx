@@ -7,7 +7,7 @@ import {DashboardLayout} from '../commons/DashboardLayout/DashboardLayout';
 import {MainTitle} from '../commons/Text/MainTitle';
 import {Text} from '../commons/Text/Text';
 import {Checkbox} from '../commons/Form/Checkbox';
-import {BlockTitle} from '../commons/Text/BockTitle';
+import {BlockTitle} from '../commons/Text/BlockTitle';
 import {ButtonSecondary} from '../commons/Buttons/ButtonSecondary';
 import {InfoBlock} from '../commons/InfoBlock';
 import metamaskIcon from '../../assets/icons/metamask.svg';

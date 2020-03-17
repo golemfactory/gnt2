@@ -2,7 +2,7 @@ import React, {ReactNode} from 'react';
 import styled from 'styled-components';
 import logo from '../../../assets/logo.svg';
 import {Help} from './Help';
-import {BlockTitle} from '../Text/BockTitle';
+import {BlockTitle} from '../Text/BlockTitle';
 
 export interface DashboardLayoutProps {
   children: ReactNode;
