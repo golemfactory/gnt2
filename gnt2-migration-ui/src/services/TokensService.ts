@@ -6,6 +6,7 @@ import {gasLimit} from '../config';
 import {ContractTransaction} from 'ethers';
 import {callEffectForEach, Property, State, withEffect, withSubscription} from 'reactive-properties';
 import {ConnectionService} from './ConnectionService';
+import {ContractUtils} from '../utils/contractUtils';
 
 export enum DepositState {
   LOCKED, TIME_LOCKED, UNLOCKED, EMPTY
@@ -15,85 +16,62 @@ export type PossibleBalance = BigNumber | undefined;
 
 export class TokensService {
 
-  private gntBalanceState: State<PossibleBalance>;
   gntBalance: Property<PossibleBalance>;
-  private gntbBalanceState: State<PossibleBalance>;
   gntbBalance: Property<PossibleBalance>;
-  private ngntBalanceState: State<PossibleBalance>;
   ngntBalance: Property<PossibleBalance>;
-  private depositBalanceState: State<PossibleBalance>;
   depositBalance: Property<PossibleBalance>;
 
   constructor(private provider: () => JsonRpcProvider, private contractAddressService: ContractAddressService, private connectionService: ConnectionService) {
-    this.gntBalanceState = new State<PossibleBalance>(undefined);
-    this.gntbBalanceState = new State<PossibleBalance>(undefined);
-    this.ngntBalanceState = new State<PossibleBalance>(undefined);
-    this.depositBalanceState = new State<PossibleBalance>(undefined);
+    this.gntBalance = this.createBalanceProperty(
+      () => this.balanceOfOldTokens(this.account()),
+      callback => ContractUtils.subscribeToEvents(
+        this.gntContract(),
+        this.gntEventFilters(),
+        callback
+      )
+    );
+    this.gntbBalance = this.createBalanceProperty(
+      () => this.balanceOfBatchingTokens(this.account()),
+      callback => ContractUtils.subscribeToEvents(
+        this.gntbContract(),
+        this.gntbEventFilters(),
+        callback
+      )
+    );
+    this.ngntBalance = this.createBalanceProperty(
+      () => this.balanceOfNewTokens(this.account()),
+      callback => ContractUtils.subscribeToEvents(
+        this.ngntContract(),
+        this.ngntEventFilters(),
+        callback
+      )
+    );
+    this.depositBalance = this.createBalanceProperty(
+      () => this.balanceOfDeposit(this.account()),
+      callback => ContractUtils.subscribeToEvents(
+        this.gntDepositContract(),
+        this.depositEventFilters(),
+        callback
+      )
+    );
+  }
+
+  private createBalanceProperty(
+    fetchBalance: () => Promise<BigNumber>,
+    subscribeToEvents: (cb: () => void) => (() => void)
+  ) {
     const contractAddresses = this.contractAddressService.contractAddresses;
-    this.gntBalance = this.gntBalanceState
-      .pipe(
-        withSubscription(async () => {
-          await this.updateGntBalance();
-        }, contractAddresses),
-        withSubscription(async () => {
-          await this.updateGntBalance();
-        }, this.connectionService.account),
-        withEffect(() => contractAddresses.pipe(callEffectForEach(() => {
-          const golemNetworkToken = this.gntContract();
-          const filters = this.gntEventFilters();
-          const callback = () => this.updateGntBalance();
-          filters.forEach(filter => golemNetworkToken.addListener(filter, callback));
-          return () => filters.forEach(filter => golemNetworkToken.removeListener(filter, callback));
-        })))
-      );
-    this.gntbBalance = this.gntbBalanceState
-      .pipe(
-        withSubscription(async () => {
-          await this.updateGntbBalance();
-        }, contractAddresses),
-        withSubscription(async () => {
-          await this.updateGntbBalance();
-        }, this.connectionService.account),
-        withEffect(() => contractAddresses.pipe(callEffectForEach(() => {
-          const golemNetworkTokenBatching = this.gntbContract();
-          const filters = this.gntbEventFilters();
-          const callback = () => this.updateGntbBalance();
-          filters.forEach(filter => golemNetworkTokenBatching.addListener(filter, callback));
-          return () => filters.forEach(filter => golemNetworkTokenBatching.removeListener(filter, callback));
-        })))
-      );
-    this.ngntBalance = this.ngntBalanceState
-      .pipe(
-        withSubscription(async () => {
-          await this.updateNgntBalance();
-        }, contractAddresses),
-        withSubscription(async () => {
-          await this.updateNgntBalance();
-        }, this.connectionService.account),
-        withEffect(() => contractAddresses.pipe(callEffectForEach(() => {
-          const newGolemNetworkToken = this.ngntContract();
-          const filters = this.ngntEventFilters();
-          const callback = () => this.updateNgntBalance();
-          filters.forEach(filter => newGolemNetworkToken.addListener(filter, callback));
-          return () => filters.forEach(filter => newGolemNetworkToken.removeListener(filter, callback));
-        })))
-      );
-    this.depositBalance = this.depositBalanceState
-      .pipe(
-        withSubscription(async () => {
-          await this.updateDepositBalance();
-        }, contractAddresses),
-        withSubscription(async () => {
-          await this.updateDepositBalance();
-        }, this.connectionService.account),
-        withEffect(() => contractAddresses.pipe(callEffectForEach(() => {
-          const gntDeposit = this.gntDepositContract();
-          const filters = this.depositEventFilters();
-          const callback = () => this.updateDepositBalance();
-          filters.forEach(filter => gntDeposit.addListener(filter, callback));
-          return () => filters.forEach(filter => gntDeposit.removeListener(filter, callback));
-        })))
-      );
+    const state = new State<PossibleBalance>(undefined);
+    async function updateBalance() {
+      state.set(await fetchBalance());
+    }
+    return state.pipe(
+      withSubscription(updateBalance, contractAddresses),
+      withSubscription(updateBalance, this.connectionService.account),
+      withEffect(() => contractAddresses.pipe(
+        callEffectForEach(() => subscribeToEvents(updateBalance))
+      ))
+    );
   }
 
   private depositEventFilters() {
@@ -123,22 +101,6 @@ export class TokensService {
     const transferFrom = this.ngntContract().filters.Transfer(this.account(), null, null);
     const transferTo = this.ngntContract().filters.Transfer(null, this.account(), null);
     return [transferFrom, transferTo];
-  }
-
-  private async updateDepositBalance() {
-    this.depositBalanceState.set(await this.balanceOfDeposit(this.account()));
-  }
-
-  private async updateGntBalance() {
-    this.gntBalanceState.set(await this.balanceOfOldTokens(this.account()));
-  }
-
-  private async updateGntbBalance() {
-    this.gntbBalanceState.set(await this.balanceOfBatchingTokens(this.account()));
-  }
-
-  private async updateNgntBalance() {
-    this.ngntBalanceState.set(await this.balanceOfNewTokens(this.account()));
   }
 
   private account() {
