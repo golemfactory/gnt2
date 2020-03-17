@@ -11,7 +11,7 @@ export enum DepositState {
   LOCKED, TIME_LOCKED, UNLOCKED, EMPTY
 }
 
-type PossibleBalance = BigNumber | undefined;
+export type PossibleBalance = BigNumber | undefined;
 
 export class TokensService {
 
@@ -19,10 +19,13 @@ export class TokensService {
   gntBalance: Property<PossibleBalance>;
   private gntbBalanceState: State<PossibleBalance>;
   gntbBalance: Property<PossibleBalance>;
+  private ngntBalanceState: State<PossibleBalance>;
+  ngntBalance: Property<PossibleBalance>;
 
   constructor(private provider: () => JsonRpcProvider, private contractAddressService: ContractAddressService, private connectionService: ConnectionService) {
     this.gntBalanceState = new State<PossibleBalance>(undefined);
     this.gntbBalanceState = new State<PossibleBalance>(undefined);
+    this.ngntBalanceState = new State<PossibleBalance>(undefined);
     const contractAddresses = this.contractAddressService.contractAddresses;
     this.gntBalance = this.gntBalanceState
       .pipe(
@@ -34,11 +37,12 @@ export class TokensService {
         }, this.connectionService.account),
         withEffect(() => contractAddresses.pipe(callEffectForEach(() => {
           const golemNetworkToken = this.gntContract();
-          const filter = this.migrateEventFilter();
-          const callback = async () => this.updateGntBalance();
-          golemNetworkToken.addListener(filter, callback);
-          return () => golemNetworkToken.removeListener(filter, callback);
-        }))));
+          const filters = this.gntEventFilters();
+          const callback = () => this.updateGntBalance();
+          filters.forEach(filter => golemNetworkToken.addListener(filter, callback));
+          return () => filters.forEach(filter => golemNetworkToken.removeListener(filter, callback));
+        }))),
+      );
     this.gntbBalance = this.gntbBalanceState
       .pipe(
         withSubscription(async () => {
@@ -46,45 +50,68 @@ export class TokensService {
         }, contractAddresses),
         withSubscription(async () => {
           await this.updateGntbBalance();
-        }, this.connectionService.account)
-        ,
-        withEffect(() => contractAddresses.pipe(callEffectForEach(() => {
-          const golemNetworkToken = this.gntContract();
-          const filter = this.gntTransferEventFilter();
-          const callback = async () => this.updateGntbBalance();
-          golemNetworkToken.addListener(filter, callback);
-          return () => golemNetworkToken.removeListener(filter, callback);
-        }))),
+        }, this.connectionService.account),
         withEffect(() => contractAddresses.pipe(callEffectForEach(() => {
           const golemNetworkTokenBatching = this.gntbContract();
-          const filter = this.gntbTransferEventFilter();
-          const callback = async () => this.updateGntbBalance();
-          golemNetworkTokenBatching.addListener(golemNetworkTokenBatching.filters.Transfer(null, null, null), callback);
-          // golemNetworkTokenBatching.addListener(golemNetworkTokenBatching.filters.Minted(null, null), callback);
-          // golemNetworkTokenBatching.addListener(golemNetworkTokenBatching.filters.Burned(null, null), callback);
-          return () => golemNetworkTokenBatching.removeListener(filter, callback);
+          const filters = this.gntbEventFilters();
+          const callback = () => this.updateGntbBalance();
+          filters.forEach(filter => golemNetworkTokenBatching.addListener(filter, callback));
+          return () => filters.forEach(filter => golemNetworkTokenBatching.removeListener(filter, callback));
+        })))
+      );
+    this.ngntBalance = this.ngntBalanceState
+      .pipe(
+        withSubscription(async () => {
+          await this.updateNgntBalance();
+        }, contractAddresses),
+        withSubscription(async () => {
+          await this.updateNgntBalance();
+        }, this.connectionService.account),
+        withEffect(() => contractAddresses.pipe(callEffectForEach(() => {
+          const newGolemNetworkToken = this.ngntContract();
+          const filters = this.ngntEventFilters();
+          const callback = () => this.updateNgntBalance();
+          filters.forEach(filter => newGolemNetworkToken.addListener(filter, callback));
+          return () => filters.forEach(filter => newGolemNetworkToken.removeListener(filter, callback));
         })))
       );
   }
 
-  private migrateEventFilter() {
-    return this.gntContract().filters.Migrate(this.connectionService.account.get(), null, null);
+  private gntEventFilters() {
+    const migrate = this.gntContract().filters.Migrate(this.account(), null, null);
+    const transferFrom = this.gntContract().filters.Transfer(this.account(), null, null);
+    const transferTo = this.gntContract().filters.Transfer(null, this.account(), null);
+    return [migrate, transferFrom, transferTo];
   }
 
-  private gntTransferEventFilter() {
-    return this.gntContract().filters.Transfer(null, null, null);
+  private gntbEventFilters() {
+    const transferFrom = this.gntbContract().filters.Transfer(this.account(), null, null);
+    const transferTo = this.gntbContract().filters.Transfer(null, this.account(), null);
+    const minted = this.gntbContract().filters.Minted(this.account(), null);
+    const burned = this.gntbContract().filters.Burned(this.account(), null);
+    return [transferFrom, transferTo, minted, burned];
   }
 
-  private gntbTransferEventFilter() {
-    return this.gntbContract().filters.Transfer(null, null, null);
+  private ngntEventFilters() {
+    const transferFrom = this.ngntContract().filters.Transfer(this.account(), null, null);
+    const transferTo = this.ngntContract().filters.Transfer(null, this.account(), null);
+    return [transferFrom, transferTo];
   }
 
   private async updateGntBalance() {
-    this.gntBalanceState.set(await this.balanceOfOldTokens(this.connectionService.account.get()));
+    this.gntBalanceState.set(await this.balanceOfOldTokens(this.account()));
   }
 
   private async updateGntbBalance() {
-    this.gntbBalanceState.set(await this.balanceOfBatchingTokens(this.connectionService.account.get()));
+    this.gntbBalanceState.set(await this.balanceOfBatchingTokens(this.account()));
+  }
+
+  private async updateNgntBalance() {
+    this.ngntBalanceState.set(await this.balanceOfNewTokens(this.account()));
+  }
+
+  private account() {
+    return this.connectionService.account.get();
   }
 
   tokenContractsAddresses() {

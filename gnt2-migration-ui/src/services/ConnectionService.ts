@@ -39,13 +39,12 @@ export class ConnectionService {
   private createProvider() {
     if (this.injectedMetaMaskEthereum !== undefined && this.injectedMetaMaskEthereum.isMetaMask) {
       this.provider = new Web3Provider(this.injectedMetaMaskEthereum);
-      this.injectedMetaMaskEthereum.on('accountsChanged', (accounts: string[]) => {
+      this.metamaskEthereum.on('accountsChanged', (accounts: string[]) => {
         this.handleAccountsChange(accounts);
       });
-      const listener = (chainId: string) => {
+      this.metamaskEthereum.on('networkChanged', (chainId: string) => {
         this.handleNetworkChange(chainId);
-      };
-      this.metamaskEthereum.on('networkChanged', listener);
+      });
       this.connectionState = ConnectionState.NOT_CONNECTED;
       return;
     }

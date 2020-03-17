@@ -60,9 +60,12 @@ export async function deployOldToken(provider: Provider, deployWallet: Wallet, h
 }
 
 export async function wrapGNTtoGNTB(wallet: Wallet, gntb: GolemNetworkTokenBatching, gnt: GolemNetworkToken, value: string) {
-  const contractTransaction = await gntb.openGate({gasLimit: 300000});
-  await contractTransaction.wait();
-  const gateAddress = await gntb.getGateAddress(wallet.address);
+  let gateAddress = await gntb.getGateAddress(wallet.address);
+  if (gateAddress === '0x0000000000000000000000000000000000000000') {
+    const contractTransaction = await gntb.openGate({gasLimit: 300000});
+    await contractTransaction.wait();
+    gateAddress = await gntb.getGateAddress(wallet.address);
+  }
   await (await gnt.transfer(gateAddress, value, defaultOverrides())).wait();
   return gntb.transferFromGate({gasLimit: 100000});
 }
