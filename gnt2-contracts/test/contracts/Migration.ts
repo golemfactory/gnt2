@@ -65,6 +65,22 @@ describe('GNT Migration Agent', () => {
       .to.be.revertedWith('Ngnt/migration-target-not-set');
   });
 
+  it('migration should be possible to be stopped and restarted', async () => {
+    const {token, holderSignedToken} = await deployOldToken(provider, deployWallet, holder, NOPLogger);
+    const migrationAgent = await new GNTMigrationAgentFactory(deployWallet).deploy(token.address);
+    const newToken = await new NewGolemNetworkTokenFactory(deployWallet).deploy(migrationAgent.address, DEFAULT_CHAIN_ID);
+    await migrationAgent.setTarget(newToken.address);
+    await token.setMigrationAgent(migrationAgent.address);
+
+    await holderSignedToken.migrate(utils.parseEther('1.0'));
+
+    await migrationAgent.setTarget(AddressZero);
+    await expect(holderSignedToken.migrate(utils.parseEther('1.0'))).to.be.rejected;
+
+    await migrationAgent.setTarget(newToken.address);
+    await holderSignedToken.migrate(utils.parseEther('1.0'));
+  });
+
 
   it('only token can migrate', async () => {
     const {token} = await deployOldToken(provider, deployWallet, holder, NOPLogger);
@@ -73,6 +89,31 @@ describe('GNT Migration Agent', () => {
 
     await expect(migrationAgentAsHolder.migrateFrom(holder.address, parseEther('100'), DEFAULT_TEST_OVERRIDES))
       .to.be.revertedWith('Ngnt/migration-non-token-call');
+  });
+
+  it('owner can not migrate', async () => {
+    const {token} = await deployOldToken(provider, deployWallet, holder, NOPLogger);
+    const migrationAgent = await deployMigrationAgent(token);
+
+    await expect(migrationAgent.migrateFrom(holder.address, parseEther('100'), DEFAULT_TEST_OVERRIDES))
+      .to.be.revertedWith('Ngnt/migration-non-token-call');
+  });
+
+  it('only owner can set target', async () => {
+    const {token} = await deployOldToken(provider, deployWallet, holder, NOPLogger);
+    const migrationAgent = await deployMigrationAgent(token);
+    const migrationAgentAsHolder = GNTMigrationAgentFactory.connect(migrationAgent.address, holder);
+
+    await expect(migrationAgentAsHolder.setTarget(token.address, DEFAULT_TEST_OVERRIDES)).to.be.reverted;
+    await expect(migrationAgent.setTarget(token.address, DEFAULT_TEST_OVERRIDES)).to.be.fulfilled;
+  });
+
+  it('old token cannot set target', async () => {
+    const migrationAgent = await new GNTMigrationAgentFactory(deployWallet).deploy(holder.address);
+
+    const migrationAgentAsHolder = GNTMigrationAgentFactory.connect(migrationAgent.address, holder);
+
+    await expect(migrationAgentAsHolder.setTarget(AddressZero, DEFAULT_TEST_OVERRIDES)).to.be.reverted;
   });
 
   it('cannot be deployed with address of old GNT token set to 0', async () => {
