@@ -74,7 +74,7 @@ describe('GNT Migration Agent', () => {
 
     await holderSignedToken.migrate(utils.parseEther('1.0'));
 
-    await migrationAgent.setTarget('0x0000000000000000000000000000000000000000');
+    await migrationAgent.setTarget(AddressZero);
     await expect(holderSignedToken.migrate(utils.parseEther('1.0'))).to.be.rejected;
 
     await migrationAgent.setTarget(newToken.address);
