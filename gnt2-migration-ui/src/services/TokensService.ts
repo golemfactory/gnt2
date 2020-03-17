@@ -21,11 +21,14 @@ export class TokensService {
   gntbBalance: Property<PossibleBalance>;
   private ngntBalanceState: State<PossibleBalance>;
   ngntBalance: Property<PossibleBalance>;
+  private depositBalanceState: State<PossibleBalance>;
+  depositBalance: Property<PossibleBalance>;
 
   constructor(private provider: () => JsonRpcProvider, private contractAddressService: ContractAddressService, private connectionService: ConnectionService) {
     this.gntBalanceState = new State<PossibleBalance>(undefined);
     this.gntbBalanceState = new State<PossibleBalance>(undefined);
     this.ngntBalanceState = new State<PossibleBalance>(undefined);
+    this.depositBalanceState = new State<PossibleBalance>(undefined);
     const contractAddresses = this.contractAddressService.contractAddresses;
     this.gntBalance = this.gntBalanceState
       .pipe(
@@ -41,7 +44,7 @@ export class TokensService {
           const callback = () => this.updateGntBalance();
           filters.forEach(filter => golemNetworkToken.addListener(filter, callback));
           return () => filters.forEach(filter => golemNetworkToken.removeListener(filter, callback));
-        }))),
+        })))
       );
     this.gntbBalance = this.gntbBalanceState
       .pipe(
@@ -75,6 +78,30 @@ export class TokensService {
           return () => filters.forEach(filter => newGolemNetworkToken.removeListener(filter, callback));
         })))
       );
+    this.depositBalance = this.depositBalanceState
+      .pipe(
+        withSubscription(async () => {
+          await this.updateDepositBalance();
+        }, contractAddresses),
+        withSubscription(async () => {
+          await this.updateDepositBalance();
+        }, this.connectionService.account),
+        withEffect(() => contractAddresses.pipe(callEffectForEach(() => {
+          const gntDeposit = this.gntDepositContract();
+          const filters = this.depositEventFilters();
+          const callback = () => this.updateDepositBalance();
+          filters.forEach(filter => gntDeposit.addListener(filter, callback));
+          return () => filters.forEach(filter => gntDeposit.removeListener(filter, callback));
+        })))
+      );
+  }
+
+  private depositEventFilters() {
+    const deposit = this.gntDepositContract().filters.Deposit(this.account(), null);
+    const withdrawFrom = this.gntDepositContract().filters.Withdraw(this.account(), null, null);
+    const withdrawTo = this.gntDepositContract().filters.Withdraw(null, this.account(), null);
+    const burn = this.gntDepositContract().filters.Burn(this.account(), null);
+    return [deposit, withdrawFrom, withdrawTo, burn];
   }
 
   private gntEventFilters() {
@@ -96,6 +123,10 @@ export class TokensService {
     const transferFrom = this.ngntContract().filters.Transfer(this.account(), null, null);
     const transferTo = this.ngntContract().filters.Transfer(null, this.account(), null);
     return [transferFrom, transferTo];
+  }
+
+  private async updateDepositBalance() {
+    this.depositBalanceState.set(await this.balanceOfDeposit(this.account()));
   }
 
   private async updateGntBalance() {
