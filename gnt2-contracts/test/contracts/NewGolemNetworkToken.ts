@@ -4,6 +4,8 @@ import {NewGolemNetworkTokenFactory} from '../..';
 import {BigNumberish, keccak256, parseEther, SigningKey, solidityKeccak256} from 'ethers/utils';
 import {ethers} from 'ethers';
 import {NewGolemNetworkToken} from '../../build/contract-types/NewGolemNetworkToken';
+import {BatchingSidecar} from '../../build/contract-types/BatchingSidecar';
+import {BatchingSidecarFactory} from '../../build/contract-types/BatchingSidecarFactory';
 import {currentTime, DEFAULT_TEST_OVERRIDES} from '../utils';
 import {AddressZero, MaxUint256} from 'ethers/constants';
 
@@ -14,7 +16,7 @@ chai.use(solidity);
 
 describe('New Golem Network Token', () => {
   const provider = createMockProvider();
-  const [deployWallet, minterWallet, holderWallet, spenderWallet, thirdWallet] = getWallets(provider);
+  const [deployWallet, minterWallet, holderWallet, spenderWallet, thirdWallet, fourthWallet] = getWallets(provider);
   const holder = holderWallet.address;
   const spender = spenderWallet.address;
   const minter = minterWallet.address;
@@ -22,7 +24,9 @@ describe('New Golem Network Token', () => {
   let asHolder: NewGolemNetworkToken;
 
   const third = thirdWallet.address;
+  const fourth = fourthWallet.address;
   let token: NewGolemNetworkToken;
+  let batchingSidecar: BatchingSidecar;
   let PERMIT_TYPEHASH: string;
 
   let DOMAIN_SEPARATOR: string;
@@ -217,6 +221,43 @@ describe('New Golem Network Token', () => {
       expect(await token.balanceOf(holder)).to.equal(parseEther('10'));
       expect(await token.balanceOf(third)).to.equal(parseEther('100'));
       expect(await token.allowance(holder, spender)).to.eq(parseEther('100'));
+    });
+  });
+
+  describe('batching sidecar', async () => {
+    beforeEach(async () => {
+      batchingSidecar = (await new BatchingSidecarFactory(deployWallet).deploy(token.address))
+        .connect(holderWallet);
+      await mint(token, holder, parseEther('110'));
+    });
+
+    it('sets the token address', async () => {
+      expect(await batchingSidecar.ngnt()).to.eq(token.address);
+    });
+
+    it('should not allow to batch transfer without permitting', async () => {
+      expect(batchingSidecar.batchTransfer([third, fourth], [33, 44])).to.eventually.be.rejected;
+      expect(await token.balanceOf(third)).to.eq(0);
+      expect(await token.balanceOf(fourth)).to.eq(0);
+    });
+
+    it('should not allow to batch transfer with invalid parameters', async () => {
+      await expect(batchingSidecar.batchTransfer([third], [33, 44])).to.eventually.be.rejected;
+      await expect(batchingSidecar.batchTransfer([third, fourth], [33])).to.eventually.be.rejected;
+      await expect(batchingSidecar.batchTransfer([], [])).to.eventually.be.rejected;
+      expect(await token.balanceOf(third)).to.eq(0);
+      expect(await token.balanceOf(fourth)).to.eq(0);
+    });
+
+    it('should allow to batch transfer after permitting', async () => {
+      const spender = batchingSidecar.address;
+      const signature = signPermitDigest(holder, spender, 0, 0, true);
+      await permit(signature, {holder, spender, nonce: 0, expiry: 0, allowed: true});
+
+      await batchingSidecar.batchTransfer([third, fourth], [33, 44]);
+
+      expect(await token.balanceOf(third)).to.eq(33);
+      expect(await token.balanceOf(fourth)).to.eq(44);
     });
   });
 
