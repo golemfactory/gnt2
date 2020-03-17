@@ -109,12 +109,11 @@ describe('GNT Migration Agent', () => {
   });
 
   it('old token cannot set target', async () => {
-    const {token} = await deployOldToken(provider, deployWallet, holder, NOPLogger);
     const migrationAgent = await new GNTMigrationAgentFactory(deployWallet).deploy(holder.address);
 
     const migrationAgentAsHolder = GNTMigrationAgentFactory.connect(migrationAgent.address, holder);
 
-    await expect(migrationAgentAsHolder.setTarget(token.address, DEFAULT_TEST_OVERRIDES)).to.be.reverted;
+    await expect(migrationAgentAsHolder.setTarget(AddressZero, DEFAULT_TEST_OVERRIDES)).to.be.reverted;
   });
 
   it('cannot be deployed with address of old GNT token set to 0', async () => {
