@@ -13,8 +13,7 @@ export const Login = ({history}: RouteComponentProps) => {
     setIsConnecting(true);
     try {
       await connectionService.connect();
-    }
-    finally {
+    } finally {
       setIsConnecting(false);
     }
     if (connectionService.isConnected()) {
