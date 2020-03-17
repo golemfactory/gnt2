@@ -2,6 +2,7 @@ import React, {ReactNode} from 'react';
 import styled from 'styled-components';
 import logo from '../../../assets/logo.svg';
 import {Help} from './Help';
+import {BlockTitle} from '../Text/BlockTitle';
 
 export interface DashboardLayoutProps {
   children: ReactNode;
@@ -28,7 +29,7 @@ export const DashboardLayout = ({title, backTo, children}: DashboardLayoutProps)
 const DashboardContainer = styled.div`
   max-width: 1230px;
   margin: 0 auto;
-  padding: 32px 30px 0; 
+  padding: 32px 30px 100px; 
 `;
 
 const Header = styled.div`
@@ -46,17 +47,12 @@ const PageName = styled.p`
   color: #1722A2;
 `;
 
-const Title = styled.p`
+const Title = styled(BlockTitle)`
   position: relative;
   padding-left: 150px;
   margin-bottom: 56px;
-  font-weight: 300;
-  font-size: 12px;
-  line-height: 15px;
   display: flex;
   align-items: center;
-  letter-spacing: 2px;
-  color: #1722A2;
 
   &::before {
     content: '';

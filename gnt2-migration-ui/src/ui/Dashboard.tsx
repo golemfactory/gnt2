@@ -1,6 +1,6 @@
 import React from 'react';
 import {Redirect, Route, Switch} from 'react-router-dom';
-import {Login} from './Login';
+import {Login} from './Login/Login';
 import {Account} from './Account';
 import {useServices} from './hooks/useServices';
 import {RouteComponentProps} from 'react-router';

@@ -1,69 +1,93 @@
-import React, {ReactNode} from 'react';
+import React, {ReactNode, useEffect, useCallback} from 'react';
 import styled from 'styled-components';
-import {Spinner} from './Spinner';
+import {createPortal} from 'react-dom';
+import crossIcon from '../assets/icons/cross.svg';
 
 export interface ModalProps {
+  isVisible: boolean;
+  onClose?: () => void;
   children: ReactNode;
-  onClose: () => void;
-  inProgress: boolean;
+  inProgress?: boolean;
+  className?: string;
 }
 
-export const Modal = ({children, onClose, inProgress}: ModalProps) =>
-  (<ModalBackdrop className='modal-backdrop' data-testid='modal'>
-    <ModalBody className={'modal-body'}>
-      {inProgress
-        ? <Spinner/>
-        : <CloseButton className='modal-close' data-testid='modal-close' onClick={onClose}/>
-      }
-      {children}
-    </ModalBody>
-  </ModalBackdrop>);
+export const Modal = ({isVisible, onClose, children, inProgress, className}: ModalProps) => {
+  const listenKeyboard = useCallback((event: KeyboardEvent) => {
+    if (!!onClose && !inProgress && (event.key === 'Escape' || event.keyCode === 27)) {
+      onClose();
+    }
+  }, [onClose, inProgress]);
 
-const ModalBackdrop = styled.div`
+  useEffect(() => {
+    if (isVisible) {
+      window.addEventListener('keydown', listenKeyboard, true);
+      return () => {
+        window.removeEventListener('keydown', listenKeyboard, true);
+      };
+    }
+  }, [isVisible, listenKeyboard]);
+
+  if (isVisible) {
+    return createPortal(
+      <ModalView data-testid="modal" className={className || ''}>
+        <ModalOverlay onClick={onClose}/>
+        <ModalBodyWrapper>
+          <ModalBody>
+            {onClose && !inProgress && <CloseButton onClick={onClose} data-testid="modal-close"/>}
+            {children}
+          </ModalBody>
+        </ModalBodyWrapper>
+      </ModalView>,
+      document.body
+    );
+  } else return null;
+
+};
+
+const ModalView = styled.div`
   position: fixed;
   top: 0;
   left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;  
+  z-index: 9999;
+`;
+
+const ModalOverlay = styled.div`
   width: 100%;
   height: 100%;
-  background-color: rgba(12, 35, 64, 0.7);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
+  background-color: #181EA9;
+  opacity: 0.4;
+`;
+
+const ModalBodyWrapper = styled.div`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 30px;
+  max-height: 100%;
+  overflow-y: auto;
 `;
 
 const ModalBody = styled.div`
   position: relative;
-  padding: 30px 40px;
-  min-width: 400px;
-  min-height: 100px;
-  max-height: 95%;
-  overflow-y: scroll;
-  background-color: #FFFFFF;
-  border-radius: 8px;
-  box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  max-width: 770px;
+  width: 100%;
+  padding: 40px 30px;
+  background: #FFFFFF;
 `;
 
-const CloseButton = styled.div`
+const CloseButton = styled.button`
   position: absolute;
-  top: 30px;
-  right: 30px;
-  width: 20px;
-  height: 20px;
-
-  &::before, &::after {
-    content: '';
-    width: 17px;
-    height: 2px;
-    border-radius: 1px;
-    display: block;
-    background-color: #1c1c1c;
-    transform: translate(-50%, -50%) rotate(45deg);
-    position: absolute;
-    top: 10px;
-    left: 10px;
-  }
-  &::after {
-    transform: translate(-50%, -50%) rotate(135deg);
-  }
+  top: 8px;
+  right: 8px;
+  width: 26px;
+  height: 26px;
+  background: url(${crossIcon}) center no-repeat;
+  border: none;
 `;
