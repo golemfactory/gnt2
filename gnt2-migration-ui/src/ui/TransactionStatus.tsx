@@ -61,7 +61,10 @@ export const TransactionStatus = ({
 
   return (
     <Modal isVisible={true} onClose={closeModal} inProgress={txInProgress}>
-      <TransactionProgress transactionHash={currentTx?.transactionHash} errorMessage={errorMessage} inProgress={txInProgress}/>
+      <TransactionProgress
+        transactionHash={currentTx?.transactionHash}
+        errorMessage={errorMessage}
+        inProgress={txInProgress}/>
     </Modal>
   );
 };

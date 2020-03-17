@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import {CTAButton} from './commons/CTAButton';
+import {Spinner} from './Spinner';
 
 interface TransactionProgressProps {
   transactionHash: string | undefined;
@@ -27,6 +28,7 @@ export const TransactionProgress = ({
       <Title>
         {title}
       </Title>
+      {inProgress && <Spinner/>}
       {!errorMessage &&
         <a
           href={`https://rinkeby.etherscan.io/tx/${transactionHash && transactionHash}`}

@@ -2,11 +2,10 @@ import React, {ReactNode, useEffect, useCallback} from 'react';
 import styled from 'styled-components';
 import {createPortal} from 'react-dom';
 import crossIcon from '../assets/icons/cross.svg';
-import {Spinner} from './Spinner';
 
 export interface ModalProps {
   isVisible: boolean;
-  onClose: () => void;
+  onClose?: () => void;
   children: ReactNode;
   inProgress?: boolean;
   className?: string;
@@ -14,10 +13,10 @@ export interface ModalProps {
 
 export const Modal = ({isVisible, onClose, children, inProgress, className}: ModalProps) => {
   const listenKeyboard = useCallback((event: KeyboardEvent) => {
-    if (event.key === 'Escape' || event.keyCode === 27) {
+    if (!!onClose && !inProgress && (event.key === 'Escape' || event.keyCode === 27)) {
       onClose();
     }
-  }, [onClose]);
+  }, [onClose, inProgress]);
 
   useEffect(() => {
     if (isVisible) {
@@ -34,13 +33,8 @@ export const Modal = ({isVisible, onClose, children, inProgress, className}: Mod
         <ModalOverlay onClick={onClose}/>
         <ModalBodyWrapper>
           <ModalBody>
-            {inProgress
-              ? <Spinner/>
-              : <>
-                <CloseButton onClick={onClose} data-testid="modal-close"/>
-                {children}
-              </>
-            }
+            {onClose && !inProgress && <CloseButton onClick={onClose} data-testid="modal-close"/>}
+            {children}
           </ModalBody>
         </ModalBodyWrapper>
       </ModalView>,
