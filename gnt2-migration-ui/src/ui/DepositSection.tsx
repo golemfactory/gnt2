@@ -5,7 +5,6 @@ import {TransactionStatus} from './TransactionStatus';
 import {Balance} from './Balance';
 import {DepositTimer} from './DepositTimer';
 import {useServices} from './hooks/useServices';
-import {useAsync} from './hooks/useAsync';
 import {useAsyncEffect} from './hooks/useAsyncEffect';
 import {CTAButton} from './commons/CTAButton';
 import {useProperty} from './hooks/useProperty';
@@ -13,17 +12,14 @@ import {DepositState} from '../services/TokensService';
 import {isEmpty} from '../utils/bigNumberUtils';
 
 export function DepositSection() {
-  const {tokensService, connectionService, contractAddressService} = useServices();
+  const {tokensService, connectionService} = useServices();
 
   const account = useProperty(connectionService.account);
-  const contractAddresses = useProperty(contractAddressService.contractAddresses);
 
   const [currentTransaction, setCurrentTransaction] = useState<(() => Promise<ContractTransaction>) | undefined>(undefined);
   const [depositLockState, setDepositLockState] = useState<DepositState>(DepositState.LOCKED);
 
-  const [depositBalance] = useAsync(
-    async () => tokensService.balanceOfDeposit(account),
-    [contractAddresses, account, depositLockState]);
+  const depositBalance = useProperty(tokensService.depositBalance);
 
   useAsyncEffect(async () => {
     setDepositLockState(await tokensService.getDepositState(account));

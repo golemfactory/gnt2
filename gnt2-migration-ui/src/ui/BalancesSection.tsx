@@ -7,22 +7,16 @@ import {useProperty} from './hooks/useProperty';
 import {DepositSection} from './DepositSection';
 import {BatchingTokensSection} from './BatchingTokensSection';
 
-interface BalancesSectionProps {
-  setGNTBalance: (value: BigNumber | undefined) => void;
-}
-
-export const BalancesSection = ({setGNTBalance}: BalancesSectionProps) => {
+export const BalancesSection = () => {
   const {tokensService, accountService, connectionService, contractAddressService, refreshService} = useServices();
   const account = useProperty(connectionService.account);
   const contractAddresses = useProperty(contractAddressService.contractAddresses);
   const refreshTrigger = useProperty(refreshService.refreshTrigger);
   const useAsyncBalance = (execute: () => Promise<BigNumber | undefined>) => useAsync(execute, [refreshTrigger, contractAddresses, account]);
 
-  const [newTokensBalance] = useAsyncBalance(async () => tokensService.balanceOfNewTokens(account));
-  const [oldTokensBalance] = useAsyncBalance(async () => tokensService.balanceOfOldTokens(account));
+  const newTokensBalance = useProperty(tokensService.ngntBalance);
+  const oldTokensBalance = useProperty(tokensService.gntBalance);
   const [balance] = useAsyncBalance(async () => accountService.balanceOf(account));
-
-  setGNTBalance(oldTokensBalance);
 
   return (
     <>

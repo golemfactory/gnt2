@@ -1,46 +1,92 @@
-import {DepositState, TokensService} from '../src/services/TokensService';
+import {DepositState, PossibleBalance, TokensService} from '../src/services/TokensService';
 import {createMockProvider, getWallets, solidity} from 'ethereum-waffle';
-import {deployDevGolemContracts, GolemContractsDeploymentAddresses} from 'gnt2-contracts';
-import {utils} from 'ethers';
+import {Wallet} from 'ethers';
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
-import {ContractAddressService} from '../src/services/ContractAddressService';
-import {State} from 'reactive-properties';
-import {ContractAddresses} from '../src/config';
-import {NOPLogger} from '../../gnt2-contracts/test/utils';
 import {parseEther} from 'ethers/utils';
 import {advanceEthereumTime} from './helpers/ethereumHelpers';
 import {DEPOSIT_LOCK_DELAY, TX_HASH_REGEXP} from './helpers/contractConstants';
+import {createTestServices} from './helpers/testServices';
+import {Web3Provider} from 'ethers/providers';
+import sinon from 'sinon';
+import {wrapGNTtoGNTB} from '../../gnt2-contracts/src/deployment/deployDevGolemContracts';
+import {GolemNetworkTokenBatchingFactory, GolemNetworkTokenFactory} from '../../gnt2-contracts';
+import {wait} from '@testing-library/react';
+import {GolemNetworkTokenBatching} from 'gnt2-contracts/build/contract-types/GolemNetworkTokenBatching';
+import {GolemNetworkToken} from 'gnt2-contracts/build/contract-types/GolemNetworkToken';
+import {Property} from 'reactive-properties';
 
 chai.use(solidity);
 chai.use(chaiAsPromised);
 const expect = chai.expect;
+export const flushAllPromises = () => new Promise((resolve) => setImmediate(resolve));
 
 describe('Token Service', () => {
-  const provider = createMockProvider();
-  const [holderWallet, deployWallet, anotherWallet] = getWallets(provider);
-  const holder = holderWallet.address;
-  let addresses: GolemContractsDeploymentAddresses;
+  let provider: Web3Provider;
+  let holderWallet: Wallet, anotherWallet: Wallet;
+  let holder: string;
   let tokensService: TokensService;
-  const advanceEthereumTimeBy = (seconds: number) => advanceEthereumTime(provider, seconds);
+  let gntb: GolemNetworkTokenBatching;
+  let gnt: GolemNetworkToken;
 
+  const advanceEthereumTimeBy = (seconds: number) => advanceEthereumTime(provider, seconds);
   beforeEach(async () => {
-    addresses = await deployDevGolemContracts(provider, deployWallet, holderWallet, NOPLogger);
-    const contractAddressService = {
-      contractAddresses: new State<ContractAddresses>(addresses)
-    } as unknown as ContractAddressService;
-    tokensService = new TokensService(() => provider, contractAddressService);
+    provider = createMockProvider();
+    [holderWallet, anotherWallet] = getWallets(provider);
+    holder = holderWallet.address;
+    const services = await createTestServices(provider);
+    const contractAddresses = services.contractAddressService.contractAddresses.get();
+    gntb = GolemNetworkTokenBatchingFactory.connect(contractAddresses.batchingGolemToken, holderWallet);
+    gnt = GolemNetworkTokenFactory.connect(contractAddresses.oldGolemToken, holderWallet);
+    tokensService = services.tokensService;
+    tokensService.gntbBalance.subscribe(sinon.stub());
+    tokensService.gntBalance.subscribe(sinon.stub());
   });
 
+  function expectBalanceProp(balanceProp: Property<PossibleBalance>) {
+    return {
+      to: {
+        eqEth: async (ethBalance: string) => {
+          return wait(() => {
+            expect(balanceProp.get()).to.eq(parseEther(ethBalance));
+          }, {interval: 5});
+        }
+      }
+    };
+  }
+
   it('gets account balance', async () => {
-    expect(await tokensService.balanceOfOldTokens(holder)).to.eq(utils.parseEther('140000000.0'));
+    expect(await tokensService.balanceOfOldTokens(holder)).to.eq(parseEther('140000000'));
+  });
+
+  it('refreshes GNT and GNTB balances on wrap', async () => {
+    await expectBalanceProp(tokensService.gntBalance).to.eqEth('140000000');
+    await expectBalanceProp(tokensService.gntbBalance).to.eqEth('9999900');
+
+    await wrapGNTtoGNTB(
+      holderWallet,
+      gntb,
+      gnt,
+      parseEther('100').toString()
+    );
+
+    await expectBalanceProp(tokensService.gntBalance).to.eqEth('139999900');
+    await expectBalanceProp(tokensService.gntbBalance).to.eqEth('10000000');
+  });
+
+  it('refreshes GNT balance on GNT Transfer ', async () => {
+    await expectBalanceProp(tokensService.gntBalance).to.eqEth('140000000');
+
+    await gnt.transfer(anotherWallet.address, parseEther('10000000'));
+
+    await expectBalanceProp(tokensService.gntBalance).to.eqEth('130000000');
   });
 
   describe('migrateTokens', () => {
 
     it('migrates all tokens and returns transaction hash', async () => {
       const result = await tokensService.migrateAllTokens(holder);
-      expect(await tokensService.balanceOfOldTokens(holder)).to.eq(0);
+      await expectBalanceProp(tokensService.gntBalance).to.eqEth('0');
       expect(result.hash).to.match(TX_HASH_REGEXP);
     });
   });
@@ -63,18 +109,15 @@ describe('Token Service', () => {
     });
 
     it('"Move to wrapped" changes from "Unlocked" to "Empty" and increases GNTB balance', async () => {
-      const gntbBalanceBefore = await tokensService.balanceOfBatchingTokens(holder);
-      const depositBalanceBefore = await tokensService.balanceOfDeposit(holder);
+      await expectBalanceProp(tokensService.gntbBalance).to.eqEth('9999900');
       await tokensService.unlockDeposit(holder);
       await advanceEthereumTimeBy(DEPOSIT_LOCK_DELAY + 1);
 
       await tokensService.moveToWrapped(holder);
 
       expect(await tokensService.getDepositState(holder)).to.equal(DepositState.EMPTY);
-      const gntbBalanceAfter = await tokensService.balanceOfBatchingTokens(holder);
-      expect(gntbBalanceAfter.sub(gntbBalanceBefore)).to.eq(depositBalanceBefore);
+      await expectBalanceProp(tokensService.gntbBalance).to.eqEth('10000000');
     });
-
   });
 
   describe('getDepositState', () => {

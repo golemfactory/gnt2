@@ -17,7 +17,7 @@ export const Account = () => {
 
   const account = useProperty(connectionService.account);
 
-  const [oldTokensBalance, setOldTokensBalance] = useState<BigNumber | undefined>(undefined);
+  const oldTokensBalance = useProperty(tokensService.gntBalance);
   const [currentTransaction, setCurrentTransaction] = useState<(() => Promise<ContractTransaction>) | undefined>(undefined);
 
   const migrateTokens = () => setCurrentTransaction(() => () => tokensService.migrateAllTokens(account));
@@ -33,7 +33,7 @@ export const Account = () => {
         {account && <Jazzicon diameter={46} seed={jsNumberForAddress(account)}/>}
         <Address>{account}</Address>
       </JazziconAddress>
-      <BalancesSection setGNTBalance={setOldTokensBalance}/>
+      <BalancesSection/>
       <CTAButton data-testid="migrate-button" onClick={migrateTokens} disabled={oldTokensBalance?.eq(new BigNumber('0'))}>
         Migrate
       </CTAButton>

@@ -50,7 +50,7 @@ export async function createTestServices(provider: JsonRpcProvider, withEmptyWal
   const connectionService = await testConnectionService(provider, wallet);
   const contractAddressService = testContractAddressService(connectionService, addresses);
   const accountService = testAccountService(provider, wallet);
-  const tokensService = new TokensService(() => provider, contractAddressService);
+  const tokensService = new TokensService(() => provider, contractAddressService, connectionService);
   const refreshService = new RefreshService();
   return {
     startServices: sinon.stub(),

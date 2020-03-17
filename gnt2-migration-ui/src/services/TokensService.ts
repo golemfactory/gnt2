@@ -1,29 +1,115 @@
 import {JsonRpcProvider} from 'ethers/providers';
 import {BigNumber} from 'ethers/utils';
-import {
-  GNTDepositFactory,
-  GolemNetworkTokenBatchingFactory,
-  GolemNetworkTokenFactory,
-  NewGolemNetworkTokenFactory,
-} from 'gnt2-contracts';
+import {GNTDepositFactory, GolemNetworkTokenBatchingFactory, GolemNetworkTokenFactory, NewGolemNetworkTokenFactory} from 'gnt2-contracts';
 import {ContractAddressService} from './ContractAddressService';
 import {gasLimit} from '../config';
 import {ContractTransaction} from 'ethers';
+import {callEffectForEach, Property, State, withEffect, withSubscription} from 'reactive-properties';
+import {ConnectionService} from './ConnectionService';
+import {ContractUtils} from '../utils/contractUtils';
 
 export enum DepositState {
-  LOCKED,
-  TIME_LOCKED,
-  UNLOCKED,
-  EMPTY
+  LOCKED, TIME_LOCKED, UNLOCKED, EMPTY
 }
 
-export class TokensService {
-  constructor(
-    private provider: () => JsonRpcProvider,
-    private contractAddressService: ContractAddressService
-  ) {}
+export type PossibleBalance = BigNumber | undefined;
 
-  tokenContractsAddresses() { return this.contractAddressService.contractAddresses.get(); }
+export class TokensService {
+
+  gntBalance: Property<PossibleBalance>;
+  gntbBalance: Property<PossibleBalance>;
+  ngntBalance: Property<PossibleBalance>;
+  depositBalance: Property<PossibleBalance>;
+
+  constructor(private provider: () => JsonRpcProvider, private contractAddressService: ContractAddressService, private connectionService: ConnectionService) {
+    this.gntBalance = this.createBalanceProperty(
+      () => this.balanceOfOldTokens(this.account()),
+      callback => ContractUtils.subscribeToEvents(
+        this.gntContract(),
+        this.gntEventFilters(),
+        callback
+      )
+    );
+    this.gntbBalance = this.createBalanceProperty(
+      () => this.balanceOfBatchingTokens(this.account()),
+      callback => ContractUtils.subscribeToEvents(
+        this.gntbContract(),
+        this.gntbEventFilters(),
+        callback
+      )
+    );
+    this.ngntBalance = this.createBalanceProperty(
+      () => this.balanceOfNewTokens(this.account()),
+      callback => ContractUtils.subscribeToEvents(
+        this.ngntContract(),
+        this.ngntEventFilters(),
+        callback
+      )
+    );
+    this.depositBalance = this.createBalanceProperty(
+      () => this.balanceOfDeposit(this.account()),
+      callback => ContractUtils.subscribeToEvents(
+        this.gntDepositContract(),
+        this.depositEventFilters(),
+        callback
+      )
+    );
+  }
+
+  private createBalanceProperty(
+    fetchBalance: () => Promise<BigNumber>,
+    subscribeToEvents: (cb: () => void) => (() => void)
+  ) {
+    const contractAddresses = this.contractAddressService.contractAddresses;
+    const state = new State<PossibleBalance>(undefined);
+    async function updateBalance() {
+      state.set(await fetchBalance());
+    }
+    return state.pipe(
+      withSubscription(updateBalance, contractAddresses),
+      withSubscription(updateBalance, this.connectionService.account),
+      withEffect(() => contractAddresses.pipe(
+        callEffectForEach(() => subscribeToEvents(updateBalance))
+      ))
+    );
+  }
+
+  private depositEventFilters() {
+    const deposit = this.gntDepositContract().filters.Deposit(this.account(), null);
+    const withdrawFrom = this.gntDepositContract().filters.Withdraw(this.account(), null, null);
+    const withdrawTo = this.gntDepositContract().filters.Withdraw(null, this.account(), null);
+    const burn = this.gntDepositContract().filters.Burn(this.account(), null);
+    return [deposit, withdrawFrom, withdrawTo, burn];
+  }
+
+  private gntEventFilters() {
+    const migrate = this.gntContract().filters.Migrate(this.account(), null, null);
+    const transferFrom = this.gntContract().filters.Transfer(this.account(), null, null);
+    const transferTo = this.gntContract().filters.Transfer(null, this.account(), null);
+    return [migrate, transferFrom, transferTo];
+  }
+
+  private gntbEventFilters() {
+    const transferFrom = this.gntbContract().filters.Transfer(this.account(), null, null);
+    const transferTo = this.gntbContract().filters.Transfer(null, this.account(), null);
+    const minted = this.gntbContract().filters.Minted(this.account(), null);
+    const burned = this.gntbContract().filters.Burned(this.account(), null);
+    return [transferFrom, transferTo, minted, burned];
+  }
+
+  private ngntEventFilters() {
+    const transferFrom = this.ngntContract().filters.Transfer(this.account(), null, null);
+    const transferTo = this.ngntContract().filters.Transfer(null, this.account(), null);
+    return [transferFrom, transferTo];
+  }
+
+  private account() {
+    return this.connectionService.account.get();
+  }
+
+  tokenContractsAddresses() {
+    return this.contractAddressService.contractAddresses.get();
+  }
 
   async balanceOfOldTokens(address: string): Promise<BigNumber> {
     return this.gntContract().balanceOf(address);

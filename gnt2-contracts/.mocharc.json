@@ -1,5 +1,6 @@
 {
   "timeout": 20000,
   "require": ["ts-node/register/transpile-only"],
-  "spec": "test/**/*.ts"
+  "spec": "test/**/*.ts",
+  "exit": true
 }
