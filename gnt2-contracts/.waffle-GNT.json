@@ -1,4 +1,4 @@
 {
-  "solcVersion": "v0.4.4+commit.4633f3de",
+  "solcVersion": "v0.4.12+commit.194ff033",
   "sourcesPath": "./src/contracts/currentlyDeployed/GNT"
 }

@@ -19,7 +19,7 @@ contract GNTAllocation {
 
     uint256 tokensCreated = 0;
 
-    function GNTAllocation(address _golemFactory) internal {
+    function GNTAllocation(address _golemFactory) public {
         gnt = GolemNetworkToken(msg.sender);
         unlockedAt = now + 6 * 30 days;
 
@@ -31,7 +31,7 @@ contract GNTAllocation {
         allocations[0xd7406E50b73972Fa4aa533a881af68B623Ba3F66] =  730; //  7.3% of developers' allocations.
         allocations[0xd15356D05A7990dE7eC94304B0fD538e550c09C0] =  730;
         allocations[0x3971D17B62b825b151760E2451F818BfB64489A7] =  730;
-        allocations[0x95e337d09f1bc67681b1cab7ed1125ea2bae5ca8] =  730;
+        allocations[0x95E337D09f1BC67681b1cAB7eD1125Ea2bAe5ca8] =  730;
         allocations[0x0025C58dB686b8CEce05CB8c50C1858b63Aa396E] =  730;
         allocations[0xB127FC62dE6ca30aAc9D551591daEDdeBB2eFD7A] =  630; //  6.3% of developers' allocations.
         allocations[0x21AF2E2c240a71E9fB84e90d71c2B2AddE0D0e81] =  630;
@@ -41,7 +41,7 @@ contract GNTAllocation {
         allocations[0xB7c7EaD515Ca275d53e30B39D8EBEdb3F19dA244] =  138; //  1.38% of developers' allocations.
         allocations[0xD513b1c3fe31F3Fe0b1E42aa8F55e903F19f1730] =  135; //  1.35% of developers' allocations.
         allocations[0x70cac7f8E404EEFce6526823452e428b5Ab09b00] =  100; //  1.0% of developers' allocations.
-        allocations[0xe0d5861e7be0fac6c85ecde6e8bf76b046a96149] =  100;
+        allocations[0xe0d5861E7Be0fAC6c85Ecde6e8Bf76B046A96149] =  100;
         allocations[0x17488694D2feE4377Ec718836bb9d4910E81D9Cf] =  100;
         allocations[0xb481372086dEc3ca2FCCD3EB2f462c9C893Ef3C5] =  100;
         allocations[0xFB6D91E69CD7990651f26a3aa9f8d5a89159fC92] =   70; //  0.7% of developers' allocations.
