@@ -11,7 +11,12 @@ export const Login = ({history}: RouteComponentProps) => {
 
   const onMetamaskClick = async () => {
     setIsConnecting(true);
-    await connectionService.connect();
+    try {
+      await connectionService.connect();
+    }
+    finally {
+      setIsConnecting(false);
+    }
     if (connectionService.isConnected()) {
       history.push('/account');
     }
