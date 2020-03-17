@@ -123,6 +123,41 @@ describe('New Golem Network Token', () => {
 
   });
 
+  describe('permit combined with approve', () => {
+    it('Positive permit should override an approve', async () => {
+      await asHolder.approve(spender, 10);
+      expect(await token.allowance(holder, spender)).to.eq(10);
+
+      await permit(signDefaultPermit());
+      expect(await token.allowance(holder, spender)).to.eq(MaxUint256);
+    });
+
+    it('Negative permit should override an approve', async () => {
+      await asHolder.approve(spender, 10);
+      expect(await token.allowance(holder, spender)).to.eq(10);
+
+      const signature = signDefaultPermit({allowed: false});
+      await permit(signature, {allowed: false});
+      expect(await token.allowance(holder, spender)).to.eq(0);
+    });
+
+    it('Finite approve should override a permit', async () => {
+      await permit(signDefaultPermit());
+      expect(await token.allowance(holder, spender)).to.eq(MaxUint256);
+
+      await asHolder.approve(spender, 10);
+      expect(await token.allowance(holder, spender)).to.eq(10);
+    });
+
+    it('Zero-approve should override a permit', async () => {
+      await permit(signDefaultPermit());
+      expect(await token.allowance(holder, spender)).to.eq(MaxUint256);
+
+      await asHolder.approve(spender, 0);
+      expect(await token.allowance(holder, spender)).to.eq(0);
+    });
+  });
+
   describe('transferFrom', () => {
     it('works for msg.sender without approve', async () => {
       await mint(token, holder, parseEther('110'));
