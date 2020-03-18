@@ -106,7 +106,7 @@ const JazziconAddress = styled.div`
   align-items: center;
 `;
 
-const Address = styled.div`ń
+const Address = styled.div`
   margin-left: 8px;
 `;
 
