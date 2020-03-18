@@ -66,8 +66,60 @@ describe('Account page', () => {
       expect(await waitForElement(() => getByTestId('deposit'))).to.have.text('100.000');
     });
 
+    it('migrates user specified number of tokens', async () => {
+      const {getByTestId} = await renderAccount(services);
+
+      const input = await waitForElement(() => getByTestId('migrate-input'));
+      const tokensToMigrate = '9000.000';
+      fireEvent.change(input, {target: {value: tokensToMigrate}});
+      expect(input).to.have.value(tokensToMigrate);
+
+      fireEvent.click(getByTestId('migrate-button'));
+
+      await wait(() => {
+        expect(getByTestId('NGNT-balance')).to.have.text(tokensToMigrate);
+        expect(getByTestId('GNT-balance')).to.have.text('139991000.000');
+      });
+    });
+
+    [
+      ['150000000.0', 'greater then GNT-balance'],
+      ['-1000', 'lower then 0'],
+      ['0', 'equal to 0']
+    ].forEach(([tokensToMigrate, message]) => {
+      it(`shows error for number of tokens ${message}`, async () => {
+        const {getByTestId} = await renderAccount(services);
+
+        const input = await waitForElement(() => getByTestId('migrate-input'));
+        fireEvent.change(input, {target: {value: tokensToMigrate}});
+        expect(input).to.have.value(tokensToMigrate);
+
+        fireEvent.click(getByTestId('migrate-button'));
+
+        await wait(() => {
+          expect(getByTestId('migrate-error')).to.exist;
+          expect(getByTestId('NGNT-balance')).to.have.text('0.000');
+          expect(getByTestId('GNT-balance')).to.have.text('140000000.000');
+        });
+      });
+    });
+
+    it('sets max number of tokens', async () => {
+      const {getByTestId} = await renderAccount(services);
+
+      const input = await waitForElement(() => getByTestId('migrate-input'));
+
+      fireEvent.click(getByTestId('migrate-btn-set-max'));
+
+      expect(input).to.have.value('140000000');
+    });
+
     it('shows migrated tokens', async () => {
       const {getByTestId} = await renderAccount(services);
+
+      const input = await waitForElement(() => getByTestId('migrate-input'));
+      const tokensToMigrate = '140000000.000';
+      fireEvent.change(input, {target: {value: tokensToMigrate}});
 
       fireEvent.click(getByTestId('migrate-button'));
 
@@ -81,6 +133,10 @@ describe('Account page', () => {
     it('shows modal on migrate', async () => {
       const {getByTestId} = await renderAccount(services);
 
+      const input = await waitForElement(() => getByTestId('migrate-input'));
+      const tokensToMigrate = '1000.000';
+      fireEvent.change(input, {target: {value: tokensToMigrate}});
+
       fireEvent.click(getByTestId('migrate-button'));
 
       await wait(() => {
@@ -92,11 +148,15 @@ describe('Account page', () => {
     });
 
     it('shows error in modal when user denied transaction', async () => {
-      services.tokensService.migrateAllTokens = async () => {
+      services.tokensService.migrateTokens = async () => {
         throw new TransactionDenied(new Error());
       };
 
       const {getByTestId} = await renderAccount(services);
+
+      const input = await waitForElement(() => getByTestId('migrate-input'));
+      const tokensToMigrate = '1000.000';
+      fireEvent.change(input, {target: {value: tokensToMigrate}});
 
       fireEvent.click(getByTestId('migrate-button'));
 
