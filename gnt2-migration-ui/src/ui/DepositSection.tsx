@@ -2,14 +2,17 @@ import React, {useState} from 'react';
 import {ContractTransaction} from 'ethers';
 
 import {TransactionStatus} from './TransactionStatus';
-import {Balance} from './Balance';
 import {DepositTimer} from './DepositTimer';
 import {useServices} from './hooks/useServices';
 import {useAsyncEffect} from './hooks/useAsyncEffect';
-import {CTAButton} from './commons/CTAButton';
 import {useProperty} from './hooks/useProperty';
 import {DepositState} from '../services/TokensService';
 import {isEmpty} from '../utils/bigNumberUtils';
+import {BalanceBlock, BalanceRow, Ticker, AmountWrapper, Amount, BalanceButton} from './Account/Balance';
+import {SmallTitle} from './commons/Text/SmallTitle';
+import {formatValue} from '../utils/formatter';
+import lockIcon from '../assets/icons/lock.svg';
+import styled from 'styled-components';
 
 export function DepositSection() {
   const {tokensService, connectionService} = useServices();
@@ -57,17 +60,39 @@ export function DepositSection() {
   }
 
   return (
-    <>
-      <Balance testId='deposit' tokenName='deposit' balance={depositBalance}/>
+    <BalanceBlock>
+      <SmallTitle>Locked Tokens</SmallTitle>
+      <BalanceRow>
+        <TokenTicker>GNTb</TokenTicker>
+        <AmountWrapper>
+          <Amount data-testid='deposit'>{depositBalance && formatValue(depositBalance.toString(), 3)}</Amount>
+          <BalanceButton
+            data-testid="action-deposit-button"
+            disabled={depositLockState === DepositState.TIME_LOCKED}
+            onClick={() => changeDepositState()}
+          >
+            {getTitle()}
+          </BalanceButton>
+        </AmountWrapper>
+      </BalanceRow>
       <DepositTimer/>
-      <CTAButton
-        data-testid="action-deposit-button"
-        disabled={depositLockState === DepositState.TIME_LOCKED}
-        onClick={() => changeDepositState()}
-      >
-        {getTitle()}
-      </CTAButton>
       <TransactionStatus onClose={() => closeTransactionModal() } transactionToBeExecuted={currentTransaction}/>
-    </>
+    </BalanceBlock>
   );
 }
+
+const TokenTicker = styled(Ticker)`
+  position: relative;
+  padding-left: 32px;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 16px;
+    background: url(${lockIcon}) center no-repeat;
+  }
+`;
