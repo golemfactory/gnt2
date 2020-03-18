@@ -18,7 +18,7 @@ export const EthereumBalance = ({balance}: EthereumBalanceProps) => (
     </TitleWithTooltip>
     <Row>
       <Ticker>ETH</Ticker>
-      <Amount data-testid="ETH-balance">{balance && formatValue(balance.toString(), 4)}</Amount>
+      <Amount data-testid="ETH-balance">{balance && formatValue(balance, 4)}</Amount>
     </Row>
   </EthereumBalanceBlock>
 );
