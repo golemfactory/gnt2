@@ -109,6 +109,15 @@ export const Account = () => {
   );
 };
 
+const Line = styled.div`
+  width: 1px;
+  opacity: 0.1;
+  border-top: 1px solid #181EA9;
+  box-sizing: border-box;
+  width: 145%;
+  margin-bottom: 23px;
+`;
+
 const View = styled.div`
   max-width: 630px;
   width: 100%;

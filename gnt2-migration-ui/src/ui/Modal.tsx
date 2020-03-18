@@ -2,6 +2,8 @@ import React, {ReactNode, useEffect, useCallback} from 'react';
 import styled from 'styled-components';
 import {createPortal} from 'react-dom';
 import crossIcon from '../assets/icons/cross.svg';
+import txfail from '../assets/icons/txfail.svg';
+import txpass from '../assets/icons/txpass.svg';
 
 export interface ModalProps {
   isVisible: boolean;
