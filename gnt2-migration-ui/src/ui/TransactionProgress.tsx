@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import {CTAButton} from './commons/CTAButton';
-import {Spinner} from './Spinner';
+
 
 interface TransactionProgressProps {
   transactionHash: string | undefined;
