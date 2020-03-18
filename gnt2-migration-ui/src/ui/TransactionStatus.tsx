@@ -4,9 +4,9 @@ import {ContractTransaction} from 'ethers';
 import {ContractReceipt} from 'ethers/contract';
 import {useSnackbar} from './hooks/useSnackbar';
 import {TransactionProgress} from './TransactionProgress';
-import {Modal} from './Modal';
 import {mapCodeToError} from '../utils/mapCodeToError';
 import {useServices} from './hooks/useServices';
+import {TransactionModal} from './TransactionModal';
 
 interface TransactionModalProps {
   transactionToBeExecuted: (() => Promise<ContractTransaction>) | undefined;
@@ -55,16 +55,13 @@ export const TransactionStatus = ({
     },
     [transactionToBeExecuted]);
 
-  if (transactionToBeExecuted) {
+  if (!transactionToBeExecuted) {
     return null;
   }
 
   return (
-    <Modal isVisible={true} onClose={closeModal} inProgress={txInProgress}>
-      <TransactionProgress
-        transactionHash={currentTx?.transactionHash}
-        errorMessage={errorMessage}
-        inProgress={txInProgress}/>
-    </Modal>
+    <TransactionModal onClose={closeModal} inProgress={txInProgress}>
+      <TransactionProgress transactionHash={currentTx?.transactionHash} errorMessage={errorMessage} inProgress={txInProgress}/>
+    </TransactionModal>
   );
 };
