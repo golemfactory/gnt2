@@ -1,5 +1,5 @@
 import {DepositState, PossibleBalance, TokensService} from '../src/services/TokensService';
-import {createMockProvider, getWallets, solidity} from 'ethereum-waffle';
+import {getWallets, solidity} from 'ethereum-waffle';
 import {Wallet} from 'ethers';
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
@@ -15,10 +15,12 @@ import {wait} from '@testing-library/react';
 import {GolemNetworkTokenBatching} from 'gnt2-contracts/build/contract-types/GolemNetworkTokenBatching';
 import {GolemNetworkToken} from 'gnt2-contracts/build/contract-types/GolemNetworkToken';
 import {Property} from 'reactive-properties';
+import {ContractAddressService} from '../src/services/ContractAddressService';
 
 chai.use(solidity);
 chai.use(chaiAsPromised);
 const expect = chai.expect;
+const services: TokensService[] = [];
 
 describe('Token Service', () => {
   let provider: Web3Provider;
@@ -27,20 +29,30 @@ describe('Token Service', () => {
   let tokensService: TokensService;
   let gntb: GolemNetworkTokenBatching;
   let gnt: GolemNetworkToken;
+  let un1: () => void;
+  let un2: () => void;
+  let un3: () => void;
 
   const advanceEthereumTimeBy = (seconds: number) => advanceEthereumTime(provider, seconds);
+
   beforeEach(async () => {
-    provider = createMockProvider();
+    let contractAddressService: ContractAddressService;
+    ({services: {contractAddressService, tokensService}, provider} = await createTestServices());
+    services.push(tokensService);
     [holderWallet, anotherWallet] = getWallets(provider);
     holder = holderWallet.address;
-    const services = await createTestServices(provider);
-    const contractAddresses = services.contractAddressService.contractAddresses.get();
+    const contractAddresses = contractAddressService.contractAddresses.get();
     gntb = GolemNetworkTokenBatchingFactory.connect(contractAddresses.batchingGolemToken, holderWallet);
     gnt = GolemNetworkTokenFactory.connect(contractAddresses.oldGolemToken, holderWallet);
-    tokensService = services.tokensService;
-    tokensService.gntbBalance.subscribe(sinon.stub());
-    tokensService.gntBalance.subscribe(sinon.stub());
-    tokensService.ngntBalance.subscribe(sinon.stub());
+    un1 = tokensService.gntbBalance.subscribe(sinon.stub());
+    un2 = tokensService.gntBalance.subscribe(sinon.stub());
+    un3 = tokensService.ngntBalance.subscribe(sinon.stub());
+  });
+
+  afterEach(() => {
+    un2();
+    un1();
+    un3();
   });
 
   function expectBalanceProp(balanceProp: Property<PossibleBalance>) {
@@ -61,7 +73,7 @@ describe('Token Service', () => {
 
   it('refreshes GNT and GNTB balances on wrap', async () => {
     await expectBalanceProp(tokensService.gntBalance).to.eqEth('140000000');
-    await expectBalanceProp(tokensService.gntbBalance).to.eqEth('9999900');
+    await expectBalanceProp(tokensService.gntbBalance).to.eqEth('4999900');
 
     await wrapGNTtoGNTB(
       holderWallet,
@@ -71,7 +83,7 @@ describe('Token Service', () => {
     );
 
     await expectBalanceProp(tokensService.gntBalance).to.eqEth('139999900');
-    await expectBalanceProp(tokensService.gntbBalance).to.eqEth('10000000');
+    await expectBalanceProp(tokensService.gntbBalance).to.eqEth('5000000');
   });
 
   it('refreshes GNT balance on GNT Transfer ', async () => {
@@ -124,14 +136,14 @@ describe('Token Service', () => {
     });
 
     it('"Move to wrapped" changes from "Unlocked" to "Empty" and increases GNTB balance', async () => {
-      await expectBalanceProp(tokensService.gntbBalance).to.eqEth('9999900');
+      await expectBalanceProp(tokensService.gntbBalance).to.eqEth('4999900');
       await tokensService.unlockDeposit(holder);
       await advanceEthereumTimeBy(DEPOSIT_LOCK_DELAY + 1);
 
       await tokensService.moveToWrapped(holder);
 
       expect(await tokensService.getDepositState(holder)).to.equal(DepositState.EMPTY);
-      await expectBalanceProp(tokensService.gntbBalance).to.eqEth('10000000');
+      await expectBalanceProp(tokensService.gntbBalance).to.eqEth('5000000');
     });
   });
 

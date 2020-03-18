@@ -1,15 +1,15 @@
-import {JsonRpcProvider} from 'ethers/providers';
+import {JsonRpcProvider, Provider, Web3Provider} from 'ethers/providers';
 import {AccountService} from '../../src/services/AccountsService';
 import sinon from 'sinon';
 import {ConnectionService} from '../../src/services/ConnectionService';
 import {deployDevGolemContracts, GolemContractsDeploymentAddresses} from 'gnt2-contracts';
 import {ContractAddressService} from '../../src/services/ContractAddressService';
 import {ContractAddresses} from '../../src/config';
-import {Services} from '../../src/services';
-import {getWallets} from 'ethereum-waffle';
+import {loadFixture} from 'ethereum-waffle';
 import {TokensService} from '../../src/services/TokensService';
 import {MockedEthereum} from './mockedEthereum';
 import {RefreshService} from '../../src/services/RefreshService';
+import {Wallet} from 'ethers';
 
 const noOpLogger = {
   log: () => {
@@ -23,16 +23,22 @@ function testAccountService(provider: JsonRpcProvider, address: string) {
   return accountService;
 }
 
+function restoreStubs(provider: JsonRpcProvider) {
+  const possibleStub = provider.listAccounts as any;
+  if (possibleStub.restore) {
+    possibleStub.restore();
+  }
+}
+
 async function testConnectionService(provider: JsonRpcProvider, address?: string) {
   const connectionService = new ConnectionService(new MockedEthereum());
   connectionService['provider'] = provider;
+  restoreStubs(provider);
   if (!address) {
     const wallets = await provider.listAccounts();
     address = wallets[0];
   }
   sinon.stub(provider, 'listAccounts').resolves([address]);
-  await connectionService.checkConnection();
-  await connectionService.checkNetwork();
   return connectionService;
 }
 
@@ -43,21 +49,43 @@ function testContractAddressService(connectionService: ConnectionService, addres
     rinkeby: addresses as ContractAddresses
   });
 }
-export async function createTestServices(provider: JsonRpcProvider, withEmptyWallet?: boolean): Promise<Services> {
-  const [holderWallet, deployWallet, emptyWallet] = getWallets(provider);
-  const wallet = withEmptyWallet ? emptyWallet.address : holderWallet.address;
-  const addresses = await deployDevGolemContracts(provider, deployWallet, holderWallet, noOpLogger);
+const fixture = async (provider: Provider, [holderWallet, deployWallet, emptyWallet, gntOnlyWallet]: Wallet[]) => {
+  const deployment = await deployDevGolemContracts(provider, deployWallet, holderWallet, gntOnlyWallet, noOpLogger);
+  return {addresses: deployment, provider: provider as Web3Provider, holderWallet, deployWallet, emptyWallet, gntOnlyWallet};
+};
+type AccountType = 'holderUser' | 'empty' | 'holder';
+
+function selectWallet(loginAs: AccountType, emptyWallet: Wallet, holderWallet: Wallet, gntOnlyWallet: Wallet) {
+  switch (loginAs) {
+    case 'empty':
+      return emptyWallet;
+    case 'holderUser':
+      return holderWallet;
+    case 'holder':
+      return gntOnlyWallet;
+  }
+}
+
+export async function createTestServices(loginAs: AccountType = 'holderUser') {
+  const {addresses, holderWallet, emptyWallet, gntOnlyWallet, provider} = await loadFixture(fixture);
+  const wallet = selectWallet(loginAs, emptyWallet, holderWallet, gntOnlyWallet).address;
   const connectionService = await testConnectionService(provider, wallet);
   const contractAddressService = testContractAddressService(connectionService, addresses);
   const accountService = testAccountService(provider, wallet);
   const tokensService = new TokensService(() => provider, contractAddressService, connectionService);
+  await connectionService.checkConnection();
+  await connectionService.checkNetwork();
   const refreshService = new RefreshService();
+
   return {
-    startServices: sinon.stub(),
-    tokensService,
-    accountService,
-    connectionService,
-    contractAddressService,
-    refreshService
+    services: {
+      startServices: sinon.stub(),
+      tokensService,
+      accountService,
+      connectionService,
+      contractAddressService,
+      refreshService
+    },
+    provider
   };
 }

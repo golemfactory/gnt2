@@ -8,7 +8,6 @@ import chaiDom from 'chai-dom';
 import {Dashboard} from '../src/ui/Dashboard';
 import {MemoryRouter} from 'react-router-dom';
 import {createTestServices} from './helpers/testServices';
-import {createMockProvider} from 'ethereum-waffle';
 
 chai.use(chaiDom);
 
@@ -16,7 +15,7 @@ describe('Dashboard', () => {
   let services: Services;
 
   beforeEach(async () => {
-    services = await createTestServices(createMockProvider());
+    ({services} = await createTestServices());
   });
 
   it('redirects from Login to Account page when connected to MetaMask', async () => {

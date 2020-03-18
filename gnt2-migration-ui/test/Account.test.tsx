@@ -1,6 +1,6 @@
 import React from 'react';
 import {fireEvent, render, wait, waitForElement} from '@testing-library/react';
-import {createMockProvider, getWallets} from 'ethereum-waffle';
+import {getWallets} from 'ethereum-waffle';
 import {Account} from '../src/ui/Account';
 import {ServiceContext} from '../src/ui/hooks/useServices';
 import {Services} from '../src/services';
@@ -10,9 +10,9 @@ import {createTestServices} from './helpers/testServices';
 import {TransactionDenied} from '../src/errors';
 import {SnackbarProvider} from '../src/ui/Snackbar/SnackbarProvider';
 import {advanceEthereumTime} from './helpers/ethereumHelpers';
-import {Web3Provider} from 'ethers/providers';
 import chaiAsPromised from 'chai-as-promised';
 import {DEPOSIT_LOCK_DELAY} from './helpers/contractConstants';
+import {Web3Provider} from 'ethers/providers';
 
 chai.use(chaiDom);
 chai.use(chaiAsPromised);
@@ -33,7 +33,7 @@ describe('Account page', () => {
 
   context('with wallet without tokens', async () => {
     beforeEach(async () => {
-      services = await createTestServices(createMockProvider(), true);
+      ({services} = await createTestServices('empty'));
     });
 
     it('hide `GNTB-balance` field when balance is 0', async () => {
@@ -49,20 +49,18 @@ describe('Account page', () => {
   });
 
   context('with wallet with tokens', async () => {
-    let provider: Web3Provider;
 
     beforeEach(async () => {
-      provider = createMockProvider();
-      services = await createTestServices(provider);
+      ({services} = await createTestServices());
     });
 
     it('shows balances', async () => {
       const {getByTestId} = renderAccount(services);
 
       await wait(() => {
-        expect(getByTestId('ETH-balance')).to.have.text('9999999999999999.9721');
+        expect(getByTestId('ETH-balance')).to.have.text('9999999999999999.9720');
         expect(getByTestId('NGNT-balance')).to.have.text('0.000');
-        expect(getByTestId('GNTB-balance')).to.have.text('9999900.000');
+        expect(getByTestId('GNTB-balance')).to.have.text('4999900.000');
         expect(getByTestId('deposit')).to.have.text('100.000');
       });
     });
@@ -169,11 +167,9 @@ describe('Account page', () => {
 
   });
   context('wallet with unlocked deposit', async () => {
-    let provider: Web3Provider;
-
     beforeEach(async () => {
-      provider = createMockProvider();
-      services = await createTestServices(provider);
+      let provider: Web3Provider;
+      ({services, provider} = await createTestServices());
       const [holderWallet] = getWallets(provider);
       await (await services.tokensService.unlockDeposit(holderWallet.address)).wait();
       await advanceEthereumTime(provider, DEPOSIT_LOCK_DELAY + 1);
@@ -190,7 +186,7 @@ describe('Account page', () => {
 
       await wait(() => {
         expect(queryByTestId('action-deposit-button')).to.not.exist;
-        expect(getByTestId('GNTB-balance')).to.have.text('10000000.000');
+        expect(getByTestId('GNTB-balance')).to.have.text('5000000.000');
       });
 
     });

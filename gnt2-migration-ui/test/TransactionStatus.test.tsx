@@ -1,7 +1,5 @@
 import React from 'react';
 import {ContractTransaction, errors} from 'ethers';
-import {createMockProvider} from 'ethereum-waffle';
-import {Web3Provider} from 'ethers/providers';
 import {render, wait} from '@testing-library/react';
 import chai, {expect} from 'chai';
 import chaiDom from 'chai-dom';
@@ -37,10 +35,8 @@ async function renderTransaction(services: Services, transactionToBeExecuted: ((
 describe('Transaction Status UI', () => {
 
   let services: Services;
-  let provider: Web3Provider;
   beforeEach(async () => {
-    provider = createMockProvider();
-    services = await createTestServices(provider);
+    ({services} = await createTestServices());
   });
 
   [{simulatedError: providerTransactionDenied, ExpectedError: TransactionDenied},
