@@ -1,6 +1,6 @@
-import {BigNumberish, formatEther} from 'ethers/utils';
-import {Big} from 'big.js';
+import {BigNumberish} from 'ethers/utils';
+import {convertBalanceToBigJs} from './bigNumberUtils';
 
 export const formatValue = (value: BigNumberish, digits: number) => {
-  return new Big(formatEther(value)).toFixed(digits);
+  return convertBalanceToBigJs(value).toFixed(digits);
 };

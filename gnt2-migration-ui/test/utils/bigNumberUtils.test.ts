@@ -1,4 +1,4 @@
-import {isEmpty} from '../../src/utils/bigNumberUtils';
+import {convertBalanceToBigJs, isEmpty} from '../../src/utils/bigNumberUtils';
 import {BigNumber} from 'ethers/utils';
 import {expect} from 'chai';
 
@@ -18,4 +18,9 @@ describe('big number utils', () => {
     });
   });
 
+  describe('toBig', () => {
+    it('converts number to Big.js', () => {
+      expect(convertBalanceToBigJs(new BigNumber('1000000000000000000')).toString()).to.eq('1');
+    });
+  });
 });

@@ -12,6 +12,8 @@ import {useProperty} from './hooks/useProperty';
 import {CTAButton} from './commons/CTAButton';
 import {DashboardLayout} from './commons/DashboardLayout/DashboardLayout';
 import {formatValue} from '../utils/formatter';
+import {Big} from 'big.js';
+import {convertBalanceToBigJs} from '../utils/bigNumberUtils';
 
 export const Account = () => {
   const {tokensService, connectionService} = useServices();
@@ -21,12 +23,20 @@ export const Account = () => {
   const oldTokensBalance = useProperty(tokensService.gntBalance);
   const [currentTransaction, setCurrentTransaction] = useState<(() => Promise<ContractTransaction>) | undefined>(undefined);
   const [tokensToMigrate, setTokensToMigrate] = React.useState<string>('0.000');
-  const [migrateError, setMigrateError] = React.useState<string|undefined>(undefined);
+  const [migrateError, setMigrateError] = React.useState<string | undefined>(undefined);
+
+  const tokensToMigrateAsNumber = () => new Big(tokensToMigrate);
 
   const format = (value: BigNumber) => formatValue(value.toString(), 3);
 
+  function invalidTokensToMigrate() {
+    return !oldTokensBalance ||
+      tokensToMigrateAsNumber().gt(convertBalanceToBigJs(oldTokensBalance)) ||
+      tokensToMigrateAsNumber().lte(0);
+  }
+
   const migrateTokens = () => {
-    if (!oldTokensBalance || tokensToMigrate > format(oldTokensBalance) || parseFloat(tokensToMigrate) <= 0.000) {
+    if (invalidTokensToMigrate()) {
       setMigrateError('Invalid number of tokens to migrate');
       setTimeout(() => setMigrateError(undefined), 4000);
       return;
@@ -56,11 +66,11 @@ export const Account = () => {
             onClick={migrateTokens}
             disabled={tokensToMigrate === '0.000' || !tokensToMigrate || oldTokensBalance?.eq(new BigNumber('0'))}
           >
-            Migrate v2
+            Migrate
           </CTAButton>
           <CTAButton
             data-testid="migrate-btn-set-max"
-            onClick={() => setTokensToMigrate(format(new BigNumber(oldTokensBalance)))}
+            onClick={() => setTokensToMigrate(convertBalanceToBigJs(oldTokensBalance).toString())}
           >
             Set max
           </CTAButton>
@@ -82,7 +92,7 @@ export const Account = () => {
           }
         </>
       }
-      <TransactionStatus onClose={() => closeTransactionModal() } transactionToBeExecuted={currentTransaction}/>
+      <TransactionStatus onClose={() => closeTransactionModal()} transactionToBeExecuted={currentTransaction}/>
     </DashboardLayout>
   );
 };
