@@ -2,16 +2,14 @@ import React, {useState} from 'react';
 
 import styled from 'styled-components';
 import {ContractTransaction} from 'ethers';
-import {BigNumber, parseEther} from 'ethers/utils';
+import {parseEther} from 'ethers/utils';
 import Jazzicon, {jsNumberForAddress} from 'react-jazzicon';
 import {SmallTitle} from './commons/Text/SmallTitle';
 import {TransactionStatus} from './TransactionStatus';
 import {BalancesSection} from './Account/BalancesSection';
 import {useServices} from './hooks/useServices';
 import {useProperty} from './hooks/useProperty';
-import {CTAButton} from './commons/CTAButton';
 import {DashboardLayout} from './commons/DashboardLayout/DashboardLayout';
-import {formatValue} from '../utils/formatter';
 import {Big} from 'big.js';
 import {convertBalanceToBigJs, isEmpty} from '../utils/bigNumberUtils';
 import {Modal} from './Modal';
@@ -25,13 +23,11 @@ export const Account = () => {
   const gntbBalance = useProperty(tokensService.gntbBalance);
   const depositBalance = useProperty(tokensService.depositBalance);
   const [currentTransaction, setCurrentTransaction] = useState<(() => Promise<ContractTransaction>) | undefined>(undefined);
-  const [tokensToMigrate, setTokensToMigrate] = React.useState<string>('0.000');
-  const [migrateError, setMigrateError] = React.useState<string | undefined>(undefined);
+  const [tokensToMigrate, setTokensToMigrate] = useState<string>('0.000');
+  const [migrateError, setMigrateError] = useState<string | undefined>(undefined);
   const [showOtherBalancesWarning, setShowOtherBalancesWarning] = React.useState(false);
 
   const tokensToMigrateAsNumber = () => new Big(tokensToMigrate);
-
-  const format = (value: BigNumber) => formatValue(value.toString(), 3);
 
   function invalidNumbersOfTokensToMigrate() {
     return !oldTokensBalance ||
@@ -83,39 +79,14 @@ export const Account = () => {
         </AddressBlock>
         <BalancesSection/>
         <br/>
-        {
-          oldTokensBalance &&
-          <>
-            <CTAButton
-              data-testid="migrate-button"
-              onClick={migrateTokens}
-              disabled={tokensToMigrate === '0.000' || !tokensToMigrate || oldTokensBalance?.eq(new BigNumber('0'))}
-            >
-              Migrate
-            </CTAButton>
-            <CTAButton
-              data-testid="migrate-btn-set-max"
-              onClick={() => setTokensToMigrate(convertBalanceToBigJs(oldTokensBalance).toString())}
-            >
-              Set max
-            </CTAButton>
-            <Input
-              data-testid="migrate-input"
-              placeholder='Number of tokens to migrate'
-              type='number'
-              max={format(new BigNumber(oldTokensBalance))}
-              min='0.000'
-              step='0.001'
-              value={tokensToMigrate}
-              onChange={e => setTokensToMigrate(e.target.value)}
-            />
-            {
-              migrateError &&
-              <ErrorInfo data-testid='migrate-error'>
-                {migrateError}
-              </ErrorInfo>
-            }
-          </>
+        {oldTokensBalance &&
+          <ConvertTokens
+            onConfirmClick={migrateTokens}
+            oldTokensBalance={oldTokensBalance}
+            tokensToMigrate={tokensToMigrate}
+            setTokensToMigrate={setTokensToMigrate}
+            error={migrateError}
+          />
         }
         <TransactionStatus onClose={() => closeTransactionModal()} transactionToBeExecuted={currentTransaction}/>
         <Modal isVisible={showOtherBalancesWarning} onClose={closeOtherBalancesWarning}>
@@ -136,11 +107,6 @@ export const Account = () => {
     </DashboardLayout>
   );
 };
-
-const ErrorInfo = styled.p`
-  font-size: 14px;
-  color: #990000;
-`;
 
 const View = styled.div`
   max-width: 630px;
@@ -169,13 +135,4 @@ const Address = styled.div`
   font-size: 14px;
   line-height: 16px;
   color: #1722A2;
-`;
-
-const Input = styled.input`
-  height: 40px;
-  width: 70%;
-  padding: 6px 12px;
-  font-size: 14px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
 `;

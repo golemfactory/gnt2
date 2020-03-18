@@ -79,7 +79,6 @@ describe('Account page', () => {
     [
       ['6000000.0', 'greater then GNT-balance'],
       ['-1000', 'lower then 0'],
-      ['0', 'equal to 0']
     ].forEach(([tokensToMigrate, message]) => {
       it(`shows error for number of tokens ${message}`, async () => {
         const {getByTestId} = await renderAccount(services);
