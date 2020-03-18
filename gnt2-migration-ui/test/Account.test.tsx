@@ -59,11 +59,12 @@ describe('Account page', () => {
     it('shows balances', async () => {
       const {getByTestId} = renderAccount(services);
 
-      expect(await waitForElement(() => getByTestId('ETH-balance'))).to.have.text('9999999999999999.9721');
-      expect(await waitForElement(() => getByTestId('GNT-balance'))).to.have.text('140000000.000');
-      expect(await waitForElement(() => getByTestId('NGNT-balance'))).to.have.text('0.000');
-      expect(await waitForElement(() => getByTestId('GNTB-balance'))).to.have.text('9999900.000');
-      expect(await waitForElement(() => getByTestId('deposit'))).to.have.text('100.000');
+      await wait(() => {
+        expect(getByTestId('ETH-balance')).to.have.text('9999999999999999.9721');
+        expect(getByTestId('NGNT-balance')).to.have.text('0.000');
+        expect(getByTestId('GNTB-balance')).to.have.text('9999900.000');
+        expect(getByTestId('deposit')).to.have.text('100.000');
+      });
     });
 
     it('migrates user specified number of tokens', async () => {

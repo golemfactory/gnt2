@@ -60,7 +60,7 @@ describe('Deposit UI', () => {
 
     await wait(() => {
       expect(getByTestId('deposit-status')).to.have.text('Deposit is time-locked');
-      expect(getByTestId('deposit-timer').textContent).to.match(/Time left to unlock deposit: 47:59:\d\d/);
+      expect(getByTestId('deposit-timer').textContent).to.match(/47:59:\d\d/);
     });
   });
 

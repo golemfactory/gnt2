@@ -4,6 +4,8 @@ import {useServices} from './hooks/useServices';
 import {useProperty} from './hooks/useProperty';
 import {DepositState} from '../services/TokensService';
 import {Timer} from './commons/Timer';
+import clockIcon from '../assets/icons/clock.svg';
+import styled from 'styled-components';
 
 export const DepositTimer = () => {
   const {tokensService, connectionService, contractAddressService, refreshService} = useServices();
@@ -47,7 +49,29 @@ export const DepositTimer = () => {
   return (
     <>
       <div data-testid='deposit-status'>Deposit {depositText}</div>
-      {timer && <div data-testid='deposit-timer'>Time left to unlock deposit: {timer}</div>}
+      {timer &&
+        <Row>
+          <ClockIcon src={clockIcon} alt="clock"/>
+          <Time data-testid='deposit-timer'>{timer}</Time>
+        </Row>
+      }
     </>
   );
 };
+
+const Row = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
+const ClockIcon = styled.img`
+  margin-right: 19px;
+`;
+
+const Time = styled.p`
+  font-size: 11px;
+  line-height: 13px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #1722A2;
+`;

@@ -18,19 +18,13 @@ export const Dashboard = () => {
   };
 
   const accountOrRedirectToLoginWhenNotConnected = () => {
-    return connectionService.isConnected() ? (
-      <Account/>
-    ) : (
-      <Redirect to='/'/>
-    );
+    return connectionService.isConnected() ? <Account/> : <Redirect to='/'/>;
   };
 
   return (
-    <div>
-      <Switch>
-        <Route exact path='/account' render={accountOrRedirectToLoginWhenNotConnected}/>
-        <Route exact path='/' render={loginOrRedirectToAccountWhenConnected}/>
-      </Switch>
-    </div>
+    <Switch>
+      <Route exact path='/account' render={accountOrRedirectToLoginWhenNotConnected}/>
+      <Route exact path='/' render={loginOrRedirectToAccountWhenConnected}/>
+    </Switch>
   );
 };

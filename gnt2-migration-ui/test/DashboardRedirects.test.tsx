@@ -30,7 +30,7 @@ describe('Dashboard', () => {
       </MemoryRouter>
     );
 
-    expect(getByText('Your address:')).to.exist;
+    expect(getByText('Address:')).to.exist;
 
   });
 

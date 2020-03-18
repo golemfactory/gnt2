@@ -18,9 +18,9 @@ export const DashboardLayout = ({title, backTo, children}: DashboardLayoutProps)
     </Header>
     <Title>{title || 'GOLEM TOKEN MIGRATOR'}</Title>
     <Row>
-      <div>
+      <DashboardContent>
         {children}
-      </div>
+      </DashboardContent>
       <Help/>
     </Row>
   </DashboardContainer>
@@ -68,4 +68,8 @@ const Title = styled(BlockTitle)`
 const Row = styled.div`
   display: flex;
   justify-content: space-between;
+`;
+
+const DashboardContent = styled.div`
+  width: 100%;
 `;
