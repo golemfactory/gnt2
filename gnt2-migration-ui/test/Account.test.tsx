@@ -48,21 +48,10 @@ describe('Account page', () => {
 
   });
 
-  context('with wallet with tokens', async () => {
+  context('with wallet with GNT tokens', async () => {
 
     beforeEach(async () => {
-      ({services} = await createTestServices());
-    });
-
-    it('shows balances', async () => {
-      const {getByTestId} = renderAccount(services);
-
-      await wait(() => {
-        expect(getByTestId('ETH-balance')).to.have.text('9999999999999999.9720');
-        expect(getByTestId('NGNT-balance')).to.have.text('0.000');
-        expect(getByTestId('GNTB-balance')).to.have.text('4999900.000');
-        expect(getByTestId('deposit')).to.have.text('100.000');
-      });
+      ({services} = await createTestServices('holder'));
     });
 
     it('migrates user specified number of tokens', async () => {
@@ -77,12 +66,12 @@ describe('Account page', () => {
 
       await wait(() => {
         expect(getByTestId('NGNT-balance')).to.have.text(tokensToMigrate);
-        expect(getByTestId('GNT-balance')).to.have.text('139991000.000');
+        expect(getByTestId('GNT-balance')).to.have.text('4991000.000');
       });
     });
 
     [
-      ['150000000.0', 'greater then GNT-balance'],
+      ['6000000.0', 'greater then GNT-balance'],
       ['-1000', 'lower then 0'],
       ['0', 'equal to 0']
     ].forEach(([tokensToMigrate, message]) => {
@@ -97,8 +86,10 @@ describe('Account page', () => {
 
         await wait(() => {
           expect(getByTestId('migrate-error')).to.exist;
+        });
+        await wait(() => {
           expect(getByTestId('NGNT-balance')).to.have.text('0.000');
-          expect(getByTestId('GNT-balance')).to.have.text('140000000.000');
+          expect(getByTestId('GNT-balance')).to.have.text('5000000.000');
         });
       });
     });
@@ -110,20 +101,20 @@ describe('Account page', () => {
 
       fireEvent.click(getByTestId('migrate-btn-set-max'));
 
-      expect(input).to.have.value('140000000');
+      expect(input).to.have.value('5000000');
     });
 
     it('shows migrated tokens', async () => {
       const {getByTestId} = await renderAccount(services);
 
       const input = await waitForElement(() => getByTestId('migrate-input'));
-      const tokensToMigrate = '140000000.000';
+      const tokensToMigrate = '5000000.000';
       fireEvent.change(input, {target: {value: tokensToMigrate}});
 
       fireEvent.click(getByTestId('migrate-button'));
 
       await wait(() => {
-        expect(getByTestId('NGNT-balance')).to.have.text('140000000.000');
+        expect(getByTestId('NGNT-balance')).to.have.text('5000000.000');
         expect(getByTestId('GNT-balance')).to.have.text('0.000');
         expect(getByTestId('migrate-button')).to.have.attr('disabled');
       });
@@ -162,6 +153,24 @@ describe('Account page', () => {
       await wait(() => {
         expect(getByTestId('modal')).to.exist;
         expect(getByTestId('error-message')).to.exist;
+      });
+    });
+
+  });
+
+  context('with wallet with GNT, GNTB and Deposit', async () => {
+    beforeEach(async () => {
+      ({services} = await createTestServices('holderUser'));
+    });
+
+    it('shows balances', async () => {
+      const {getByTestId} = renderAccount(services);
+
+      await wait(() => {
+        expect(getByTestId('ETH-balance')).to.have.text('9999999999999999.9720');
+        expect(getByTestId('NGNT-balance')).to.have.text('0.000');
+        expect(getByTestId('GNTB-balance')).to.have.text('4999900.000');
+        expect(getByTestId('deposit')).to.have.text('100.000');
       });
     });
 
