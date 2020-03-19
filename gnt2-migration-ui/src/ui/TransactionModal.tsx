@@ -14,9 +14,9 @@ export interface ModalProps {
 export const TransactionModal = ({children, onClose, inProgress}: ModalProps) =>
   (<ModalBackdrop className='modal-backdrop' data-testid='modal'>
     <ModalBody className={'modal-body'}>
-      {false
+      {inProgress
         ? <Spinner/>
-        : <ResultImage src={true ? txfail : txpass}/>
+        : <ResultImage src={inProgress ? txfail : txpass}/>
       }
       {children}
     </ModalBody>

@@ -55,7 +55,7 @@ export const TransactionStatus = ({
     },
     [transactionToBeExecuted]);
 
-  if (transactionToBeExecuted) {
+  if (!transactionToBeExecuted) {
     return null;
   }
 
