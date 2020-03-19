@@ -2,7 +2,6 @@ import React, {useState} from 'react';
 
 import styled from 'styled-components';
 import {ContractTransaction} from 'ethers';
-import {parseEther} from 'ethers/utils';
 import Jazzicon, {jsNumberForAddress} from 'react-jazzicon';
 import {SmallTitle} from './commons/Text/SmallTitle';
 import {TransactionStatus} from './TransactionStatus';
@@ -10,11 +9,11 @@ import {BalancesSection} from './Account/BalancesSection';
 import {useServices} from './hooks/useServices';
 import {useProperty} from './hooks/useProperty';
 import {DashboardLayout} from './commons/DashboardLayout/DashboardLayout';
-import {Big} from 'big.js';
-import {convertBalanceToBigJs, isEmpty} from '../utils/bigNumberUtils';
+import {isEmpty} from '../utils/bigNumberUtils';
 import {Modal} from './Modal';
 import {CTAButton} from './commons/CTAButton';
 import {ConvertTokens} from './Account/ConvertTokens';
+import {parseEther} from 'ethers/utils';
 
 export const Account = () => {
   const {tokensService, connectionService} = useServices();
@@ -26,17 +25,8 @@ export const Account = () => {
   const depositBalance = useProperty(tokensService.depositBalance);
   const [currentTransaction, setCurrentTransaction] = useState<(() => Promise<ContractTransaction>) | undefined>(undefined);
   const [tokensToMigrate, setTokensToMigrate] = useState<string>('0.000');
-  const [migrateError, setMigrateError] = useState<string | undefined>(undefined);
   const [showOtherBalancesWarning, setShowOtherBalancesWarning] = React.useState(false);
   const [migrationStarted, setMigrationStarted] = useState(false);
-
-  const tokensToMigrateAsNumber = () => new Big(tokensToMigrate);
-
-  function invalidNumbersOfTokensToMigrate() {
-    return !oldTokensBalance ||
-      tokensToMigrateAsNumber().gt(convertBalanceToBigJs(oldTokensBalance)) ||
-      tokensToMigrateAsNumber().lte(0);
-  }
 
   function hasOtherTokens() {
     return !(isEmpty(gntbBalance) && isEmpty(depositBalance));
@@ -54,15 +44,6 @@ export const Account = () => {
     setMigrationStarted(false);
   };
 
-  const migrateTokens = () => {
-    if (invalidNumbersOfTokensToMigrate()) {
-      setMigrateError('Invalid number of tokens to migrate');
-      setTimeout(() => setMigrateError(undefined), 4000);
-      return;
-    }
-    setCurrentTransaction(() => () => tokensService.migrateTokens(account, parseEther(tokensToMigrate)));
-  };
-
   const continueMigration = () => {
     setMigrationStarted(true);
   };
@@ -74,6 +55,10 @@ export const Account = () => {
   };
 
   const closeOtherBalancesWarning = () => setShowOtherBalancesWarning(false);
+
+  function migrate(amount: string) {
+    setCurrentTransaction(() => () => tokensService.migrateTokens(account, parseEther(amount)));
+  }
 
   return (
     <DashboardLayout>
@@ -96,12 +81,11 @@ export const Account = () => {
         }
         {migrationStarted && oldTokensBalance &&
           <ConvertTokens
-            onConfirmClick={migrateTokens}
             onCancelClick={stopMigration}
             oldTokensBalance={oldTokensBalance}
             tokensToMigrate={tokensToMigrate}
             setTokensToMigrate={setTokensToMigrate}
-            error={migrateError}
+            onAmountConfirm={(amount) => migrate(amount)}
           />
         }
         <TransactionStatus onClose={() => closeTransactionModal()} transactionToBeExecuted={currentTransaction}/>

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {ChangeEvent, useState} from 'react';
 import styled from 'styled-components';
 import {SectionTitle} from '../commons/Text/SectionTitle';
 import {SmallTitle} from '../commons/Text/SmallTitle';
@@ -7,20 +7,44 @@ import {TitleWithTooltip} from '../commons/Text/TitleWithTooltip';
 import {ButtonPrimary} from '../commons/Buttons/ButtonPrimary';
 import {formatValue} from '../../utils/formatter';
 import {BigNumber} from 'ethers/utils';
-import {convertBalanceToBigJs} from '../../utils/bigNumberUtils';
+import {convertBalanceToBigJs, isEmpty} from '../../utils/bigNumberUtils';
+import {Big} from 'big.js';
 
 interface ConvertTokensProps {
-  onConfirmClick: () => void;
   onCancelClick: () => void;
+  onAmountConfirm: (toMigrate: string) => void;
   oldTokensBalance: BigNumber;
   tokensToMigrate: string;
   setTokensToMigrate: (value: string) => void;
-  error: string | undefined;
 }
 
-export const ConvertTokens = ({onConfirmClick, onCancelClick, oldTokensBalance, tokensToMigrate, setTokensToMigrate, error}: ConvertTokensProps) => {
+export const ConvertTokens = ({onAmountConfirm, onCancelClick, oldTokensBalance, tokensToMigrate, setTokensToMigrate}: ConvertTokensProps) => {
+  const [error, setError] = useState<string | undefined>(undefined);
+
   const format = (value: BigNumber) => formatValue(value.toString(), 3);
   const balance = format(new BigNumber(oldTokensBalance));
+
+  function invalidNumbersOfTokensToMigrate() {
+    return !oldTokensBalance ||
+      tokensToMigrateAsNumber().gt(convertBalanceToBigJs(oldTokensBalance)) ||
+      tokensToMigrateAsNumber().lte(0);
+  }
+
+  const tokensToMigrateAsNumber = () => new Big(tokensToMigrate);
+
+  const onConfirmClick = () => {
+    onAmountConfirm(tokensToMigrate);
+  };
+
+  const onAmountChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setTokensToMigrate(e.target.value);
+    console.log(`e.target.value = ${e.target.value}`);
+    if (invalidNumbersOfTokensToMigrate()) {
+      setError('Invalid number of tokens to migrate');
+    } else {
+      setError(undefined);
+    }
+  };
 
   return (
     <>
@@ -40,10 +64,9 @@ export const ConvertTokens = ({onConfirmClick, onCancelClick, oldTokensBalance, 
                     min="0.000"
                     step="0.001"
                     value={tokensToMigrate}
-                    onChange={(e) => setTokensToMigrate(e.target.value)}
+                    onChange={onAmountChange}
                   />
-                  {error && <ErrorInfo>{error}</ErrorInfo>}
-                  <ErrorInfo/>
+                  {error && <ErrorInfo data-testid="migrate-error">{error}</ErrorInfo>}
                   <AvailableAmountRow>
                     <SmallTitle>Available:</SmallTitle>
                     <AvailableAmount>{balance} GNT</AvailableAmount>
@@ -69,7 +92,8 @@ export const ConvertTokens = ({onConfirmClick, onCancelClick, oldTokensBalance, 
         <Footer>
           <FooterRow>
             <div>
-              <TitleWithTooltip tooltipText="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce vehicula vehicula odio, ut scelerisque massa.Learn more">
+              <TitleWithTooltip
+                tooltipText="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce vehicula vehicula odio, ut scelerisque massa.Learn more">
                 ETH Balance:
               </TitleWithTooltip>
               <EthereumAmount isError={!!error}>1,24561245 ETH</EthereumAmount>
@@ -77,15 +101,15 @@ export const ConvertTokens = ({onConfirmClick, onCancelClick, oldTokensBalance, 
             <ConfirmButton
               data-testid="migrate-button"
               onClick={onConfirmClick}
-              disabled={!Number(tokensToMigrate) || oldTokensBalance?.eq(new BigNumber('0'))}
+              disabled={invalidNumbersOfTokensToMigrate() || isEmpty(oldTokensBalance)}
             >
               Confirm Transaction
             </ConfirmButton>
           </FooterRow>
           {error &&
-            <ErrorInfo data-testid='migrate-error'>
-              {error}
-            </ErrorInfo>
+          <ErrorInfo>
+            {error}
+          </ErrorInfo>
           }
         </Footer>
       </View>

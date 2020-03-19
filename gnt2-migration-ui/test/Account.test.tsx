@@ -118,10 +118,14 @@ describe('Account page', () => {
     });
 
     [
-      ['6000000.0', 'greater then GNT-balance'],
-      ['-1000', 'lower then 0'],
+      ['6000000.0', 'number of tokens greater then GNT-balance'],
+      ['5000001.0', 'number of tokens greater then GNT-balance'],
+      ['-1000', 'number of tokens lower then 0'],
+      ['', 'empty value'],
+      ['0,04', 'number of tokens with 2 digits after comma'],
+      ['0.04', 'number of tokens with 2 digits after dot']
     ].forEach(([tokensToMigrate, message]) => {
-      it(`shows error for number of tokens ${message}`, async () => {
+      it(`shows error for ${message}`, async () => {
         const accountPage = await new TestAccountPage(services).load();
 
         const input = await accountPage.startMigration();
@@ -129,10 +133,7 @@ describe('Account page', () => {
 
         await wait(() => {
           expect(accountPage.find('migrate-error')).to.exist;
-        });
-        await wait(() => {
-          expect(accountPage.find('NGNT-balance')).to.have.text('0.000');
-          expect(accountPage.find('GNT-balance')).to.have.text('5000000.000');
+          expect(accountPage.find('migrate-button')).to.have.attr('disabled');
         });
       });
     });
