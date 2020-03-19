@@ -1,12 +1,10 @@
 import React from 'react';
 import {fireEvent, render, wait, waitForElement} from '@testing-library/react';
-import {createMockProvider} from 'ethereum-waffle';
 import {ServiceContext} from '../src/ui/hooks/useServices';
 import {Services} from '../src/services';
 import chai, {expect} from 'chai';
 import chaiDom from 'chai-dom';
 import {createTestServices} from './helpers/testServices';
-import {Web3Provider} from 'ethers/providers';
 import {SnackbarProvider} from '../src/ui/Snackbar/SnackbarProvider';
 import {BatchingTokensSection} from '../src/ui/BatchingTokensSection';
 import {TransactionDenied} from '../src/errors';
@@ -26,11 +24,9 @@ async function renderBatching(services: Services) {
 describe('Batching tokens section UI', () => {
 
   let services: Services;
-  let provider: Web3Provider;
 
   beforeEach(async () => {
-    provider = createMockProvider();
-    services = await createTestServices(provider);
+    ({services} = await createTestServices());
   });
 
   it('hides after unwrap tokens and closes modal', async () => {

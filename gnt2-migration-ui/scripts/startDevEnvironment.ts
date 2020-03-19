@@ -9,8 +9,8 @@ const PORT = 8545;
 
 async function start() {
   const provider: JsonRpcProvider = await startGanache(PORT);
-  const [deployWallet, holderWallet] = getWallets(provider);
-  const golemContractsDevDeployment = await deployDevGolemContracts(provider, deployWallet, holderWallet);
+  const [deployWallet, holderWallet, gntOnlyWallet] = getWallets(provider);
+  const golemContractsDevDeployment = await deployDevGolemContracts(provider, deployWallet, holderWallet, gntOnlyWallet);
   const env = createEnv(golemContractsDevDeployment);
   runWebServer(env);
 }

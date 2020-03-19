@@ -1,11 +1,11 @@
-import {utils, Wallet} from 'ethers';
+import {Wallet} from 'ethers';
 import {GNTDepositFactory, GolemNetworkTokenBatchingFactory, GolemNetworkTokenFactory, NewGolemNetworkTokenFactory} from 'gnt2-contracts';
 import {JsonRpcProvider, Provider} from 'ethers/providers';
 import {ConsoleLogger, Logger} from '../utils/logger';
 import {GolemNetworkTokenBatching} from '../../build/contract-types/GolemNetworkTokenBatching';
 import {GolemNetworkToken} from '../../build/contract-types/GolemNetworkToken';
 import {GolemContractsDevDeployment} from './interfaces';
-import {BigNumber} from 'ethers/utils';
+import {BigNumber, parseEther} from 'ethers/utils';
 import {getGasLimit} from '../config';
 import {GNTMigrationAgentFactory} from '../../build/contract-types/GNTMigrationAgentFactory';
 import {getChainId} from '../utils/network';
@@ -75,11 +75,14 @@ export async function wrapGNTtoGNTB(wallet: Wallet, gntb: GolemNetworkTokenBatch
 export async function deployDevGolemContracts(provider: Provider,
   deployWallet: Wallet,
   holderWallet: Wallet,
-  logger: Logger = new ConsoleLogger()
-): Promise<GolemContractsDevDeployment> {
+  gntOnlyWallet: Wallet,
+  logger: Logger = new ConsoleLogger()): Promise<GolemContractsDevDeployment> {
   logger.log('Deploying Old Golem Network Token...');
   const {token: oldToken, holderSignedToken} = await deployOldToken(provider, deployWallet, holderWallet, logger);
   logger.log(`Old Golem Network Token address: ${oldToken.address}`);
+
+  logger.log(`Transferring GNT to... ${gntOnlyWallet.address}`);
+  await holderSignedToken.transfer(gntOnlyWallet.address, parseEther('5000000'));
 
   logger.log(`Deploying Migration Agent ...`);
   const migrationAgent = await new GNTMigrationAgentFactory(deployWallet).deploy(oldToken.address);
@@ -90,12 +93,12 @@ export async function deployDevGolemContracts(provider: Provider,
   logger.log(`New Golem Network Token address: ${newToken.address}`);
 
   const batchingToken = await new GolemNetworkTokenBatchingFactory(holderWallet).deploy(oldToken.address);
-  await wrapGNTtoGNTB(holderWallet, batchingToken, holderSignedToken, utils.parseUnits('10000000').toString());
+  await wrapGNTtoGNTB(holderWallet, batchingToken, holderSignedToken, parseEther('5000000').toString());
 
   logger.log(`Golem Network Token Batching address: ${batchingToken.address}`);
   const tokenDeposit = await new GNTDepositFactory(holderWallet)
     .deploy(batchingToken.address, oldToken.address, deployWallet.address, delay);
-  await batchingToken.transferAndCall(tokenDeposit.address, utils.parseUnits('100'), [], {gasLimit: 100000});
+  await batchingToken.transferAndCall(tokenDeposit.address, parseEther('100'), [], {gasLimit: 100000});
   logger.log(`Golem Network Token Deposit address: ${tokenDeposit.address}`);
   logger.log('Setting new token as migration agent');
   await oldToken.setMigrationAgent(migrationAgent.address);

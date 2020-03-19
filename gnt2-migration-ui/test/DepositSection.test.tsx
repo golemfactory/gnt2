@@ -1,6 +1,6 @@
 import React from 'react';
 import {fireEvent, render, wait} from '@testing-library/react';
-import {createMockProvider, getWallets} from 'ethereum-waffle';
+import {getWallets} from 'ethereum-waffle';
 import {ServiceContext} from '../src/ui/hooks/useServices';
 import {Services} from '../src/services';
 import chai, {expect} from 'chai';
@@ -33,13 +33,13 @@ function getGntDepositContract(services: Services, provider: Web3Provider, holde
 
 describe('Deposit UI', () => {
 
-  let services: Services;
   let gntDeposit: GNTDeposit;
-  let provider: Web3Provider;
   let holder: string;
+  let services: Services;
+  let provider: Web3Provider;
+
   beforeEach(async () => {
-    provider = createMockProvider();
-    services = await createTestServices(provider);
+    ({services, provider} = await createTestServices());
     const [holderWallet] = getWallets(provider);
     holder = holderWallet.address;
 
