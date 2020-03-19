@@ -28,6 +28,7 @@ export const Account = () => {
   const [tokensToMigrate, setTokensToMigrate] = useState<string>('0.000');
   const [migrateError, setMigrateError] = useState<string | undefined>(undefined);
   const [showOtherBalancesWarning, setShowOtherBalancesWarning] = React.useState(false);
+  const [migrationStarted, setMigrationStarted] = useState(false);
 
   const tokensToMigrateAsNumber = () => new Big(tokensToMigrate);
 
@@ -41,12 +42,7 @@ export const Account = () => {
     return !(isEmpty(gntbBalance) && isEmpty(depositBalance));
   }
 
-  const migrateTokens = () => {
-    if (invalidNumbersOfTokensToMigrate()) {
-      setMigrateError('Invalid number of tokens to migrate');
-      setTimeout(() => setMigrateError(undefined), 4000);
-      return;
-    }
+  const startMigration = () => {
     if (hasOtherTokens()) {
       setShowOtherBalancesWarning(true);
       return;
@@ -54,13 +50,27 @@ export const Account = () => {
     continueMigration();
   };
 
-  const continueMigration = () => {
+  const stopMigration = () => {
+    setMigrationStarted(false);
+  };
+
+  const migrateTokens = () => {
+    if (invalidNumbersOfTokensToMigrate()) {
+      setMigrateError('Invalid number of tokens to migrate');
+      setTimeout(() => setMigrateError(undefined), 4000);
+      return;
+    }
     setCurrentTransaction(() => () => tokensService.migrateTokens(account, parseEther(tokensToMigrate)));
+  };
+
+  const continueMigration = () => {
+    setMigrationStarted(true);
   };
 
   const closeTransactionModal = () => {
     setCurrentTransaction(undefined);
     setTokensToMigrate('0.000');
+    setMigrationStarted(false);
   };
 
   const closeOtherBalancesWarning = () => setShowOtherBalancesWarning(false);
@@ -68,22 +78,26 @@ export const Account = () => {
   return (
     <DashboardLayout>
       <View>
-        <AddressBlock>
-          {account &&
-          <JazziconWrapper>
-            <Jazzicon diameter={32} seed={jsNumberForAddress(account)}/>
-          </JazziconWrapper>
-          }
-          <div>
-            <AddressTitle>Address:</AddressTitle>
-            <Address>{account}</Address>
-          </div>
-        </AddressBlock>
-        <BalancesSection/>
-        <br/>
-        {oldTokensBalance &&
+        {!migrationStarted &&
+          <>
+            <AddressBlock>
+              {account &&
+            <JazziconWrapper>
+              <Jazzicon diameter={32} seed={jsNumberForAddress(account)}/>
+            </JazziconWrapper>
+              }
+              <div>
+                <AddressTitle>Address:</AddressTitle>
+                <Address>{account}</Address>
+              </div>
+            </AddressBlock>
+            <BalancesSection onConvert={startMigration}/>
+          </>
+        }
+        {migrationStarted && oldTokensBalance &&
           <ConvertTokens
             onConfirmClick={migrateTokens}
+            onCancelClick={stopMigration}
             oldTokensBalance={oldTokensBalance}
             tokensToMigrate={tokensToMigrate}
             setTokensToMigrate={setTokensToMigrate}

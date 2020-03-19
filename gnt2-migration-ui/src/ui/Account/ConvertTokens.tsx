@@ -11,13 +11,14 @@ import {convertBalanceToBigJs} from '../../utils/bigNumberUtils';
 
 interface ConvertTokensProps {
   onConfirmClick: () => void;
+  onCancelClick: () => void;
   oldTokensBalance: BigNumber;
   tokensToMigrate: string;
   setTokensToMigrate: (value: string) => void;
   error: string | undefined;
 }
 
-export const ConvertTokens = ({onConfirmClick, oldTokensBalance, tokensToMigrate, setTokensToMigrate, error}: ConvertTokensProps) => {
+export const ConvertTokens = ({onConfirmClick, onCancelClick, oldTokensBalance, tokensToMigrate, setTokensToMigrate, error}: ConvertTokensProps) => {
   const format = (value: BigNumber) => formatValue(value.toString(), 3);
   const balance = format(new BigNumber(oldTokensBalance));
 
@@ -42,7 +43,7 @@ export const ConvertTokens = ({onConfirmClick, oldTokensBalance, tokensToMigrate
                     onChange={(e) => setTokensToMigrate(e.target.value)}
                   />
                   {error && <ErrorInfo>{error}</ErrorInfo>}
-                  <ErrorInfo></ErrorInfo>
+                  <ErrorInfo/>
                   <AvailableAmountRow>
                     <SmallTitle>Available:</SmallTitle>
                     <AvailableAmount>{balance} GNT</AvailableAmount>
@@ -61,7 +62,7 @@ export const ConvertTokens = ({onConfirmClick, oldTokensBalance, tokensToMigrate
             <SubTitle>Receiving</SubTitle>
             <ReceivingRow>
               <ReceivingTicker>NGNT</ReceivingTicker>
-              <ReceivingAmount>3459284,24561245</ReceivingAmount>
+              <ReceivingAmount>{balance}</ReceivingAmount>
             </ReceivingRow>
           </div>
         </Content>
@@ -88,7 +89,7 @@ export const ConvertTokens = ({onConfirmClick, oldTokensBalance, tokensToMigrate
           }
         </Footer>
       </View>
-      <CancelButton>Cancel Converting</CancelButton>
+      <CancelButton onClick={onCancelClick}>Cancel Converting</CancelButton>
     </>
   );
 };

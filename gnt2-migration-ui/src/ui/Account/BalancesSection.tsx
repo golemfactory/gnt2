@@ -9,7 +9,12 @@ import {NewTokensBalance} from './NewTokensBalance';
 import {OldTokensBalance} from './OldTokensBalance';
 import {EthereumBalance} from './EthereumBalance';
 
-export const BalancesSection = () => {
+
+export interface BalancesSectionProps {
+  onConvert: () => void;
+}
+
+export const BalancesSection = ({onConvert}: BalancesSectionProps) => {
   const {tokensService, accountService, connectionService, contractAddressService, refreshService} = useServices();
   const account = useProperty(connectionService.account);
   const contractAddresses = useProperty(contractAddressService.contractAddresses);
@@ -23,7 +28,7 @@ export const BalancesSection = () => {
   return (
     <>
       <NewTokensBalance balance={newTokensBalance}/>
-      <OldTokensBalance balance={oldTokensBalance}/>
+      <OldTokensBalance balance={oldTokensBalance} onConvert={onConvert}/>
       <BatchingTokensSection/>
       <DepositSection/>
       <EthereumBalance balance={balance}/>
