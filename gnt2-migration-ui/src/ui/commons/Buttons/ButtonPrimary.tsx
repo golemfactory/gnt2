@@ -10,4 +10,10 @@ export const ButtonPrimary = styled.button`
   letter-spacing: 2px;
   text-transform: uppercase;
   color: #FFFFFF;
+
+  &:disabled {
+    color: rgba(0, 0, 0, 0.247);
+    background: #EDEEFF;
+    cursor: not-allowed;
+  }
 `;

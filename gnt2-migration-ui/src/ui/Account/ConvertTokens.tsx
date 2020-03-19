@@ -19,6 +19,7 @@ interface ConvertTokensProps {
 
 export const ConvertTokens = ({onConfirmClick, oldTokensBalance, tokensToMigrate, setTokensToMigrate, error}: ConvertTokensProps) => {
   const format = (value: BigNumber) => formatValue(value.toString(), 3);
+  const balance = format(new BigNumber(oldTokensBalance));
 
   return (
     <>
@@ -34,15 +35,17 @@ export const ConvertTokens = ({onConfirmClick, oldTokensBalance, tokensToMigrate
                   <Input
                     data-testid="migrate-input"
                     type="number"
-                    max={format(new BigNumber(oldTokensBalance))}
+                    max={balance}
                     min="0.000"
                     step="0.001"
                     value={tokensToMigrate}
                     onChange={(e) => setTokensToMigrate(e.target.value)}
                   />
+                  {error && <ErrorInfo>{error}</ErrorInfo>}
+                  <ErrorInfo></ErrorInfo>
                   <AvailableAmountRow>
                     <SmallTitle>Available:</SmallTitle>
-                    <AvailableAmount>3459284,24561245 GNT</AvailableAmount>
+                    <AvailableAmount>{balance} GNT</AvailableAmount>
                   </AvailableAmountRow>
                 </InputWrapper>
                 <SetMaxButton
