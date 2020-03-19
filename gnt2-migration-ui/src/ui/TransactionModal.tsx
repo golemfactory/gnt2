@@ -5,32 +5,33 @@ import txfail from '../assets/icons/txfail.svg';
 import txpass from '../assets/icons/txpass.svg';
 
 
-export interface ModalProps {
+export interface TransactionModalProps {
   children: ReactNode;
   inProgress: boolean;
   errorMessage: string | undefined;
 }
 
-export const TransactionModal = ({children, inProgress, errorMessage}: ModalProps) =>
+export const TransactionModal = ({children, inProgress, errorMessage}: TransactionModalProps) =>
   (<ModalBackdrop className='modal-backdrop' data-testid='modal'>
     <ModalBody className={'modal-body'}>
-      {inProgress
-        ? <Spinner/>
-        : <ResultImage src={errorMessage ? txfail : txpass}/>
-      }
+      <TxSpinner>
+        {inProgress
+          ? <Spinner/>
+          : <img src={errorMessage ? txfail : txpass}/>
+        }
+      </TxSpinner>
       {children}
     </ModalBody>
   </ModalBackdrop>);
 
 const ModalBackdrop = styled.div`
-  position: absolute;
-  top: 300px;
-  z-index: 1000;
 `;
 
 const ModalBody = styled.div`
+  position: relative;
   padding: 48px;
-  max-width: 60%;
+  width: 100%;
+  max-width: 630px;
   min-height: 457px;
   max-height: 95%;
   overflow-y: scroll;
@@ -39,8 +40,10 @@ const ModalBody = styled.div`
   box-sizing: border-box;
 `;
 
-const ResultImage = styled.img`
+
+const TxSpinner = styled.div`
   position: absolute;
-  top: 55%;
-  left: 27%;
+  top: 60%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 `;

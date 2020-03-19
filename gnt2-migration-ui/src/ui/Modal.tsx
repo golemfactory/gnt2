@@ -2,8 +2,6 @@ import React, {ReactNode, useEffect, useCallback} from 'react';
 import styled from 'styled-components';
 import {createPortal} from 'react-dom';
 import crossIcon from '../assets/icons/cross.svg';
-import txfail from '../assets/icons/txfail.svg';
-import txpass from '../assets/icons/txpass.svg';
 
 export interface ModalProps {
   isVisible: boolean;
@@ -53,7 +51,7 @@ const ModalView = styled.div`
   right: 0;
   bottom: 0;
   width: 100%;
-  height: 100%;  
+  height: 100%;
   z-index: 9999;
 `;
 

@@ -6,9 +6,6 @@ export const Spinner = () => (
 );
 
 const Loader = styled.div`
-  position: absolute;
-  top: 50%;
-  left: 27.5%;
   width: 1.5rem;
   height: 1.5rem;
   margin: 1.5rem auto;

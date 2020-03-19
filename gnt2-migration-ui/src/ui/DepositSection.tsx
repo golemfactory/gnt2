@@ -1,7 +1,5 @@
-import React, {useState} from 'react';
+import React, {useState, Dispatch, SetStateAction} from 'react';
 import {ContractTransaction} from 'ethers';
-
-import {TransactionStatus} from './TransactionStatus';
 import {DepositTimer} from './DepositTimer';
 import {useServices} from './hooks/useServices';
 import {useAsyncEffect} from './hooks/useAsyncEffect';
@@ -14,12 +12,16 @@ import {formatValue} from '../utils/formatter';
 import lockIcon from '../assets/icons/lock.svg';
 import styled from 'styled-components';
 
-export function DepositSection() {
+interface DepositSectionProps {
+  currentTransaction: (() => Promise<ContractTransaction>) | undefined;
+  setCurrentTransaction: Dispatch<SetStateAction<(() => Promise<ContractTransaction>) | undefined>>;
+}
+
+export function DepositSection({currentTransaction, setCurrentTransaction}: DepositSectionProps) {
   const {tokensService, connectionService} = useServices();
 
   const account = useProperty(connectionService.account);
 
-  const [currentTransaction, setCurrentTransaction] = useState<(() => Promise<ContractTransaction>) | undefined>(undefined);
   const [depositLockState, setDepositLockState] = useState<DepositState>(DepositState.LOCKED);
 
   const depositBalance = useProperty(tokensService.depositBalance);
@@ -51,10 +53,6 @@ export function DepositSection() {
     }
   };
 
-  const closeTransactionModal = () => {
-    setCurrentTransaction(undefined);
-  };
-
   if (isEmpty(depositBalance)) {
     return null;
   }
@@ -76,7 +74,6 @@ export function DepositSection() {
         </AmountWrapper>
       </BalanceRow>
       <DepositTimer/>
-      <TransactionStatus onClose={() => closeTransactionModal() } transactionToBeExecuted={currentTransaction} description={'Unlock deposit'}/>
     </BalanceBlock>
   );
 }

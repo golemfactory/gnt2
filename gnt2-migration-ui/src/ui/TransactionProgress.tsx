@@ -21,34 +21,35 @@ export const TransactionProgress = ({
   let title = 'Transaction is in progress';
 
   if (!inProgress) {
-    title = 'Transaction complete';
+    title = 'Transaction completed';
     if (errorMessage) {
-      title = 'Error';
+      title = 'Transaction failed';
     }
   }
-  const showOKButton = !inProgress;
+  const showOKButton = !inProgress || !!errorMessage;
+
   return (
     <>
       <Title>
         {title}
       </Title>
       <ModalText data-testid='error-message'>{errorMessage || description}</ModalText>
-
       <Buttons showOKButton={showOKButton}>
-        <CTAButton
-          data-testid='etherscan-button'
-          disabled={errorMessage !== undefined || transactionHash === undefined}
+        <a
+          href={`https://rinkeby.etherscan.io/tx/${transactionHash && transactionHash}`}
+          data-testid='etherscan-link'
         >
-          <a
-            href={`https://rinkeby.etherscan.io/tx/${transactionHash && transactionHash}`}
-            data-testid='etherscan-link'
+          <CTAButton
+            data-testid='etherscan-button'
+            disabled={errorMessage !== undefined || transactionHash === undefined}
           >
-            View on etherscan </a>
-        </CTAButton>
+            View on etherscan
+          </CTAButton>
+        </a>
         {showOKButton &&
-        <OkButton onClick={onClose} data-testid='modal-close'>
-          OK
-        </OkButton>}
+          <OkButton onClick={onClose} data-testid='modal-close'>
+            Ok
+          </OkButton>}
       </Buttons>
     </>
   );
@@ -74,10 +75,12 @@ const Buttons = styled.div<{ showOKButton: boolean }>`
   position: absolute;
   bottom: 42px;
   display: flex;
+  padding-top: 165px;
   justify-content: ${({showOKButton}) => showOKButton ? 'space-between' : 'center'};
-  width: 50%;
+  width: 84%;
   margin: 0 auto;
 `;
+
 
 const OkButton = styled(CTAButton)`
   background: #181EA9;

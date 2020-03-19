@@ -64,7 +64,7 @@ export const Account = () => {
   return (
     <DashboardLayout>
       <View>
-        {!migrationStarted &&
+        {!currentTransaction && !migrationStarted &&
           <>
             <AddressBlock>
               {account &&
@@ -77,10 +77,10 @@ export const Account = () => {
                 <Address>{account}</Address>
               </div>
             </AddressBlock>
-            <BalancesSection onConvert={startMigration}/>
+            <BalancesSection currentTransaction={currentTransaction} onConvert={startMigration} setCurrentTransaction={setCurrentTransaction}/>
           </>
         }
-        {migrationStarted && oldTokensBalance &&
+        {!currentTransaction && migrationStarted && oldTokensBalance &&
           <ConvertTokens
             onCancelClick={stopMigration}
             oldTokensBalance={oldTokensBalance}
@@ -89,11 +89,12 @@ export const Account = () => {
             onAmountConfirm={(amount) => migrate(amount)}
           />
         }
-        <TransactionStatus
-          onClose={() => closeTransactionModal()}
-          transactionToBeExecuted={currentTransaction}
-          description={`Migrating ${formatTokenBalance(oldTokensBalance)} GNT tokens`}
-        />
+        {currentTransaction &&
+          <TransactionStatus
+            onClose={() => closeTransactionModal()}
+            transactionToBeExecuted={currentTransaction}
+            description={`Migrating ${formatTokenBalance(oldTokensBalance)} GNT tokens`}
+          />}
         <Modal isVisible={showOtherBalancesWarning} onClose={closeOtherBalancesWarning}>
           <h1>Warning</h1>
           <p>You are going to convert your GNT and you still have balance in GNTb and/or GNTb Deposit. If you plan to convert them later,
