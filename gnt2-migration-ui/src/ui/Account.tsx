@@ -15,11 +15,16 @@ import {CTAButton} from './commons/CTAButton';
 import {ConvertTokens} from './Account/ConvertTokens';
 import {parseEther} from 'ethers/utils';
 import {formatTokenBalance} from '../utils/formatter';
+import {formatValue} from '../utils/formatter';
+import {Big} from 'big.js';
+import {convertBalanceToBigJs} from '../utils/bigNumberUtils';
+import {BlurModal} from './BlurModal';
 
 export const Account = () => {
   const {tokensService, connectionService} = useServices();
 
   const account = useProperty(connectionService.account);
+
 
   const oldTokensBalance = useProperty(tokensService.gntBalance);
   const gntbBalance = useProperty(tokensService.gntbBalance);
@@ -77,7 +82,10 @@ export const Account = () => {
                 <Address>{account}</Address>
               </div>
             </AddressBlock>
-            <BalancesSection currentTransaction={currentTransaction} onConvert={startMigration} setCurrentTransaction={setCurrentTransaction}/>
+            <DashboardBlur blur={!oldTokensBalance}>
+              <BalancesSection currentTransaction={currentTransaction} onConvert={startMigration} setCurrentTransaction={setCurrentTransaction}/>
+            </DashboardBlur>
+            <BlurModal isVisible={!oldTokensBalance}/>
           </>
         }
         {!currentTransaction && migrationStarted && oldTokensBalance &&
@@ -125,6 +133,16 @@ const View = styled.div`
 
 const JazziconWrapper = styled.div`
   margin-right: 24px;
+`;
+
+const DashboardBlur = styled.div<{blur: boolean}>`
+  filter: ${({blur}) => blur ? 'blur(16px)' : 'none'};
+`;
+
+
+const ErrorInfo = styled.p`
+  font-size: 14px;
+  color: #990000
 `;
 
 const AddressBlock = styled.div`
