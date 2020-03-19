@@ -98,9 +98,10 @@ export const Account = () => {
             onClick={() => {
               closeOtherBalancesWarning();
               continueMigration();
-            }
-            }
-          >OK, GOT IT</CTAButton>
+            }}
+          >
+            OK, GOT IT
+          </CTAButton>
           <a onClick={closeOtherBalancesWarning}>Cancel converting</a>
         </Modal>
       </View>

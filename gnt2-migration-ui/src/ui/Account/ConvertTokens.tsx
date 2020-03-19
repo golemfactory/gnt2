@@ -1,4 +1,4 @@
-import React, {ChangeEvent, useState} from 'react';
+import React, {ChangeEvent, useEffect, useState} from 'react';
 import styled from 'styled-components';
 import {SectionTitle} from '../commons/Text/SectionTitle';
 import {SmallTitle} from '../commons/Text/SmallTitle';
@@ -9,6 +9,9 @@ import {formatValue} from '../../utils/formatter';
 import {BigNumber} from 'ethers/utils';
 import {convertBalanceToBigJs, isEmpty} from '../../utils/bigNumberUtils';
 import {Big} from 'big.js';
+import {useServices} from '../hooks/useServices';
+import {useProperty} from '../hooks/useProperty';
+import {useAsync} from '../hooks/useAsync';
 
 interface ConvertTokensProps {
   onCancelClick: () => void;
@@ -19,13 +22,44 @@ interface ConvertTokensProps {
 }
 
 export const ConvertTokens = ({onAmountConfirm, onCancelClick, oldTokensBalance, tokensToMigrate, setTokensToMigrate}: ConvertTokensProps) => {
+  const {accountService, connectionService} = useServices();
+  const network = useProperty(connectionService.network);
+  const account = useProperty(connectionService.account);
+  const useAsyncBalance = (execute: () => Promise<BigNumber | undefined>) => useAsync(execute, [network, account]);
+  const [ethBalance] = useAsyncBalance(async () => accountService.balanceOf(account));
+
+  const [lowEth, setLowEth] = useState(false);
   const [error, setError] = useState<string | undefined>(undefined);
+
+  useEffect(() => {
+    if (invalidNumbersOfTokensToMigrate()) {
+      setError('Invalid number of tokens to migrate');
+    } else {
+      setError(undefined);
+    }
+  }, [tokensToMigrate, oldTokensBalance, invalidNumbersOfTokensToMigrate]);
+
+  useEffect(() => {
+    if (!ethBalance) {
+      return;
+    }
+    setLowEth(convertBalanceToBigJs(ethBalance).lt(new Big('0.0002')));
+  }, [ethBalance]);
 
   const format = (value: BigNumber) => formatValue(value.toString(), 3);
   const balance = format(new BigNumber(oldTokensBalance));
 
+  const isNotANumber = (value: string): boolean => {
+    try {
+      Big(value);
+      return false;
+    } catch {
+      return true;
+    }
+  };
+
   function invalidNumbersOfTokensToMigrate() {
-    return !oldTokensBalance ||
+    return isNotANumber(tokensToMigrate) ||
       tokensToMigrateAsNumber().gt(convertBalanceToBigJs(oldTokensBalance)) ||
       tokensToMigrateAsNumber().lte(0);
   }
@@ -38,12 +72,6 @@ export const ConvertTokens = ({onAmountConfirm, onCancelClick, oldTokensBalance,
 
   const onAmountChange = (e: ChangeEvent<HTMLInputElement>) => {
     setTokensToMigrate(e.target.value);
-    console.log(`e.target.value = ${e.target.value}`);
-    if (invalidNumbersOfTokensToMigrate()) {
-      setError('Invalid number of tokens to migrate');
-    } else {
-      setError(undefined);
-    }
   };
 
   return (
@@ -96,19 +124,19 @@ export const ConvertTokens = ({onAmountConfirm, onCancelClick, oldTokensBalance,
                 tooltipText="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce vehicula vehicula odio, ut scelerisque massa.Learn more">
                 ETH Balance:
               </TitleWithTooltip>
-              <EthereumAmount isError={!!error}>1,24561245 ETH</EthereumAmount>
+              {ethBalance && <EthereumAmount isError={lowEth}>{formatValue(ethBalance, 4)} ETH</EthereumAmount>}
             </div>
             <ConfirmButton
               data-testid="migrate-button"
               onClick={onConfirmClick}
-              disabled={invalidNumbersOfTokensToMigrate() || isEmpty(oldTokensBalance)}
+              disabled={lowEth || invalidNumbersOfTokensToMigrate() || isEmpty(oldTokensBalance)}
             >
               Confirm Transaction
             </ConfirmButton>
           </FooterRow>
-          {error &&
+          {lowEth &&
           <ErrorInfo>
-            {error}
+            You do not have enough ETH on your account to cover gas fees and make NGNT Conversion. Please top up your account with at least 0.03 ETH.
           </ErrorInfo>
           }
         </Footer>

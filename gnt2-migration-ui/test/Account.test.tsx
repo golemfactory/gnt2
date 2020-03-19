@@ -108,7 +108,7 @@ describe('Account page', () => {
     it('migrates user-specified number of tokens', async () => {
       const accountPage = await new TestAccountPage(services).load();
 
-      await accountPage.migrate('9000');
+      await accountPage.migrate('9000.00');
       await accountPage.completeMigration();
 
       await wait(() => {
@@ -121,9 +121,7 @@ describe('Account page', () => {
       ['6000000.0', 'number of tokens greater then GNT-balance'],
       ['5000001.0', 'number of tokens greater then GNT-balance'],
       ['-1000', 'number of tokens lower then 0'],
-      ['', 'empty value'],
-      ['0,04', 'number of tokens with 2 digits after comma'],
-      ['0.04', 'number of tokens with 2 digits after dot']
+      ['', 'empty value']
     ].forEach(([tokensToMigrate, message]) => {
       it(`shows error for ${message}`, async () => {
         const accountPage = await new TestAccountPage(services).load();
