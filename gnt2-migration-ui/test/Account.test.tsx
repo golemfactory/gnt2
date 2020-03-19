@@ -36,12 +36,12 @@ describe('Account page', () => {
       ({services} = await createTestServices('empty'));
     });
 
-    it('hide `GNTB-balance` field when balance is 0', async () => {
+    it('hide \'GNTB-balance\' field when balance is 0', async () => {
       const {queryByTestId} = renderAccount(services);
       await expect(waitForElement(() => queryByTestId('GNTB-balance'), {timeout: 100})).to.be.rejected;
     });
 
-    it('hide `deposit balance` and `deposit timer` fields when balance is 0', async () => {
+    it('hide \'deposit balance\' and \'deposit timer\' fields when balance is 0', async () => {
       const {queryByTestId} = renderAccount(services);
       await expect(waitForElement(() => queryByTestId('deposit-balance'), {timeout: 100})).to.be.rejected;
     });
@@ -182,7 +182,6 @@ describe('Account page', () => {
       await migrate('5000000', getByTestId);
 
       await wait(() => {
-        expect(getByTestId('modal')).to.exist;
         expect(getByTestId('modal')).to.contain.text('Warning');
       });
     });
@@ -199,8 +198,7 @@ describe('Account page', () => {
       await wait(() => {
         expect(getByTestId('NGNT-balance')).to.have.text('5000000.000');
         expect(getByTestId('GNT-balance')).to.have.text('135000000.000');
-        expect(getByTestId('migrate-button')).to.have.attr('disabled');
-        expect(getByTestId('modal')).to.not.exist;
+        expect(getByTestId('modal')).to.not.contain.text('Warning');
       });
     });
 

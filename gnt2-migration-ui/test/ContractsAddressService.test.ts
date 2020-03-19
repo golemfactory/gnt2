@@ -13,9 +13,9 @@ describe('Contract Address Service', () => {
     const contractAddressService = new ContractAddressService(connectionService as unknown as ConnectionService, contractAddressesConfig);
     expect(contractAddressService.contractAddresses.get()).to.deep.eq({
       oldGolemToken: '0xA193E42526F1FEA8C99AF609dcEabf30C1c29fAA',
-      newGolemToken: '0xaC8444e7d45c34110B34Ed269AD86248884E78C7',
-      batchingGolemToken: '0xf278DDe7F235D1736d1981a036637A5B9Cf20316',
-      gntDeposit: '0xDD547519c6D11A8eA57B98A752EeBB903D154A3B'
+      newGolemToken: '0x94BA4d5Ebb0e05A50e977FFbF6e1a1Ee3D89299c',
+      batchingGolemToken: '0xCA633a093C280377ac8449E0cdA64Efd839C976c',
+      gntDeposit: '0xbD73caE58B275Dce33fBf7877F40434623A1E6a9'
     });
     connectionService.network.set('rinkeby');
     expect(contractAddressService.contractAddresses.get()).to.deep.eq({
