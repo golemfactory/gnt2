@@ -13,6 +13,8 @@ import {DashboardLayout} from './commons/DashboardLayout/DashboardLayout';
 import {Big} from 'big.js';
 import {convertBalanceToBigJs, isEmpty} from '../utils/bigNumberUtils';
 import {Modal} from './Modal';
+import {CTAButton} from './commons/CTAButton';
+import {ConvertTokens} from './Account/ConvertTokens';
 
 export const Account = () => {
   const {tokensService, connectionService} = useServices();
