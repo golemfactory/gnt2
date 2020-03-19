@@ -9,6 +9,7 @@ import styled from 'styled-components';
 import {ConnectionState} from '../services/ConnectionService';
 import {useAsyncEffect} from './hooks/useAsyncEffect';
 import {BrowserRouter} from 'react-router-dom';
+import {Footer} from './Footer';
 
 const App: React.FC = () => {
 
@@ -34,6 +35,7 @@ const App: React.FC = () => {
       <BrowserRouter>
         <Dashboard/>
       </BrowserRouter>
+      <Footer/>
     </>
   );
 };
