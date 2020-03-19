@@ -76,7 +76,7 @@ export function DepositSection() {
         </AmountWrapper>
       </BalanceRow>
       <DepositTimer/>
-      <TransactionStatus onClose={() => closeTransactionModal() } transactionToBeExecuted={currentTransaction}/>
+      <TransactionStatus onClose={() => closeTransactionModal() } transactionToBeExecuted={currentTransaction} description={'Unlock deposit'}/>
     </BalanceBlock>
   );
 }

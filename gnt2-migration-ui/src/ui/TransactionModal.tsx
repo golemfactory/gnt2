@@ -7,16 +7,16 @@ import txpass from '../assets/icons/txpass.svg';
 
 export interface ModalProps {
   children: ReactNode;
-  onClose: () => void;
   inProgress: boolean;
+  errorMessage: string | undefined;
 }
 
-export const TransactionModal = ({children, onClose, inProgress}: ModalProps) =>
+export const TransactionModal = ({children, inProgress, errorMessage}: ModalProps) =>
   (<ModalBackdrop className='modal-backdrop' data-testid='modal'>
     <ModalBody className={'modal-body'}>
       {inProgress
         ? <Spinner/>
-        : <ResultImage src={inProgress ? txfail : txpass}/>
+        : <ResultImage src={errorMessage ? txfail : txpass}/>
       }
       {children}
     </ModalBody>

@@ -26,7 +26,7 @@ async function renderTransaction(services: Services, transactionToBeExecuted: ((
   return render(
     <ServiceContext.Provider value={services}>
       <SnackbarProvider>
-        <TransactionStatus transactionToBeExecuted={transactionToBeExecuted} onClose={() => null}/>
+        <TransactionStatus transactionToBeExecuted={transactionToBeExecuted} onClose={() => null} description={''}/>
       </SnackbarProvider>
     </ServiceContext.Provider>
   );

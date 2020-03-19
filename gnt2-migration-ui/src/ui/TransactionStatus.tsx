@@ -11,11 +11,13 @@ import {TransactionModal} from './TransactionModal';
 interface TransactionModalProps {
   transactionToBeExecuted: (() => Promise<ContractTransaction>) | undefined;
   onClose: () => void;
+  description: string;
 }
 
 export const TransactionStatus = ({
   transactionToBeExecuted,
   onClose,
+  description
 }: TransactionModalProps) => {
   const [txInProgress, setTxInProgress] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
@@ -60,8 +62,15 @@ export const TransactionStatus = ({
   }
 
   return (
-    <TransactionModal onClose={closeModal} inProgress={txInProgress}>
-      <TransactionProgress transactionHash={currentTx?.transactionHash} errorMessage={errorMessage} inProgress={txInProgress}/>
+    <TransactionModal inProgress={txInProgress} errorMessage={errorMessage}>
+      <TransactionProgress
+        transactionHash={currentTx?.transactionHash}
+        description={description}
+        errorMessage={errorMessage}
+        inProgress={txInProgress}
+        onClose={closeModal}
+
+      />
     </TransactionModal>
   );
 };

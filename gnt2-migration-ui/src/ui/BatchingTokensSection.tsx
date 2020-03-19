@@ -50,7 +50,7 @@ export const BatchingTokensSection = () => {
             Unwrap
           </BalanceButton>
         </AmountWrapper>
-        <TransactionStatus onClose={() => closeTransactionModal()} transactionToBeExecuted={currentTransaction}/>
+        <TransactionStatus onClose={() => closeTransactionModal()} transactionToBeExecuted={currentTransaction} description={'Unwrap'}/>
       </BalanceRow>
     </BalanceBlock>
   );

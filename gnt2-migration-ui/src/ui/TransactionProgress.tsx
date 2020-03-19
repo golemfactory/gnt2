@@ -7,12 +7,16 @@ interface TransactionProgressProps {
   transactionHash: string | undefined;
   errorMessage: string | undefined;
   inProgress: boolean;
+  onClose: () => void;
+  description: string;
 }
 
 export const TransactionProgress = ({
   transactionHash,
   errorMessage,
-  inProgress
+  inProgress,
+  onClose,
+  description
 }: TransactionProgressProps) => {
   let title = 'Transaction is in progress';
 
@@ -22,33 +26,30 @@ export const TransactionProgress = ({
       title = 'Error';
     }
   }
-  const showOKButton = false;
+  const showOKButton = !inProgress;
   return (
     <>
       <Title>
         {title}
       </Title>
-      <ModalText>Your 3459284,24561245 GNT are being converted. It can take some time and soon you will received your NGNT!</ModalText>
-      {!errorMessage &&
-        <a
-          href={`https://rinkeby.etherscan.io/tx/${transactionHash && transactionHash}`}
-          data-testid='etherscan-link'
+      <ModalText data-testid='error-message'>{errorMessage || description}</ModalText>
+
+      <Buttons showOKButton={showOKButton}>
+        <CTAButton
+          data-testid='etherscan-button'
+          disabled={errorMessage !== undefined || transactionHash === undefined}
         >
-          <Buttons showOKButton={showOKButton}>
-            <CTAButton
-              data-testid='etherscan-button'
-              disabled={errorMessage !== undefined || transactionHash === undefined}
-            >
-                  View on etherscan
-            </CTAButton>
-            {showOKButton &&
-            <OkButton>
-                  View on etherscan
-            </OkButton>}
-          </Buttons>
-        </a>
-      }
-      {errorMessage && <div data-testid='error-message'>{errorMessage}</div>}
+          <a
+            href={`https://rinkeby.etherscan.io/tx/${transactionHash && transactionHash}`}
+            data-testid='etherscan-link'
+          >
+            View on etherscan </a>
+        </CTAButton>
+        {showOKButton &&
+        <OkButton onClick={onClose} data-testid='modal-close'>
+          OK
+        </OkButton>}
+      </Buttons>
     </>
   );
 };
@@ -69,7 +70,7 @@ const ModalText = styled.p`
   opacity: 0.6;
 `;
 
-const Buttons = styled.div<{showOKButton: boolean}>`
+const Buttons = styled.div<{ showOKButton: boolean }>`
   position: absolute;
   bottom: 42px;
   display: flex;

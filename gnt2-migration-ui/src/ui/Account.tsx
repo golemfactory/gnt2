@@ -14,6 +14,7 @@ import {Modal} from './Modal';
 import {CTAButton} from './commons/CTAButton';
 import {ConvertTokens} from './Account/ConvertTokens';
 import {parseEther} from 'ethers/utils';
+import {formatTokenBalance} from '../utils/formatter';
 
 export const Account = () => {
   const {tokensService, connectionService} = useServices();
@@ -88,7 +89,11 @@ export const Account = () => {
             onAmountConfirm={(amount) => migrate(amount)}
           />
         }
-        <TransactionStatus onClose={() => closeTransactionModal()} transactionToBeExecuted={currentTransaction}/>
+        <TransactionStatus
+          onClose={() => closeTransactionModal()}
+          transactionToBeExecuted={currentTransaction}
+          description={`Migrating ${formatTokenBalance(oldTokensBalance)} GNT tokens`}
+        />
         <Modal isVisible={showOtherBalancesWarning} onClose={closeOtherBalancesWarning}>
           <h1>Warning</h1>
           <p>You are going to convert your GNT and you still have balance in GNTb and/or GNTb Deposit. If you plan to convert them later,
@@ -108,15 +113,6 @@ export const Account = () => {
     </DashboardLayout>
   );
 };
-
-const Line = styled.div`
-  width: 1px;
-  opacity: 0.1;
-  border-top: 1px solid #181EA9;
-  box-sizing: border-box;
-  width: 145%;
-  margin-bottom: 23px;
-`;
 
 const View = styled.div`
   max-width: 630px;
