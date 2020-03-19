@@ -27,6 +27,57 @@ function renderAccount(services: Services) {
   );
 }
 
+class TestAccountPage {
+  private getByTestId: any;
+
+  constructor(private services: Services) {
+  }
+
+  async load() {
+    const {getByTestId} = await renderAccount(this.services);
+    this.getByTestId = getByTestId;
+    return this;
+  }
+
+  async startMigration() {
+    await this.clickConvert();
+    return this.findMigrationInput();
+  }
+
+  async clickConvert() {
+    fireEvent.click(await waitForElement(() => this.getByTestId('convert-button')));
+  }
+
+  async migrate(amount: string) {
+    const input = await this.startMigration();
+    this.confirmMigration(input, amount);
+  }
+
+  confirmMigration(input: any, amount: string) {
+    fireEvent.change(input, {target: {value: amount}});
+    fireEvent.click(this.getByTestId('migrate-button'));
+  }
+
+  async findMigrationInput() {
+    return waitForElement(() => this.getByTestId('migrate-input'));
+  }
+
+  async completeMigration() {
+    await wait(() => {
+      expect(this.getByTestId('modal')).to.contain.text('Transaction complete');
+    });
+    fireEvent.click(this.getByTestId('modal-close'));
+  }
+
+  find(testId: string) {
+    return this.getByTestId(testId);
+  }
+
+  async clickContinueMigration() {
+    fireEvent.click(await waitForElement(() => this.getByTestId('continue-migrate-button')));
+  }
+}
+
 describe('Account page', () => {
 
   let services: Services;
@@ -48,98 +99,76 @@ describe('Account page', () => {
 
   });
 
-  async function migrate(value = '1000.000', getByTestId: any) {
-    const input = await waitForElement(() => getByTestId('migrate-input'));
-    fireEvent.change(input, {target: {value: value}});
-    fireEvent.click(getByTestId('migrate-button'));
-  }
-
   context('with wallet with GNT tokens', async () => {
 
     beforeEach(async () => {
       ({services} = await createTestServices('holder'));
     });
 
-    it('migrates user specified number of tokens', async () => {
-      const {getByTestId} = await renderAccount(services);
+    it('migrates user-specified number of tokens', async () => {
+      const accountPage = await new TestAccountPage(services).load();
 
-      const input = await waitForElement(() => getByTestId('migrate-input'));
-      const tokensToMigrate = '9000.000';
-      fireEvent.change(input, {target: {value: tokensToMigrate}});
-      expect(input).to.have.value(tokensToMigrate);
-
-      fireEvent.click(getByTestId('migrate-button'));
+      await accountPage.migrate('9000.00');
+      await accountPage.completeMigration();
 
       await wait(() => {
-        expect(getByTestId('NGNT-balance')).to.have.text(tokensToMigrate);
-        expect(getByTestId('GNT-balance')).to.have.text('4991000.000');
+        expect(accountPage.find('NGNT-balance')).to.have.text('9000.000');
+        expect(accountPage.find('GNT-balance')).to.have.text('4991000.000');
       });
     });
 
     [
-      ['6000000.0', 'greater then GNT-balance'],
-      ['-1000', 'lower then 0'],
-      ['0', 'equal to 0']
+      ['6000000.0', 'number of tokens greater then GNT-balance'],
+      ['5000001.0', 'number of tokens greater then GNT-balance'],
+      ['-1000', 'number of tokens lower then 0'],
+      ['', 'empty value']
     ].forEach(([tokensToMigrate, message]) => {
-      it(`shows error for number of tokens ${message}`, async () => {
-        const {getByTestId} = await renderAccount(services);
+      it(`shows error for ${message}`, async () => {
+        const accountPage = await new TestAccountPage(services).load();
 
-        const input = await waitForElement(() => getByTestId('migrate-input'));
+        const input = await accountPage.startMigration();
         fireEvent.change(input, {target: {value: tokensToMigrate}});
-        expect(input).to.have.value(tokensToMigrate);
-
-        fireEvent.click(getByTestId('migrate-button'));
 
         await wait(() => {
-          expect(getByTestId('migrate-error')).to.exist;
-        });
-        await wait(() => {
-          expect(getByTestId('NGNT-balance')).to.have.text('0.000');
-          expect(getByTestId('GNT-balance')).to.have.text('5000000.000');
+          expect(accountPage.find('migrate-error')).to.exist;
+          expect(accountPage.find('migrate-button')).to.have.attr('disabled');
         });
       });
     });
 
     it('sets max number of tokens', async () => {
-      const {getByTestId} = await renderAccount(services);
+      const accountPage = await new TestAccountPage(services).load();
 
-      const input = await waitForElement(() => getByTestId('migrate-input'));
+      const input = await accountPage.startMigration();
 
-      fireEvent.click(getByTestId('migrate-btn-set-max'));
+      fireEvent.click(accountPage.find('migrate-btn-set-max'));
 
       expect(input).to.have.value('5000000');
     });
 
-    it('shows migrated tokens', async () => {
-      const {getByTestId} = await renderAccount(services);
+    it('disables convert when migrating all tokens', async () => {
+      const accountPage = await new TestAccountPage(services).load();
 
-      const input = await waitForElement(() => getByTestId('migrate-input'));
-      const tokensToMigrate = '5000000.000';
-      fireEvent.change(input, {target: {value: tokensToMigrate}});
-
-      fireEvent.click(getByTestId('migrate-button'));
+      await accountPage.migrate('5000000');
+      await accountPage.completeMigration();
 
       await wait(() => {
-        expect(getByTestId('NGNT-balance')).to.have.text('5000000.000');
-        expect(getByTestId('GNT-balance')).to.have.text('0.000');
-        expect(getByTestId('migrate-button')).to.have.attr('disabled');
+        expect(accountPage.find('NGNT-balance')).to.have.text('5000000.000');
+        expect(accountPage.find('GNT-balance')).to.have.text('0.000');
+        expect(accountPage.find('convert-button')).to.have.attr('disabled');
       });
     });
 
     it('shows modal on migrate', async () => {
-      const {getByTestId} = await renderAccount(services);
+      const accountPage = await new TestAccountPage(services).load();
 
-      const input = await waitForElement(() => getByTestId('migrate-input'));
-      const tokensToMigrate = '1000.000';
-      fireEvent.change(input, {target: {value: tokensToMigrate}});
-
-      fireEvent.click(getByTestId('migrate-button'));
+      await accountPage.migrate('1000');
 
       await wait(() => {
-        expect(getByTestId('modal')).to.exist;
-        expect(getByTestId('etherscan-button')).to.have.text('View transaction details');
-        expect(getByTestId('etherscan-button')).to.not.have.attr('disabled');
-        expect(getByTestId('etherscan-link')).to.have.attr('href').match(/https:\/\/rinkeby.etherscan.io\/tx\/0x[0-9a-fA-F]{64}/);
+        expect(accountPage.find('modal')).to.exist;
+        expect(accountPage.find('etherscan-button')).to.have.text('View transaction details');
+        expect(accountPage.find('etherscan-button')).to.not.have.attr('disabled');
+        expect(accountPage.find('etherscan-link')).to.have.attr('href').match(/https:\/\/rinkeby.etherscan.io\/tx\/0x[0-9a-fA-F]{64}/);
       });
     });
 
@@ -147,13 +176,13 @@ describe('Account page', () => {
       services.tokensService.migrateTokens = async () => {
         throw new TransactionDenied(new Error());
       };
-      const {getByTestId} = await renderAccount(services);
+      const accountPage = await new TestAccountPage(services).load();
 
-      await migrate('1000.000', getByTestId);
+      await accountPage.migrate('5000000');
 
       await wait(() => {
-        expect(getByTestId('modal')).to.exist;
-        expect(getByTestId('error-message')).to.exist;
+        expect(accountPage.find('modal')).to.exist;
+        expect(accountPage.find('error-message')).to.exist;
       });
     });
 
@@ -177,28 +206,33 @@ describe('Account page', () => {
     });
 
     it('show warning when trying to migrate', async () => {
-      const {getByTestId} = renderAccount(services);
+      const accountPage = await new TestAccountPage(services).load();
+      await wait(() => {
+        expect(accountPage.find('GNT-balance')).to.have.text('140000000.000');
+      });
 
-      await migrate('5000000', getByTestId);
+      await accountPage.clickConvert();
 
       await wait(() => {
-        expect(getByTestId('modal')).to.contain.text('Warning');
+        expect(accountPage.find('modal')).to.contain.text('Warning');
       });
     });
 
     it('can continue migration by acknowledging warning', async () => {
-      const {getByTestId} = renderAccount(services);
+      const accountPage = await new TestAccountPage(services).load();
       await wait(() => {
-        expect(getByTestId('GNT-balance')).to.have.text('140000000.000');
+        expect(accountPage.find('GNT-balance')).to.have.text('140000000.000');
       });
 
-      await migrate('5000000', getByTestId);
-      fireEvent.click(getByTestId('continue-migrate-button'));
+      await accountPage.clickConvert();
+      await accountPage.clickContinueMigration();
+      const input = await accountPage.findMigrationInput();
+      await accountPage.confirmMigration(input, '5000000');
+      await accountPage.completeMigration();
 
       await wait(() => {
-        expect(getByTestId('NGNT-balance')).to.have.text('5000000.000');
-        expect(getByTestId('GNT-balance')).to.have.text('135000000.000');
-        expect(getByTestId('modal')).to.not.contain.text('Warning');
+        expect(accountPage.find('NGNT-balance')).to.have.text('5000000.000');
+        expect(accountPage.find('GNT-balance')).to.have.text('135000000.000');
       });
     });
 

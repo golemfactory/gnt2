@@ -9,8 +9,8 @@ import {DEPOSIT_LOCK_DELAY, TX_HASH_REGEXP} from './helpers/contractConstants';
 import {createTestServices} from './helpers/testServices';
 import {Web3Provider} from 'ethers/providers';
 import sinon from 'sinon';
-import {wrapGNTtoGNTB} from '../../gnt2-contracts/src/deployment/deployDevGolemContracts';
-import {GolemNetworkTokenBatchingFactory, GolemNetworkTokenFactory} from '../../gnt2-contracts';
+import {wrapGNTtoGNTB} from 'gnt2-contracts/src/deployment/deployDevGolemContracts';
+import {GolemNetworkTokenBatchingFactory, GolemNetworkTokenFactory} from 'gnt2-contracts';
 import {wait} from '@testing-library/react';
 import {GolemNetworkTokenBatching} from 'gnt2-contracts/build/contract-types/GolemNetworkTokenBatching';
 import {GolemNetworkToken} from 'gnt2-contracts/build/contract-types/GolemNetworkToken';
@@ -50,8 +50,8 @@ describe('Token Service', () => {
   });
 
   afterEach(() => {
-    un2();
     un1();
+    un2();
     un3();
   });
 

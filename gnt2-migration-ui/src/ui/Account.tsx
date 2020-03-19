@@ -2,19 +2,18 @@ import React, {useState} from 'react';
 
 import styled from 'styled-components';
 import {ContractTransaction} from 'ethers';
-import {BigNumber, parseEther} from 'ethers/utils';
 import Jazzicon, {jsNumberForAddress} from 'react-jazzicon';
 import {SmallTitle} from './commons/Text/SmallTitle';
 import {TransactionStatus} from './TransactionStatus';
 import {BalancesSection} from './Account/BalancesSection';
 import {useServices} from './hooks/useServices';
 import {useProperty} from './hooks/useProperty';
-import {CTAButton} from './commons/CTAButton';
 import {DashboardLayout} from './commons/DashboardLayout/DashboardLayout';
-import {formatValue} from '../utils/formatter';
-import {Big} from 'big.js';
-import {convertBalanceToBigJs, isEmpty} from '../utils/bigNumberUtils';
+import {isEmpty} from '../utils/bigNumberUtils';
 import {Modal} from './Modal';
+import {CTAButton} from './commons/CTAButton';
+import {ConvertTokens} from './Account/ConvertTokens';
+import {parseEther} from 'ethers/utils';
 
 export const Account = () => {
   const {tokensService, connectionService} = useServices();
@@ -25,30 +24,15 @@ export const Account = () => {
   const gntbBalance = useProperty(tokensService.gntbBalance);
   const depositBalance = useProperty(tokensService.depositBalance);
   const [currentTransaction, setCurrentTransaction] = useState<(() => Promise<ContractTransaction>) | undefined>(undefined);
-  const [tokensToMigrate, setTokensToMigrate] = React.useState<string>('0.000');
-  const [migrateError, setMigrateError] = React.useState<string | undefined>(undefined);
+  const [tokensToMigrate, setTokensToMigrate] = useState<string>('0.000');
   const [showOtherBalancesWarning, setShowOtherBalancesWarning] = React.useState(false);
-
-  const tokensToMigrateAsNumber = () => new Big(tokensToMigrate);
-
-  const format = (value: BigNumber) => formatValue(value.toString(), 3);
-
-  function invalidNumbersOfTokensToMigrate() {
-    return !oldTokensBalance ||
-      tokensToMigrateAsNumber().gt(convertBalanceToBigJs(oldTokensBalance)) ||
-      tokensToMigrateAsNumber().lte(0);
-  }
+  const [migrationStarted, setMigrationStarted] = useState(false);
 
   function hasOtherTokens() {
     return !(isEmpty(gntbBalance) && isEmpty(depositBalance));
   }
 
-  const migrateTokens = () => {
-    if (invalidNumbersOfTokensToMigrate()) {
-      setMigrateError('Invalid number of tokens to migrate');
-      setTimeout(() => setMigrateError(undefined), 4000);
-      return;
-    }
+  const startMigration = () => {
     if (hasOtherTokens()) {
       setShowOtherBalancesWarning(true);
       return;
@@ -56,66 +40,53 @@ export const Account = () => {
     continueMigration();
   };
 
+  const stopMigration = () => {
+    setMigrationStarted(false);
+  };
+
   const continueMigration = () => {
-    setCurrentTransaction(() => () => tokensService.migrateTokens(account, parseEther(tokensToMigrate)));
+    setMigrationStarted(true);
   };
 
   const closeTransactionModal = () => {
     setCurrentTransaction(undefined);
     setTokensToMigrate('0.000');
+    setMigrationStarted(false);
   };
 
   const closeOtherBalancesWarning = () => setShowOtherBalancesWarning(false);
 
+  function migrate(amount: string) {
+    setCurrentTransaction(() => () => tokensService.migrateTokens(account, parseEther(amount)));
+  }
+
   return (
     <DashboardLayout>
       <View>
-        <AddressBlock>
-          {account &&
-          <JazziconWrapper>
-            <Jazzicon diameter={32} seed={jsNumberForAddress(account)}/>
-          </JazziconWrapper>
-          }
-          <div>
-            <AddressTitle>Address:</AddressTitle>
-            <Address>{account}</Address>
-          </div>
-        </AddressBlock>
-        <BalancesSection/>
-        <br/>
-        {
-          oldTokensBalance &&
+        {!migrationStarted &&
           <>
-            <CTAButton
-              data-testid="migrate-button"
-              onClick={migrateTokens}
-              disabled={tokensToMigrate === '0.000' || !tokensToMigrate || oldTokensBalance?.eq(new BigNumber('0'))}
-            >
-              Migrate
-            </CTAButton>
-            <CTAButton
-              data-testid="migrate-btn-set-max"
-              onClick={() => setTokensToMigrate(convertBalanceToBigJs(oldTokensBalance).toString())}
-            >
-              Set max
-            </CTAButton>
-            <Input
-              data-testid="migrate-input"
-              placeholder='Number of tokens to migrate'
-              type='number'
-              max={format(new BigNumber(oldTokensBalance))}
-              min='0.000'
-              step='0.001'
-              value={tokensToMigrate}
-              onChange={e => setTokensToMigrate(e.target.value)}
-            />
-            {
-              migrateError &&
-              <ErrorInfo data-testid='migrate-error'>
-                {migrateError}
-              </ErrorInfo>
-            }
+            <AddressBlock>
+              {account &&
+            <JazziconWrapper>
+              <Jazzicon diameter={32} seed={jsNumberForAddress(account)}/>
+            </JazziconWrapper>
+              }
+              <div>
+                <AddressTitle>Address:</AddressTitle>
+                <Address>{account}</Address>
+              </div>
+            </AddressBlock>
+            <BalancesSection onConvert={startMigration}/>
           </>
+        }
+        {migrationStarted && oldTokensBalance &&
+          <ConvertTokens
+            onCancelClick={stopMigration}
+            oldTokensBalance={oldTokensBalance}
+            tokensToMigrate={tokensToMigrate}
+            setTokensToMigrate={setTokensToMigrate}
+            onAmountConfirm={(amount) => migrate(amount)}
+          />
         }
         <TransactionStatus onClose={() => closeTransactionModal()} transactionToBeExecuted={currentTransaction}/>
         <Modal isVisible={showOtherBalancesWarning} onClose={closeOtherBalancesWarning}>
@@ -127,20 +98,16 @@ export const Account = () => {
             onClick={() => {
               closeOtherBalancesWarning();
               continueMigration();
-            }
-            }
-          >OK, GOT IT</CTAButton>
+            }}
+          >
+            OK, GOT IT
+          </CTAButton>
           <a onClick={closeOtherBalancesWarning}>Cancel converting</a>
         </Modal>
       </View>
     </DashboardLayout>
   );
 };
-
-const ErrorInfo = styled.p`
-  font-size: 14px;
-  color: #990000;
-`;
 
 const View = styled.div`
   max-width: 630px;
@@ -169,13 +136,4 @@ const Address = styled.div`
   font-size: 14px;
   line-height: 16px;
   color: #1722A2;
-`;
-
-const Input = styled.input`
-  height: 40px;
-  width: 70%;
-  padding: 6px 12px;
-  font-size: 14px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
 `;

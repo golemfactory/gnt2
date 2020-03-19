@@ -26,6 +26,7 @@ const TooltipBody = styled.div`
   font-size: 12px;
   line-height: 18px;
   color: rgb(109, 113, 203);
+  z-index: 10;
   
   &::before {
     content: '';

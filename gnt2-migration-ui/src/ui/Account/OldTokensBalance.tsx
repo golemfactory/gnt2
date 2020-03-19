@@ -6,9 +6,10 @@ import {TitleWithTooltip} from '../commons/Text/TitleWithTooltip';
 
 interface OldTokensBalanceProps {
   balance: BigNumber | undefined;
+  onConvert: () => void;
 }
 
-export const OldTokensBalance = ({balance}: OldTokensBalanceProps) => {
+export const OldTokensBalance = ({balance, onConvert}: OldTokensBalanceProps) => {
 
   return (
     <BalanceBlock>
@@ -21,7 +22,7 @@ export const OldTokensBalance = ({balance}: OldTokensBalanceProps) => {
         <Ticker>GNT</Ticker>
         <AmountWrapper>
           <Amount data-testid='GNT-balance'>{balance ? formatValue(balance.toString(), 3) : 0}</Amount>
-          <BalanceButton>Convert</BalanceButton>
+          <BalanceButton data-testid='convert-button' onClick={onConvert} disabled={balance?.eq(new BigNumber('0'))}>Convert</BalanceButton>
         </AmountWrapper>
       </BalanceRow>
     </BalanceBlock>

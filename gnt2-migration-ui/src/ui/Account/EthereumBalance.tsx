@@ -14,7 +14,7 @@ export const EthereumBalance = ({balance}: EthereumBalanceProps) => (
     <TitleWithTooltip
       tooltipText="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce vehicula vehicula odio, ut scelerisque massa.Learn more"
     >
-      Golem Network Tokens
+      ETH Balance
     </TitleWithTooltip>
     <Row>
       <Ticker>ETH</Ticker>
