@@ -1,10 +1,8 @@
 import React, {ChangeEvent, useCallback, useEffect, useState} from 'react';
 import styled from 'styled-components';
-import {SectionTitle} from '../commons/Text/SectionTitle';
 import {SmallTitle} from '../commons/Text/SmallTitle';
 import {Ticker} from './Balance';
 import {TitleWithTooltip} from '../commons/Text/TitleWithTooltip';
-import {ButtonPrimary} from '../commons/Buttons/ButtonPrimary';
 import {formatValue} from '../../utils/formatter';
 import {BigNumber} from 'ethers/utils';
 import {convertBalanceToBigJs, isEmpty} from '../../utils/bigNumberUtils';
@@ -12,6 +10,8 @@ import {Big} from 'big.js';
 import {useServices} from '../hooks/useServices';
 import {useProperty} from '../hooks/useProperty';
 import {useAsync} from '../hooks/useAsync';
+import {CancelButton} from '../commons/Buttons/CancelButton';
+import {Box, BoxContent, BoxFooter, BoxFooterRow, BoxFooterButton, BoxTitle, BoxSubTitle, BoxFooterAmount, BoxRow} from '../commons/Box';
 
 interface ConvertTokensProps {
   onCancelClick: () => void;
@@ -74,11 +74,11 @@ export const ConvertTokens = ({onAmountConfirm, onCancelClick, oldTokensBalance,
 
   return (
     <>
-      <View>
-        <Content>
-          <Title>Convert</Title>
+      <Box>
+        <BoxContent>
+          <BoxTitle>Convert</BoxTitle>
           <Converting>
-            <SubTitle>Converting</SubTitle>
+            <BoxSubTitle>Converting</BoxSubTitle>
             <ConvertingRow>
               <Ticker>GNT</Ticker>
               <InputRow>
@@ -108,65 +108,47 @@ export const ConvertTokens = ({onAmountConfirm, onCancelClick, oldTokensBalance,
             </ConvertingRow>
           </Converting>
           <div>
-            <SubTitle>Receiving</SubTitle>
-            <ReceivingRow>
+            <BoxSubTitle>Receiving</BoxSubTitle>
+            <BoxRow>
               <ReceivingTicker>NGNT</ReceivingTicker>
               <ReceivingAmount>{balance}</ReceivingAmount>
-            </ReceivingRow>
+            </BoxRow>
           </div>
-        </Content>
-        <Footer>
-          <FooterRow>
+        </BoxContent>
+        <BoxFooter>
+          <BoxFooterRow>
             <div>
               <TitleWithTooltip
                 tooltipText="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce vehicula vehicula odio, ut scelerisque massa.Learn more">
                 ETH Balance:
               </TitleWithTooltip>
-              {ethBalance && <EthereumAmount isError={lowEth}>{formatValue(ethBalance, 4)} ETH</EthereumAmount>}
+              {ethBalance && <BoxFooterAmount isError={lowEth}>{formatValue(ethBalance, 4)} ETH</BoxFooterAmount>}
             </div>
-            <ConfirmButton
+            <BoxFooterButton
               data-testid="migrate-button"
               onClick={onConfirmClick}
               disabled={lowEth || invalidNumbersOfTokensToMigrate() || isEmpty(oldTokensBalance)}
             >
               Confirm Transaction
-            </ConfirmButton>
-          </FooterRow>
+            </BoxFooterButton>
+          </BoxFooterRow>
           {lowEth &&
           <ErrorInfo>
             You do not have enough ETH on your account to cover gas fees and make NGNT Conversion. Please top up your account with at least 0.03 ETH.
           </ErrorInfo>
           }
-        </Footer>
-      </View>
+        </BoxFooter>
+      </Box>
       <CancelButton onClick={onCancelClick}>Cancel Converting</CancelButton>
     </>
   );
 };
 
-const View = styled.div`
-  border: 1px solid #181EA9;
-`;
-
-const Content = styled.div`
-  padding: 40px 48px 70px;
-`;
-
-const Title = styled(SectionTitle)`
-  margin-bottom: 40px;
-  text-align: center;
-`;
-
 const Converting = styled.div`
   margin-bottom: 24px;
 `;
 
-const SubTitle = styled(SmallTitle)`
-  border-bottom: 1px solid rgb(232, 232, 246);
-`;
-
-const ConvertingRow = styled.div`
-  display: flex;
+const ConvertingRow = styled(BoxRow)`
   margin-top: 25px;
 `;
 
@@ -219,12 +201,6 @@ const AvailableAmount = styled.p`
   color: #1722A2;
 `;
 
-const ReceivingRow = styled.div`
-  display: flex;
-  justify-content: space-between;
-  margin-top: 14px;
-`;
-
 const ReceivingTicker = styled(Ticker)`
   font-size: 20px;
   line-height: 26px;
@@ -235,47 +211,6 @@ const ReceivingAmount = styled.p`
   line-height: 28px;
   text-align: right;
   color: #1722A2;
-`;
-
-const Footer = styled.div`
-  border-top: 1px solid #181EA9;
-  padding: 24px 48px;
-`;
-
-const FooterRow = styled.div`
-  display: flex;
-  justify-content: space-between;
-`;
-
-const ConfirmButton = styled(ButtonPrimary)`
-  max-width: 238px;
-  width: 100%;
-`;
-
-interface EthereumAmountProps {
-  isError: boolean;
-}
-
-const EthereumAmount = styled.p<EthereumAmountProps>`
-  margin-top: 3px;
-  font-weight: 500;
-  font-size: 14px;
-  line-height: 16px;
-  color: ${({isError}) => isError ? '#EC0505' : '#1722A2'};
-`;
-
-const CancelButton = styled.button`
-  display: block;
-  margin: 21px auto 0;
-  padding: 0;
-  border: none;
-  background: none;
-  font-size: 14px;
-  line-height: 18px;
-  text-align: center;
-  text-decoration: underline;
-  color: #181EA9;
-  opacity: 0.6;
 `;
 
 const ErrorInfo = styled.p`

@@ -14,6 +14,7 @@ import {Modal} from './Modal';
 import {ConvertTokens} from './Account/ConvertTokens';
 import {parseEther} from 'ethers/utils';
 import {formatTokenBalance} from '../utils/formatter';
+import {MoveToWrapped} from './Account/MoveToWrapped';
 import {WarningModalContent} from './Account/WarningModalContent';
 import {BlurModal} from './BlurModal';
 
@@ -102,6 +103,7 @@ export const Account = () => {
               description={`Migrating ${formatTokenBalance(oldTokensBalance)} GNT tokens`}
             />
             }
+            <MoveToWrapped/>
           </Blur>
           <BlurModal isVisible={!hasContracts}/>
         </Content>
