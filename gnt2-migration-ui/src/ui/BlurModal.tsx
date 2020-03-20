@@ -20,12 +20,14 @@ export const BlurModal = ({isVisible, className}: BlurModalProps) => {
 };
 
 const ModalView = styled.div`
-  position: relative;
+  position: absolute;
+  top: 66px;
+  left: 50%;
   padding: 40px;
-  width: 80%;
-  height: 296px;
-  transform: translateY(-50%);
-  margin: 0 auto;
+  max-width: 480px;
+  width: 100%;
+  min-height: 296px;
+  transform: translateX(-50%);
   background: #FFFFFF;
   border: 1px solid #181EA9;
 `;
