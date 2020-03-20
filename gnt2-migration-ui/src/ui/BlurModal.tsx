@@ -22,9 +22,9 @@ export const BlurModal = ({isVisible, className}: BlurModalProps) => {
 const ModalView = styled.div`
   position: relative;
   padding: 40px;
-  width: 60%;
+  width: 80%;
   height: 296px;
-  transform: translateY(-30%);
+  transform: translateY(-50%);
   margin: 0 auto;
   background: #FFFFFF;
   border: 1px solid #181EA9;
