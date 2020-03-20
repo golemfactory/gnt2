@@ -106,10 +106,10 @@ export const Account = () => {
           <BlurModal isVisible={!hasContracts}/>
         </Content>
         <Modal isVisible={showOtherBalancesWarning} onClose={closeOtherBalancesWarning}>
-          <h1>Warning</h1>
-          <p>You are going to convert your GNT and you still have balance in GNTb and/or GNTb Deposit. If you plan to convert them later,
-            additional Ethereum transactions will be required.</p>
-          <CTAButton
+          <WarningTitle>Warning</WarningTitle>
+          <WarningText>You are going to convert your GNT and you still have balance in GNTb and/or GNTb Deposit. If you plan to convert them later,
+            additional Ethereum transactions will be required.</WarningText>
+          <WarningButton
             data-testid="continue-migrate-button"
             onClick={() => {
               closeOtherBalancesWarning();
@@ -117,13 +117,47 @@ export const Account = () => {
             }}
           >
             OK, GOT IT
-          </CTAButton>
-          <a onClick={closeOtherBalancesWarning}>Cancel converting</a>
+          </WarningButton>
+          <CancelText onClick={closeOtherBalancesWarning}>Cancel converting</CancelText>
         </Modal>
       </View>
     </DashboardLayout>
   );
 };
+
+const WarningTitle = styled.h1`
+  font-weight: bold;
+  font-size: 24px;
+  line-height: 31px;
+  text-align: center;
+  color: #181EA9;
+`;
+
+const WarningText = styled.p`
+  padding: 0 58px;
+  margin-top: 38px;
+  font-size: 18px;
+  line-height: 30px;
+  color: #1722A2;
+  opacity: 0.6;
+`;
+
+const WarningButton = styled(CTAButton)`
+  margin: 80px auto 24px;
+  max-width: 188px;
+  background: #181EA9;
+  color: #FFFFFF;
+`;
+
+const CancelText = styled.a`
+  font-size: 14px;
+  line-height: 18px;
+  color: #1722A2;
+  text-align: center;
+  opacity: 0.6;
+  cursor: pointer;
+  text-decoration: underline;
+`;
 
 const View = styled.div`
   max-width: 630px;
