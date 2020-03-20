@@ -137,6 +137,7 @@ const JazziconWrapper = styled.div`
 
 const DashboardBlur = styled.div<{blur: boolean}>`
   filter: ${({blur}) => blur ? 'blur(16px)' : 'none'};
+  pointer-events: ${({blur}) => blur ? 'none' : 'auto'};
 `;
 
 
