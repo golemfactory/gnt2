@@ -1,12 +1,11 @@
-import React, {useState, Dispatch, SetStateAction} from 'react';
+import React, {Dispatch, SetStateAction} from 'react';
 import {ContractTransaction} from 'ethers';
 import {DepositTimer} from './DepositTimer';
 import {useServices} from './hooks/useServices';
-import {useAsyncEffect} from './hooks/useAsyncEffect';
 import {useProperty} from './hooks/useProperty';
 import {DepositState} from '../services/TokensService';
 import {isEmpty} from '../utils/bigNumberUtils';
-import {BalanceBlock, BalanceRow, Ticker, AmountWrapper, Amount, BalanceButton} from './Account/Balance';
+import {Amount, AmountWrapper, BalanceBlock, BalanceButton, BalanceRow, Ticker} from './Account/Balance';
 import {SmallTitle} from './commons/Text/SmallTitle';
 import {formatValue} from '../utils/formatter';
 import lockIcon from '../assets/icons/lock.svg';
@@ -22,13 +21,8 @@ export function DepositSection({currentTransaction, setCurrentTransaction}: Depo
 
   const account = useProperty(connectionService.account);
 
-  const [depositLockState, setDepositLockState] = useState<DepositState>(DepositState.LOCKED);
-
   const depositBalance = useProperty(tokensService.depositBalance);
-
-  useAsyncEffect(async () => {
-    setDepositLockState(await tokensService.getDepositState(account));
-  }, [account, tokensService, currentTransaction, depositBalance]);
+  const depositLockState = useProperty(tokensService.depositLockState);
 
   const changeDepositState = async () => {
     if (currentTransaction) return null;

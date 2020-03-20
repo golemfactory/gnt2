@@ -25,6 +25,7 @@ export class TokensService {
   gntbBalance: Property<PossibleBalance>;
   ngntBalance: Property<PossibleBalance>;
   depositBalance: Property<PossibleBalance>;
+  depositLockState: Property<DepositState>;
 
   constructor(private provider: () => JsonRpcProvider, private contractAddressService: ContractAddressService, private connectionService: ConnectionService) {
     this.gntBalance = this.createBalanceProperty(
@@ -59,6 +60,31 @@ export class TokensService {
         callback
       )
     );
+    this.depositLockState = this.createDepositLockStateProperty(
+      callback => ContractUtils.subscribeToEvents(
+        this.gntDepositContract(),
+        this.depositLockStateEventFilters(),
+        callback
+      )
+    );
+  }
+
+  private createDepositLockStateProperty(
+    subscribeToEvents: (cb: () => void) => (() => void)
+  ) {
+    const contractAddresses = this.contractAddressService.contractAddresses;
+    const state = new State<DepositState>(DepositState.LOCKED);
+    const updateDepositLockState = async () => {
+      state.set(await this.getDepositState(this.account()));
+    };
+
+    return state.pipe(
+      withSubscription(updateDepositLockState, contractAddresses),
+      withSubscription(updateDepositLockState, this.connectionService.account),
+      withEffect(() => contractAddresses.pipe(
+        callEffectForEach(() => subscribeToEvents(updateDepositLockState))
+      ))
+    );
   }
 
   private createBalanceProperty(
@@ -82,32 +108,36 @@ export class TokensService {
     );
   }
 
+  private depositLockStateEventFilters() {
+    const lock = this.gntDepositContract().filters.Lock(this.account());
+    const unlock = this.gntDepositContract().filters.Unlock(this.account());
+    return [...this.depositEventFilters(), lock, unlock];
+  }
+
   private depositEventFilters() {
     const deposit = this.gntDepositContract().filters.Deposit(this.account(), null);
     const withdrawFrom = this.gntDepositContract().filters.Withdraw(this.account(), null, null);
     const withdrawTo = this.gntDepositContract().filters.Withdraw(null, this.account(), null);
     const burn = this.gntDepositContract().filters.Burn(this.account(), null);
-    const lock = this.gntDepositContract().filters.Lock(this.account());
-    const unlock = this.gntDepositContract().filters.Unlock(this.account());
-    return [deposit, withdrawFrom, withdrawTo, burn, lock, unlock];
+    return [deposit, withdrawFrom, withdrawTo, burn];
   }
 
   private gntEventFilters() {
     const migrate = this.gntContract().filters.Migrate(this.account(), null, null);
-    const transferFrom = this.gntContract().filters.Transfer(this.account(), null, null);
-    const transferTo = this.gntContract().filters.Transfer(null, this.account(), null);
-    return [migrate, transferFrom, transferTo];
+    return [...this.TransferEventFilters(), migrate];
   }
 
   private gntbEventFilters() {
-    const transferFrom = this.gntbContract().filters.Transfer(this.account(), null, null);
-    const transferTo = this.gntbContract().filters.Transfer(null, this.account(), null);
     const minted = this.gntbContract().filters.Minted(this.account(), null);
     const burned = this.gntbContract().filters.Burned(this.account(), null);
-    return [transferFrom, transferTo, minted, burned];
+    return [...this.TransferEventFilters(), minted, burned];
   }
 
   private ngntEventFilters() {
+    return this.TransferEventFilters();
+  }
+
+  private TransferEventFilters() {
     const transferFrom = this.ngntContract().filters.Transfer(this.account(), null, null);
     const transferTo = this.ngntContract().filters.Transfer(null, this.account(), null);
     return [transferFrom, transferTo];
