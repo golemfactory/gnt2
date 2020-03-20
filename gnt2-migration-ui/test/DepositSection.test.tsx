@@ -1,5 +1,5 @@
 import React from 'react';
-import {fireEvent, render, wait} from '@testing-library/react';
+import {render, wait} from '@testing-library/react';
 import {getWallets} from 'ethereum-waffle';
 import {ServiceContext} from '../src/ui/hooks/useServices';
 import {Services} from '../src/services';
@@ -21,7 +21,7 @@ async function renderDeposit(services: Services) {
   return render(
     <ServiceContext.Provider value={services}>
       <SnackbarProvider>
-        <DepositSection/>
+        <DepositSection setCurrentTransaction={() => { /**/ }} currentTransaction={undefined}/>
       </SnackbarProvider>
     </ServiceContext.Provider>
   );
@@ -82,22 +82,6 @@ describe('Deposit UI', () => {
 
     await wait(() => {
       expect(queryByTestId('action-deposit-button')).to.have.text('Move to wrapped');
-    });
-
-  });
-
-  it('moves tokens to wrapped', async () => {
-    await (await services.tokensService.unlockDeposit(holder)).wait();
-    await advanceEthereumTime(provider, DEPOSIT_LOCK_DELAY + 1);
-    const {getByTestId, queryByTestId} = await renderDeposit(services);
-    await wait(() => {
-      expect(queryByTestId('action-deposit-button')).to.have.text('Move to wrapped');
-    });
-
-    fireEvent.click(getByTestId('action-deposit-button'));
-
-    await wait(() => {
-      expect(queryByTestId('action-deposit-button')).to.be.null;
     });
 
   });

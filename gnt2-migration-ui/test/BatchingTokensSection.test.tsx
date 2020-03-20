@@ -1,27 +1,14 @@
-import React from 'react';
-import {fireEvent, render, wait, waitForElement} from '@testing-library/react';
-import {ServiceContext} from '../src/ui/hooks/useServices';
+import {fireEvent, wait, waitForElement} from '@testing-library/react';
 import {Services} from '../src/services';
 import chai, {expect} from 'chai';
 import chaiDom from 'chai-dom';
 import {createTestServices} from './helpers/testServices';
-import {SnackbarProvider} from '../src/ui/Snackbar/SnackbarProvider';
-import {BatchingTokensSection} from '../src/ui/BatchingTokensSection';
 import {TransactionDenied} from '../src/errors';
+import {TestAccountPage} from './helpers/TestAccountPage';
 
 chai.use(chaiDom);
 
-async function renderBatching(services: Services) {
-  return render(
-    <ServiceContext.Provider value={services}>
-      <SnackbarProvider>
-        <BatchingTokensSection/>
-      </SnackbarProvider>
-    </ServiceContext.Provider>
-  );
-}
-
-describe('Batching tokens section UI', () => {
+describe('Batching tokens UI', () => {
 
   let services: Services;
 
@@ -30,17 +17,19 @@ describe('Batching tokens section UI', () => {
   });
 
   it('hides after unwrap tokens and closes modal', async () => {
-    const {getByTestId, queryByTestId} = await renderBatching(services);
+    const accountPage = await new TestAccountPage(services).load();
+    await waitForElement(() => accountPage.find('GNTB-balance'));
 
-    await waitForElement(() => getByTestId('GNTB-balance'));
-
-    const btn = await waitForElement(() => getByTestId('unwrap-tokens-button'));
+    const btn = await waitForElement(() => accountPage.find('unwrap-tokens-button'));
     fireEvent.click(btn);
+    await accountPage.completeTransaction();
 
     await wait(() => {
-      expect(queryByTestId('unwrap-tokens-button')).to.not.exist;
-      expect(queryByTestId('GNTB-balance')).to.not.exist;
+      expect(accountPage.query('unwrap-tokens-button')).to.not.exist;
+      expect(accountPage.query('GNTB-balance')).to.not.exist;
     });
+
+
   });
 
   it('shows error in modal with when user denied transaction', async () => {
@@ -48,14 +37,14 @@ describe('Batching tokens section UI', () => {
       throw new TransactionDenied(new Error());
     };
 
-    const {getByTestId} = await renderBatching(services);
+    const accountPage = await new TestAccountPage(services).load();
 
-    const btn = await waitForElement(() => getByTestId('unwrap-tokens-button'));
+    const btn = await waitForElement(() => accountPage.find('unwrap-tokens-button'));
     fireEvent.click(btn);
 
     await wait(() => {
-      expect(getByTestId('modal')).to.exist;
-      expect(getByTestId('error-message')).to.exist;
+      expect(accountPage.find('modal')).to.exist;
+      expect(accountPage.find('error-message')).to.exist;
     });
   });
 

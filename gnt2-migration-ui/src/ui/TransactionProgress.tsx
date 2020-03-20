@@ -1,35 +1,40 @@
 import React from 'react';
 import styled from 'styled-components';
 import {CTAButton} from './commons/CTAButton';
-import {Spinner} from './Spinner';
+
 
 interface TransactionProgressProps {
   transactionHash: string | undefined;
   errorMessage: string | undefined;
   inProgress: boolean;
+  onClose: () => void;
+  description: string;
 }
 
 export const TransactionProgress = ({
   transactionHash,
   errorMessage,
-  inProgress
+  inProgress,
+  onClose,
+  description
 }: TransactionProgressProps) => {
-  let title = 'Transaction in progress';
+  let title = 'Transaction is in progress';
 
   if (!inProgress) {
-    title = 'Transaction complete';
+    title = 'Transaction completed';
     if (errorMessage) {
-      title = 'Error';
+      title = 'Transaction failed';
     }
   }
+  const showOKButton = !inProgress || !!errorMessage;
 
   return (
     <>
       <Title>
         {title}
       </Title>
-      {inProgress && <Spinner/>}
-      {!errorMessage &&
+      <ModalText data-testid='error-message'>{errorMessage || description}</ModalText>
+      <Buttons showOKButton={showOKButton}>
         <a
           href={`https://rinkeby.etherscan.io/tx/${transactionHash && transactionHash}`}
           data-testid='etherscan-link'
@@ -38,19 +43,46 @@ export const TransactionProgress = ({
             data-testid='etherscan-button'
             disabled={errorMessage !== undefined || transactionHash === undefined}
           >
-                View transaction details
+            View on etherscan
           </CTAButton>
         </a>
-      }
-      {errorMessage && <div data-testid='error-message'>{errorMessage}</div>}
+        {showOKButton &&
+          <OkButton onClick={onClose} data-testid='modal-close'>
+            Ok
+          </OkButton>}
+      </Buttons>
     </>
   );
 };
 
 const Title = styled.p`
-  font-style: normal;
+  text-align: center;
   font-weight: bold;
   font-size: 24px;
-  line-height: 29px;
+  line-height: 31px;
   color: #181EA9;
+  margin-bottom: 40px;
+`;
+
+const ModalText = styled.p`
+  font-size: 18px;
+  line-height: 30px;
+  color: #1722A2;
+  opacity: 0.6;
+`;
+
+const Buttons = styled.div<{ showOKButton: boolean }>`
+  position: absolute;
+  bottom: 42px;
+  display: flex;
+  padding-top: 165px;
+  justify-content: ${({showOKButton}) => showOKButton ? 'space-between' : 'center'};
+  width: 84%;
+  margin: 0 auto;
+`;
+
+
+const OkButton = styled(CTAButton)`
+  background: #181EA9;
+  color: #fff;
 `;

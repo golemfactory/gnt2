@@ -1,4 +1,4 @@
-import React, {ChangeEvent, useEffect, useState} from 'react';
+import React, {ChangeEvent, useCallback, useEffect, useState} from 'react';
 import styled from 'styled-components';
 import {SectionTitle} from '../commons/Text/SectionTitle';
 import {SmallTitle} from '../commons/Text/SmallTitle';
@@ -31,6 +31,12 @@ export const ConvertTokens = ({onAmountConfirm, onCancelClick, oldTokensBalance,
   const [lowEth, setLowEth] = useState(false);
   const [error, setError] = useState<string | undefined>(undefined);
 
+  const tokensToMigrateAsNumber = useCallback(() => new Big(tokensToMigrate), [tokensToMigrate]);
+
+  const invalidNumbersOfTokensToMigrate = useCallback(() => isNotANumber(tokensToMigrate) ||
+    tokensToMigrateAsNumber().gt(convertBalanceToBigJs(oldTokensBalance)) ||
+    tokensToMigrateAsNumber().lte(0), [oldTokensBalance, tokensToMigrate, tokensToMigrateAsNumber]);
+
   useEffect(() => {
     if (invalidNumbersOfTokensToMigrate()) {
       setError('Invalid number of tokens to migrate');
@@ -57,14 +63,6 @@ export const ConvertTokens = ({onAmountConfirm, onCancelClick, oldTokensBalance,
       return true;
     }
   };
-
-  function invalidNumbersOfTokensToMigrate() {
-    return isNotANumber(tokensToMigrate) ||
-      tokensToMigrateAsNumber().gt(convertBalanceToBigJs(oldTokensBalance)) ||
-      tokensToMigrateAsNumber().lte(0);
-  }
-
-  const tokensToMigrateAsNumber = () => new Big(tokensToMigrate);
 
   const onConfirmClick = () => {
     onAmountConfirm(tokensToMigrate);

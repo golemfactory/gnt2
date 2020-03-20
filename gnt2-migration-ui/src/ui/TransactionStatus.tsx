@@ -4,18 +4,20 @@ import {ContractTransaction} from 'ethers';
 import {ContractReceipt} from 'ethers/contract';
 import {useSnackbar} from './hooks/useSnackbar';
 import {TransactionProgress} from './TransactionProgress';
-import {Modal} from './Modal';
 import {mapCodeToError} from '../utils/mapCodeToError';
 import {useServices} from './hooks/useServices';
+import {TransactionModal} from './TransactionModal';
 
 interface TransactionModalProps {
   transactionToBeExecuted: (() => Promise<ContractTransaction>) | undefined;
   onClose: () => void;
+  description: string;
 }
 
 export const TransactionStatus = ({
   transactionToBeExecuted,
   onClose,
+  description
 }: TransactionModalProps) => {
   const [txInProgress, setTxInProgress] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
@@ -60,11 +62,14 @@ export const TransactionStatus = ({
   }
 
   return (
-    <Modal isVisible={true} onClose={closeModal} inProgress={txInProgress}>
+    <TransactionModal inProgress={txInProgress} errorMessage={errorMessage}>
       <TransactionProgress
         transactionHash={currentTx?.transactionHash}
+        description={description}
         errorMessage={errorMessage}
-        inProgress={txInProgress}/>
-    </Modal>
+        inProgress={txInProgress}
+        onClose={closeModal}
+      />
+    </TransactionModal>
   );
 };
