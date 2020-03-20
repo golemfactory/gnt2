@@ -1,6 +1,11 @@
 import {JsonRpcProvider} from 'ethers/providers';
 import {BigNumber, BigNumberish} from 'ethers/utils';
-import {GNTDepositFactory, GolemNetworkTokenBatchingFactory, GolemNetworkTokenFactory, NewGolemNetworkTokenFactory} from 'gnt2-contracts';
+import {
+  GNTDepositFactory,
+  GolemNetworkTokenBatchingFactory,
+  GolemNetworkTokenFactory,
+  NewGolemNetworkTokenFactory
+} from 'gnt2-contracts';
 import {ContractAddressService} from './ContractAddressService';
 import {gasLimit} from '../config';
 import {ContractTransaction} from 'ethers';
@@ -82,7 +87,9 @@ export class TokensService {
     const withdrawFrom = this.gntDepositContract().filters.Withdraw(this.account(), null, null);
     const withdrawTo = this.gntDepositContract().filters.Withdraw(null, this.account(), null);
     const burn = this.gntDepositContract().filters.Burn(this.account(), null);
-    return [deposit, withdrawFrom, withdrawTo, burn];
+    const lock = this.gntDepositContract().filters.Lock(this.account());
+    const unlock = this.gntDepositContract().filters.Unlock(this.account());
+    return [deposit, withdrawFrom, withdrawTo, burn, lock, unlock];
   }
 
   private gntEventFilters() {

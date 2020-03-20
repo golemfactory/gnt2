@@ -28,7 +28,7 @@ export function DepositSection({currentTransaction, setCurrentTransaction}: Depo
 
   useAsyncEffect(async () => {
     setDepositLockState(await tokensService.getDepositState(account));
-  }, [account, tokensService, currentTransaction]);
+  }, [account, tokensService, currentTransaction, depositBalance]);
 
   const changeDepositState = async () => {
     if (currentTransaction) return null;
