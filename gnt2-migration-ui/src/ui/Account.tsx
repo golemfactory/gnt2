@@ -11,10 +11,10 @@ import {useProperty} from './hooks/useProperty';
 import {DashboardLayout} from './commons/DashboardLayout/DashboardLayout';
 import {isEmpty} from '../utils/bigNumberUtils';
 import {Modal} from './Modal';
-import {CTAButton} from './commons/CTAButton';
 import {ConvertTokens} from './Account/ConvertTokens';
 import {parseEther} from 'ethers/utils';
 import {formatTokenBalance} from '../utils/formatter';
+import {WarningModalContent} from './Account/WarningModalContent';
 import {BlurModal} from './BlurModal';
 
 export const Account = () => {
@@ -105,25 +105,23 @@ export const Account = () => {
           </Blur>
           <BlurModal isVisible={!hasContracts}/>
         </Content>
-        <Modal isVisible={showOtherBalancesWarning} onClose={closeOtherBalancesWarning}>
-          <h1>Warning</h1>
-          <p>You are going to convert your GNT and you still have balance in GNTb and/or GNTb Deposit. If you plan to convert them later,
-            additional Ethereum transactions will be required.</p>
-          <CTAButton
-            data-testid="continue-migrate-button"
-            onClick={() => {
+        <WarningModal isVisible={showOtherBalancesWarning} onClose={closeOtherBalancesWarning}>
+          <WarningModalContent
+            onConfirmClick={() => {
               closeOtherBalancesWarning();
               continueMigration();
             }}
-          >
-            OK, GOT IT
-          </CTAButton>
-          <a onClick={closeOtherBalancesWarning}>Cancel converting</a>
-        </Modal>
+            onCancelClick={closeOtherBalancesWarning}
+          />
+        </WarningModal>
       </View>
     </DashboardLayout>
   );
 };
+
+const WarningModal = styled(Modal)`
+  max-width: 660px;
+`;
 
 const View = styled.div`
   max-width: 630px;
