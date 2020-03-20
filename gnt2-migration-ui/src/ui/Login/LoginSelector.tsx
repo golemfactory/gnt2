@@ -23,7 +23,7 @@ export const LoginSelector = ({onMetamaskClick}: LoginSelectorProps) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
   const {connectionService} = useServices();
-  const noMetaMusk = connectionService.connectionState === ConnectionState.NO_METAMASK;
+  const noMetaMask = connectionService.connectionState === ConnectionState.NO_METAMASK;
 
   return (
     <>
@@ -44,7 +44,7 @@ export const LoginSelector = ({onMetamaskClick}: LoginSelectorProps) => {
       <ConnectionBlock>
         <BlockTitle>Connect to:</BlockTitle>
         <ButtonsRow>
-          <MetaMaskButton onClick={onMetamaskClick} disabled={noMetaMusk}>
+          <MetaMaskButton onClick={onMetamaskClick} disabled={noMetaMask}>
             <img src={metamaskIcon} alt="metamask logo"/> MetaMask
           </MetaMaskButton>
           <TextSeparator>OR</TextSeparator>
@@ -54,7 +54,7 @@ export const LoginSelector = ({onMetamaskClick}: LoginSelectorProps) => {
           </ConnectButton>
         </ButtonsRow>
         {
-          noMetaMusk &&
+          noMetaMask &&
         <InfoBlock>
           To connect to MetaMask you should install official plugin via your web browser.
         </InfoBlock>
