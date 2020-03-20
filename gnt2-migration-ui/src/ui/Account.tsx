@@ -11,10 +11,10 @@ import {useProperty} from './hooks/useProperty';
 import {DashboardLayout} from './commons/DashboardLayout/DashboardLayout';
 import {isEmpty} from '../utils/bigNumberUtils';
 import {Modal} from './Modal';
-import {CTAButton} from './commons/CTAButton';
 import {ConvertTokens} from './Account/ConvertTokens';
 import {parseEther} from 'ethers/utils';
 import {formatTokenBalance} from '../utils/formatter';
+import {WarningModalContent} from './Account/WarningModalContent';
 import {BlurModal} from './BlurModal';
 
 export const Account = () => {
@@ -105,58 +105,22 @@ export const Account = () => {
           </Blur>
           <BlurModal isVisible={!hasContracts}/>
         </Content>
-        <Modal isVisible={showOtherBalancesWarning} onClose={closeOtherBalancesWarning}>
-          <WarningTitle>Warning</WarningTitle>
-          <WarningText>You are going to convert your GNT and you still have balance in GNTb and/or GNTb Deposit. If you plan to convert them later,
-            additional Ethereum transactions will be required.</WarningText>
-          <WarningButton
-            data-testid="continue-migrate-button"
-            onClick={() => {
+        <WarningModal isVisible={showOtherBalancesWarning} onClose={closeOtherBalancesWarning}>
+          <WarningModalContent
+            onConfirmClick={() => {
               closeOtherBalancesWarning();
               continueMigration();
             }}
-          >
-            OK, GOT IT
-          </WarningButton>
-          <CancelText onClick={closeOtherBalancesWarning}>Cancel converting</CancelText>
-        </Modal>
+            onCancelClick={closeOtherBalancesWarning}
+          />
+        </WarningModal>
       </View>
     </DashboardLayout>
   );
 };
 
-const WarningTitle = styled.h1`
-  font-weight: bold;
-  font-size: 24px;
-  line-height: 31px;
-  text-align: center;
-  color: #181EA9;
-`;
-
-const WarningText = styled.p`
-  padding: 0 58px;
-  margin-top: 38px;
-  font-size: 18px;
-  line-height: 30px;
-  color: #1722A2;
-  opacity: 0.6;
-`;
-
-const WarningButton = styled(CTAButton)`
-  margin: 80px auto 24px;
-  max-width: 188px;
-  background: #181EA9;
-  color: #FFFFFF;
-`;
-
-const CancelText = styled.a`
-  font-size: 14px;
-  line-height: 18px;
-  color: #1722A2;
-  text-align: center;
-  opacity: 0.6;
-  cursor: pointer;
-  text-decoration: underline;
+const WarningModal = styled(Modal)`
+  max-width: 660px;
 `;
 
 const View = styled.div`

@@ -29,9 +29,9 @@ export const Modal = ({isVisible, onClose, children, inProgress, className}: Mod
 
   if (isVisible) {
     return createPortal(
-      <ModalView data-testid="modal" className={className || ''}>
+      <ModalView data-testid="modal">
         <ModalOverlay onClick={onClose}/>
-        <ModalBodyWrapper>
+        <ModalBodyWrapper className={className || ''}>
           <ModalBody>
             {onClose && !inProgress && <CloseButton onClick={onClose} data-testid="modal-close"/>}
             {children}
@@ -67,6 +67,8 @@ const ModalBodyWrapper = styled.div`
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  max-width: 830px;
+  width: 100%;
   padding: 30px;
   max-height: 100%;
   overflow-y: auto;
@@ -76,7 +78,6 @@ const ModalBody = styled.div`
   position: relative;
   display: flex;
   flex-direction: column;
-  max-width: 770px;
   width: 100%;
   padding: 40px 30px;
   background: #FFFFFF;
