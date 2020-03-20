@@ -12,6 +12,8 @@ import trezorIcon from '../../assets/icons/trezor.svg';
 import ledgerIcon from '../../assets/icons/ledger.svg';
 import {InfoBlock} from '../commons/InfoBlock';
 import {WalletName} from './WalletName';
+import {useServices} from '../hooks/useServices';
+import {ConnectionState} from '../../services/ConnectionService';
 
 export interface LoginSelectorProps {
   onMetamaskClick: () => void;
@@ -20,6 +22,8 @@ export interface LoginSelectorProps {
 export const LoginSelector = ({onMetamaskClick}: LoginSelectorProps) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
+  const {connectionService} = useServices();
+  const noMetaMusk = connectionService.connectionState === ConnectionState.NO_METAMASK;
 
   return (
     <>
@@ -40,7 +44,7 @@ export const LoginSelector = ({onMetamaskClick}: LoginSelectorProps) => {
       <ConnectionBlock>
         <BlockTitle>Connect to:</BlockTitle>
         <ButtonsRow>
-          <MetaMaskButton onClick={onMetamaskClick}>
+          <MetaMaskButton onClick={onMetamaskClick} disabled={noMetaMusk}>
             <img src={metamaskIcon} alt="metamask logo"/> MetaMask
           </MetaMaskButton>
           <TextSeparator>OR</TextSeparator>
@@ -49,10 +53,12 @@ export const LoginSelector = ({onMetamaskClick}: LoginSelectorProps) => {
             <WalletName icon={ledgerIcon}>Ledger</WalletName>
           </ConnectButton>
         </ButtonsRow>
+        {
+          noMetaMusk &&
         <InfoBlock>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce vehicula vehicula odio, ut scelerisque
-          massa.Learn more
+          To connect to MetaMask you should install official plugin via your web browser.
         </InfoBlock>
+        }
       </ConnectionBlock>
 
       <Modal isVisible={isModalVisible} onClose={() => setIsModalVisible(false)}>
