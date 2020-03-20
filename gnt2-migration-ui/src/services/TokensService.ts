@@ -1,11 +1,6 @@
 import {JsonRpcProvider} from 'ethers/providers';
 import {BigNumber, BigNumberish} from 'ethers/utils';
-import {
-  GNTDepositFactory,
-  GolemNetworkTokenBatchingFactory,
-  GolemNetworkTokenFactory,
-  NewGolemNetworkTokenFactory
-} from 'gnt2-contracts';
+import {GNTDepositFactory, GolemNetworkTokenBatchingFactory, GolemNetworkTokenFactory, NewGolemNetworkTokenFactory} from 'gnt2-contracts';
 import {ContractAddressService} from './ContractAddressService';
 import {gasLimit} from '../config';
 import {ContractTransaction} from 'ethers';
@@ -69,14 +64,14 @@ export class TokensService {
     );
   }
 
+
   private createDepositLockStateProperty(
     subscribeToEvents: (cb: () => void) => (() => void)
   ) {
     const contractAddresses = this.contractAddressService.contractAddresses;
     const state = new State<DepositState>(DepositState.LOCKED);
-    const updateDepositLockState = async () => {
-      state.set(await this.getDepositState(this.account()));
-    };
+    const updateDepositLockState = async () =>
+      this.safeContractRead(async () => state.set(await this.getDepositState(this.account())));
 
     return state.pipe(
       withSubscription(updateDepositLockState, contractAddresses),
@@ -91,21 +86,28 @@ export class TokensService {
     fetchBalance: () => Promise<BigNumber>,
     subscribeToEvents: (cb: () => void) => (() => void)
   ) {
-    const contractAddressService = this.contractAddressService;
-    const contractAddresses = contractAddressService.contractAddresses;
+    const contractAddresses = this.contractAddressService.contractAddresses;
     const state = new State<PossibleBalance>(undefined);
-    async function updateBalance() {
-      if (contractAddressService.hasContracts.get()) {
-        state.set(await fetchBalance());
-      }
-    }
+    const updateBalance = async () =>
+      this.safeContractRead(async () => state.set(await fetchBalance()));
+
     return state.pipe(
       withSubscription(updateBalance, contractAddresses),
       withSubscription(updateBalance, this.connectionService.account),
       withEffect(() => contractAddresses.pipe(
-        callEffectForEach(() => contractAddressService.hasContracts.get() ? subscribeToEvents(updateBalance) : () => { /**/ })
+        callEffectForEach(() => this.networkHasContracts() ? subscribeToEvents(updateBalance) : () => { /**/ })
       ))
     );
+  }
+
+  private safeContractRead(cb: () => void) {
+    if (this.networkHasContracts()) {
+      cb();
+    }
+  }
+
+  private networkHasContracts() {
+    return this.contractAddressService.hasContracts.get();
   }
 
   private depositLockStateEventFilters() {
