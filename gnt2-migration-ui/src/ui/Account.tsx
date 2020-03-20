@@ -18,10 +18,10 @@ import {formatTokenBalance} from '../utils/formatter';
 import {BlurModal} from './BlurModal';
 
 export const Account = () => {
-  const {tokensService, connectionService} = useServices();
+  const {tokensService, connectionService, contractAddressService} = useServices();
 
   const account = useProperty(connectionService.account);
-
+  const hasContracts = useProperty(contractAddressService.hasContracts);
 
   const oldTokensBalance = useProperty(tokensService.gntBalance);
   const gntbBalance = useProperty(tokensService.gntbBalance);
@@ -68,9 +68,9 @@ export const Account = () => {
       <View>
         <AddressBlock>
           {account &&
-            <JazziconWrapper>
-              <Jazzicon diameter={32} seed={jsNumberForAddress(account)}/>
-            </JazziconWrapper>
+          <JazziconWrapper>
+            <Jazzicon diameter={32} seed={jsNumberForAddress(account)}/>
+          </JazziconWrapper>
           }
           <div>
             <AddressTitle>Address:</AddressTitle>
@@ -78,32 +78,32 @@ export const Account = () => {
           </div>
         </AddressBlock>
         <Content>
-          <Blur isBlurred={!oldTokensBalance}>
+          <Blur isBlurred={!hasContracts}>
             {!currentTransaction && !migrationStarted &&
-              <BalancesSection
-                currentTransaction={currentTransaction}
-                onConvert={startMigration}
-                setCurrentTransaction={setCurrentTransaction}
-              />
+            <BalancesSection
+              currentTransaction={currentTransaction}
+              onConvert={startMigration}
+              setCurrentTransaction={setCurrentTransaction}
+            />
             }
             {!currentTransaction && migrationStarted && oldTokensBalance &&
-              <ConvertTokens
-                onCancelClick={stopMigration}
-                oldTokensBalance={oldTokensBalance}
-                tokensToMigrate={tokensToMigrate}
-                setTokensToMigrate={setTokensToMigrate}
-                onAmountConfirm={(amount) => migrate(amount)}
-              />
+            <ConvertTokens
+              onCancelClick={stopMigration}
+              oldTokensBalance={oldTokensBalance}
+              tokensToMigrate={tokensToMigrate}
+              setTokensToMigrate={setTokensToMigrate}
+              onAmountConfirm={(amount) => migrate(amount)}
+            />
             }
             {currentTransaction &&
-              <TransactionStatus
-                onClose={() => closeTransactionModal()}
-                transactionToBeExecuted={currentTransaction}
-                description={`Migrating ${formatTokenBalance(oldTokensBalance)} GNT tokens`}
-              />
+            <TransactionStatus
+              onClose={() => closeTransactionModal()}
+              transactionToBeExecuted={currentTransaction}
+              description={`Migrating ${formatTokenBalance(oldTokensBalance)} GNT tokens`}
+            />
             }
           </Blur>
-          <BlurModal isVisible={!oldTokensBalance}/>
+          <BlurModal isVisible={!hasContracts}/>
         </Content>
         <Modal isVisible={showOtherBalancesWarning} onClose={closeOtherBalancesWarning}>
           <h1>Warning</h1>

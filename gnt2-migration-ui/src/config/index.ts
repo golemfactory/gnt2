@@ -1,4 +1,5 @@
 import {getEnv} from './getEnv';
+import {AddressZero} from 'ethers/constants';
 
 export interface ContractAddresses {
   oldGolemToken: string;
@@ -7,9 +8,9 @@ export interface ContractAddresses {
   gntDeposit: string;
 }
 
-export type NetworkName = 'rinkeby' | 'local';
+export type NetworkName = 'mainnet' | 'ropsten' | 'rinkeby' | 'kovan' | 'local';
 
-export type ContractAddressesByNetwork = Record<NetworkName, ContractAddresses>;
+export type ContractAddressesByNetwork = Partial<Record<NetworkName, ContractAddresses>>;
 
 export const contractAddressesConfig: ContractAddressesByNetwork = Object.freeze({
   rinkeby: {
@@ -23,6 +24,12 @@ export const contractAddressesConfig: ContractAddressesByNetwork = Object.freeze
     newGolemToken: getEnv('NEW_GNT_TOKEN_CONTRACT_ADDRESS_LOCAL', '0x94BA4d5Ebb0e05A50e977FFbF6e1a1Ee3D89299c'),
     batchingGolemToken: getEnv('BATCHING_GNT_TOKEN_CONTRACT_ADDRESS_LOCAL', '0xCA633a093C280377ac8449E0cdA64Efd839C976c'),
     gntDeposit: getEnv('GNT_DEPOSIT_CONTRACT_ADDRESS_LOCAL', '0xbD73caE58B275Dce33fBf7877F40434623A1E6a9')
+  },
+  mainnet: {
+    oldGolemToken: getEnv('OLD_GNT_TOKEN_CONTRACT_ADDRESS_MAINNET', '0xa74476443119A942dE498590Fe1f2454d7D4aC0d'),
+    newGolemToken: getEnv('NEW_GNT_TOKEN_CONTRACT_ADDRESS_MAINNET', AddressZero),
+    batchingGolemToken: getEnv('BATCHING_GNT_TOKEN_CONTRACT_ADDRESS_MAINNET', '0xA7dfb33234098c66FdE44907e918DAD70a3f211c'),
+    gntDeposit: getEnv('GNT_DEPOSIT_CONTRACT_ADDRESS_MAINNET', '0x98d3ca6528A2532Ffd9BDef50F92189568932570')
   }
 });
 

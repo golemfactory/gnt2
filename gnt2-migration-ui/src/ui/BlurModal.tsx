@@ -1,5 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
+import {useProperty} from './hooks/useProperty';
+import {useServices} from './hooks/useServices';
 
 export interface BlurModalProps {
   isVisible: boolean;
@@ -7,12 +9,14 @@ export interface BlurModalProps {
 }
 
 export const BlurModal = ({isVisible, className}: BlurModalProps) => {
+  const {connectionService} = useServices();
+  const network = useProperty(connectionService.network);
 
   if (isVisible) {
     return (
       <ModalView data-testid="modal" className={className || ''}>
         <Title>Wrong Network</Title>
-        <Text>You are on the {'Kovan'} network. Pleae lorem ipsum dolor sit amet enim. Lorem ipsum dolor sit amet enim.</Text>
+        <Text>You are on an unsupported network ({network || 'unknown'}). Please switch to Ethereum Mainnet to migrate your tokens.</Text>
       </ModalView>
     );
   } else return null;

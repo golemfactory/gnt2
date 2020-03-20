@@ -60,16 +60,19 @@ export class TokensService {
     fetchBalance: () => Promise<BigNumber>,
     subscribeToEvents: (cb: () => void) => (() => void)
   ) {
-    const contractAddresses = this.contractAddressService.contractAddresses;
+    const contractAddressService = this.contractAddressService;
+    const contractAddresses = contractAddressService.contractAddresses;
     const state = new State<PossibleBalance>(undefined);
     async function updateBalance() {
-      state.set(await fetchBalance());
+      if (contractAddressService.hasContracts.get()) {
+        state.set(await fetchBalance());
+      }
     }
     return state.pipe(
       withSubscription(updateBalance, contractAddresses),
       withSubscription(updateBalance, this.connectionService.account),
       withEffect(() => contractAddresses.pipe(
-        callEffectForEach(() => subscribeToEvents(updateBalance))
+        callEffectForEach(() => contractAddressService.hasContracts.get() ? subscribeToEvents(updateBalance) : () => { /**/ })
       ))
     );
   }
