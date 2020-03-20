@@ -15,11 +15,13 @@ import {CTAButton} from './commons/CTAButton';
 import {ConvertTokens} from './Account/ConvertTokens';
 import {parseEther} from 'ethers/utils';
 import {formatTokenBalance} from '../utils/formatter';
+import {BlurModal} from './BlurModal';
 
 export const Account = () => {
-  const {tokensService, connectionService} = useServices();
+  const {tokensService, connectionService, contractAddressService} = useServices();
 
   const account = useProperty(connectionService.account);
+  const hasContracts = useProperty(contractAddressService.hasContracts);
 
   const oldTokensBalance = useProperty(tokensService.gntBalance);
   const gntbBalance = useProperty(tokensService.gntbBalance);
@@ -64,38 +66,45 @@ export const Account = () => {
   return (
     <DashboardLayout>
       <View>
-        {!currentTransaction && !migrationStarted &&
-          <>
-            <AddressBlock>
-              {account &&
-            <JazziconWrapper>
-              <Jazzicon diameter={32} seed={jsNumberForAddress(account)}/>
-            </JazziconWrapper>
-              }
-              <div>
-                <AddressTitle>Address:</AddressTitle>
-                <Address>{account}</Address>
-              </div>
-            </AddressBlock>
-            <BalancesSection currentTransaction={currentTransaction} onConvert={startMigration} setCurrentTransaction={setCurrentTransaction}/>
-          </>
-        }
-        {!currentTransaction && migrationStarted && oldTokensBalance &&
-          <ConvertTokens
-            onCancelClick={stopMigration}
-            oldTokensBalance={oldTokensBalance}
-            tokensToMigrate={tokensToMigrate}
-            setTokensToMigrate={setTokensToMigrate}
-            onAmountConfirm={(amount) => migrate(amount)}
-          />
-        }
-        {currentTransaction &&
-          <TransactionStatus
-            onClose={() => closeTransactionModal()}
-            transactionToBeExecuted={currentTransaction}
-            description={`Migrating ${formatTokenBalance(oldTokensBalance)} GNT tokens`}
-          />
-        }
+        <AddressBlock>
+          {account &&
+          <JazziconWrapper>
+            <Jazzicon diameter={32} seed={jsNumberForAddress(account)}/>
+          </JazziconWrapper>
+          }
+          <div>
+            <AddressTitle>Address:</AddressTitle>
+            <Address>{account}</Address>
+          </div>
+        </AddressBlock>
+        <Content>
+          <Blur isBlurred={!hasContracts}>
+            {!currentTransaction && !migrationStarted &&
+            <BalancesSection
+              currentTransaction={currentTransaction}
+              onConvert={startMigration}
+              setCurrentTransaction={setCurrentTransaction}
+            />
+            }
+            {!currentTransaction && migrationStarted && oldTokensBalance &&
+            <ConvertTokens
+              onCancelClick={stopMigration}
+              oldTokensBalance={oldTokensBalance}
+              tokensToMigrate={tokensToMigrate}
+              setTokensToMigrate={setTokensToMigrate}
+              onAmountConfirm={(amount) => migrate(amount)}
+            />
+            }
+            {currentTransaction &&
+            <TransactionStatus
+              onClose={() => closeTransactionModal()}
+              transactionToBeExecuted={currentTransaction}
+              description={`Migrating ${formatTokenBalance(oldTokensBalance)} GNT tokens`}
+            />
+            }
+          </Blur>
+          <BlurModal isVisible={!hasContracts}/>
+        </Content>
         <Modal isVisible={showOtherBalancesWarning} onClose={closeOtherBalancesWarning}>
           <h1>Warning</h1>
           <p>You are going to convert your GNT and you still have balance in GNTb and/or GNTb Deposit. If you plan to convert them later,
@@ -125,6 +134,19 @@ const View = styled.div`
 
 const JazziconWrapper = styled.div`
   margin-right: 24px;
+`;
+
+const Content = styled.div`
+  position: relative;
+`;
+
+interface BlurProps {
+  isBlurred: boolean;
+}
+
+const Blur = styled.div<BlurProps>`
+  filter: ${({isBlurred}) => isBlurred ? 'blur(7px)' : 'none'};
+  pointer-events: ${({isBlurred}) => isBlurred ? 'none' : 'initial'}
 `;
 
 const AddressBlock = styled.div`

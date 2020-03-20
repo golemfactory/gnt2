@@ -17,6 +17,7 @@ describe('Contract Address Service', () => {
       batchingGolemToken: '0xCA633a093C280377ac8449E0cdA64Efd839C976c',
       gntDeposit: '0xbD73caE58B275Dce33fBf7877F40434623A1E6a9'
     });
+    expect(contractAddressService.hasContracts.get()).to.be.true;
     connectionService.network.set('rinkeby');
     expect(contractAddressService.contractAddresses.get()).to.deep.eq({
       oldGolemToken: '0x5f04440eeBE94581152C1654fF06726043114461',
@@ -24,5 +25,7 @@ describe('Contract Address Service', () => {
       batchingGolemToken: '0x22f8707c775aEF9243B751F6831B59BfC85A4175',
       gntDeposit: '0xD08D7EAd2b8FFA32dcF32754280484F4982c3c4B'
     });
+    expect(contractAddressService.hasContracts.get()).to.be.true;
   });
+
 });

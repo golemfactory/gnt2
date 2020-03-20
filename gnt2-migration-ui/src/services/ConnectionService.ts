@@ -10,17 +10,25 @@ export enum ConnectionState {
   CONNECTED
 }
 
-const networkNameFrom = (chainId: string): NetworkName => {
-  if (chainId === '4') {
-    return 'rinkeby';
-  } else {
+const networkNameFrom = (chainId: string): NetworkName | undefined => {
+  switch (chainId) {
+    case '1':
+      return 'mainnet';
+    case '3':
+      return 'ropsten';
+    case '4':
+      return 'rinkeby';
+    case '42':
+      return 'kovan';
+  }
+  if (!!Number(chainId) && Number(chainId) > 1000000000) {
     return 'local';
   }
 };
 
 export class ConnectionService {
   private provider: JsonRpcProvider | undefined;
-  network: State<NetworkName>;
+  network: State<NetworkName | undefined>;
   connectionState: ConnectionState;
   account: State<string>;
 
