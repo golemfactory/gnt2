@@ -20,6 +20,7 @@ export class TokensService {
   gntbBalance: Property<PossibleBalance>;
   ngntBalance: Property<PossibleBalance>;
   depositBalance: Property<PossibleBalance>;
+  depositLockState: Property<DepositState>;
 
   constructor(private provider: () => JsonRpcProvider, private contractAddressService: ContractAddressService, private connectionService: ConnectionService) {
     this.gntBalance = this.createBalanceProperty(
@@ -54,27 +55,65 @@ export class TokensService {
         callback
       )
     );
+    this.depositLockState = this.createDepositLockStateProperty(
+      callback => ContractUtils.subscribeToEvents(
+        this.gntDepositContract(),
+        this.depositLockStateEventFilters(),
+        callback
+      )
+    );
+  }
+
+
+  private createDepositLockStateProperty(
+    subscribeToEvents: (cb: () => void) => (() => void)
+  ) {
+    const contractAddresses = this.contractAddressService.contractAddresses;
+    const state = new State<DepositState>(DepositState.LOCKED);
+    const updateDepositLockState = async () =>
+      this.safeContractRead(async () => state.set(await this.getDepositState(this.account())));
+
+    return state.pipe(
+      withSubscription(updateDepositLockState, contractAddresses),
+      withSubscription(updateDepositLockState, this.connectionService.account),
+      withEffect(() => contractAddresses.pipe(
+        callEffectForEach(() => subscribeToEvents(updateDepositLockState))
+      ))
+    );
   }
 
   private createBalanceProperty(
     fetchBalance: () => Promise<BigNumber>,
     subscribeToEvents: (cb: () => void) => (() => void)
   ) {
-    const contractAddressService = this.contractAddressService;
-    const contractAddresses = contractAddressService.contractAddresses;
+    const contractAddresses = this.contractAddressService.contractAddresses;
     const state = new State<PossibleBalance>(undefined);
-    async function updateBalance() {
-      if (contractAddressService.hasContracts.get()) {
-        state.set(await fetchBalance());
-      }
-    }
+    const updateBalance = async () =>
+      this.safeContractRead(async () => state.set(await fetchBalance()));
+
     return state.pipe(
       withSubscription(updateBalance, contractAddresses),
       withSubscription(updateBalance, this.connectionService.account),
       withEffect(() => contractAddresses.pipe(
-        callEffectForEach(() => contractAddressService.hasContracts.get() ? subscribeToEvents(updateBalance) : () => { /**/ })
+        callEffectForEach(() => this.networkHasContracts() ? subscribeToEvents(updateBalance) : () => { /**/ })
       ))
     );
+  }
+
+  private safeContractRead(cb: () => void) {
+    if (this.networkHasContracts()) {
+      cb();
+    }
+  }
+
+  private networkHasContracts() {
+    return this.contractAddressService.hasContracts.get();
+  }
+
+  private depositLockStateEventFilters() {
+    const lock = this.gntDepositContract().filters.Lock(this.account());
+    const unlock = this.gntDepositContract().filters.Unlock(this.account());
+    return [...this.depositEventFilters(), lock, unlock];
   }
 
   private depositEventFilters() {
@@ -87,20 +126,20 @@ export class TokensService {
 
   private gntEventFilters() {
     const migrate = this.gntContract().filters.Migrate(this.account(), null, null);
-    const transferFrom = this.gntContract().filters.Transfer(this.account(), null, null);
-    const transferTo = this.gntContract().filters.Transfer(null, this.account(), null);
-    return [migrate, transferFrom, transferTo];
+    return [...this.TransferEventFilters(), migrate];
   }
 
   private gntbEventFilters() {
-    const transferFrom = this.gntbContract().filters.Transfer(this.account(), null, null);
-    const transferTo = this.gntbContract().filters.Transfer(null, this.account(), null);
     const minted = this.gntbContract().filters.Minted(this.account(), null);
     const burned = this.gntbContract().filters.Burned(this.account(), null);
-    return [transferFrom, transferTo, minted, burned];
+    return [...this.TransferEventFilters(), minted, burned];
   }
 
   private ngntEventFilters() {
+    return this.TransferEventFilters();
+  }
+
+  private TransferEventFilters() {
     const transferFrom = this.ngntContract().filters.Transfer(this.account(), null, null);
     const transferTo = this.ngntContract().filters.Transfer(null, this.account(), null);
     return [transferFrom, transferTo];

@@ -1,5 +1,5 @@
 import React from 'react';
-import {render, wait} from '@testing-library/react';
+import {fireEvent, render, wait, waitForElement} from '@testing-library/react';
 import {getWallets} from 'ethereum-waffle';
 import {ServiceContext} from '../src/ui/hooks/useServices';
 import {Services} from '../src/services';
@@ -14,6 +14,7 @@ import {advanceEthereumTime} from './helpers/ethereumHelpers';
 import {DepositSection} from '../src/ui/DepositSection';
 import {SnackbarProvider} from '../src/ui/Snackbar/SnackbarProvider';
 import {DEPOSIT_LOCK_DELAY} from './helpers/contractConstants';
+import {TestAccountPage} from './helpers/TestAccountPage';
 
 chai.use(chaiDom);
 
@@ -61,6 +62,19 @@ describe('Deposit UI', () => {
     await wait(() => {
       expect(getByTestId('deposit-status')).to.have.text('Deposit is time-locked');
       expect(getByTestId('deposit-timer').textContent).to.match(/47:59:\d\d/);
+    });
+  });
+
+  it('shows deposit in time locked status after click button', async () => {
+    const accountPage = await new TestAccountPage(services).load();
+
+    const btn = await waitForElement(() => accountPage.find('action-deposit-button'));
+    fireEvent.click(btn);
+    await accountPage.completeTransaction();
+
+    await wait(() => {
+      expect(accountPage.find('deposit-status')).to.have.text('Deposit is time-locked');
+      expect(accountPage.find('deposit-timer').textContent).to.match(/47:59:\d\d/);
     });
   });
 
