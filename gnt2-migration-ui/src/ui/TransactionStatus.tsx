@@ -69,7 +69,6 @@ export const TransactionStatus = ({
         errorMessage={errorMessage}
         inProgress={txInProgress}
         onClose={closeModal}
-
       />
     </TransactionModal>
   );

@@ -94,7 +94,8 @@ export const Account = () => {
             onClose={() => closeTransactionModal()}
             transactionToBeExecuted={currentTransaction}
             description={`Migrating ${formatTokenBalance(oldTokensBalance)} GNT tokens`}
-          />}
+          />
+        }
         <Modal isVisible={showOtherBalancesWarning} onClose={closeOtherBalancesWarning}>
           <h1>Warning</h1>
           <p>You are going to convert your GNT and you still have balance in GNTb and/or GNTb Deposit. If you plan to convert them later,

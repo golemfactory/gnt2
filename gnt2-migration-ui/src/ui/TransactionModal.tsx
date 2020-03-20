@@ -17,7 +17,7 @@ export const TransactionModal = ({children, inProgress, errorMessage}: Transacti
       <TxSpinner>
         {inProgress
           ? <Spinner/>
-          : <img src={errorMessage ? txfail : txpass}/>
+          : <img src={errorMessage ? txfail : txpass} alt={'tx status'}/>
         }
       </TxSpinner>
       {children}
