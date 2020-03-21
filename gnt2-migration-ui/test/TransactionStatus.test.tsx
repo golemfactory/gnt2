@@ -7,7 +7,6 @@ import {Services} from '../src/services';
 import {ServiceContext} from '../src/ui/hooks/useServices';
 import {createTestServices} from './helpers/testServices';
 import {TransactionStatus} from '../src/ui/TransactionStatus';
-import {SnackbarProvider} from '../src/ui/Snackbar/SnackbarProvider';
 import {MetamaskError, TransactionDenied, UnknownError} from '../src/errors';
 
 chai.use(chaiDom);
@@ -25,9 +24,7 @@ const providerUnknownError = async (): Promise<ContractTransaction> => {
 async function renderTransaction(services: Services, transactionToBeExecuted: (() => Promise<ContractTransaction>) | undefined) {
   return render(
     <ServiceContext.Provider value={services}>
-      <SnackbarProvider>
-        <TransactionStatus transactionToBeExecuted={transactionToBeExecuted} onClose={() => null} description={''}/>
-      </SnackbarProvider>
+      <TransactionStatus transactionToBeExecuted={transactionToBeExecuted} onClose={() => null} description={''}/>
     </ServiceContext.Provider>
   );
 }
@@ -47,7 +44,7 @@ describe('Transaction Status UI', () => {
       const {getByTestId} = await renderTransaction(services, () => simulatedError());
 
       await wait(() => {
-        expect(getByTestId('error-message')).to.have.text((new ExpectedError(new Error())).message);
+        expect(getByTestId('error-message')).to.contain.text((new ExpectedError(new Error())).message);
       });
 
     });

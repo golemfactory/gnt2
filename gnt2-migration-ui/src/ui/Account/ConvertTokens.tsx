@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import {SmallTitle} from '../commons/Text/SmallTitle';
 import {Ticker} from './Balance';
 import {TitleWithTooltip} from '../commons/Text/TitleWithTooltip';
-import {formatValue} from '../../utils/formatter';
+import {formatTokenBalance, formatValue} from '../../utils/formatter';
 import {BigNumber} from 'ethers/utils';
 import {convertBalanceToBigJs, isEmpty} from '../../utils/bigNumberUtils';
 import {Big} from 'big.js';
@@ -12,16 +12,16 @@ import {useProperty} from '../hooks/useProperty';
 import {useAsync} from '../hooks/useAsync';
 import {CancelButton} from '../commons/Buttons/CancelButton';
 import {Box, BoxContent, BoxFooter, BoxFooterRow, BoxFooterButton, BoxTitle, BoxSubTitle, BoxFooterAmount, BoxRow} from '../commons/Box';
+import {WithValueDescription} from './AccountActionDescriptions';
 
 interface ConvertTokensProps {
   onCancelClick: () => void;
   onAmountConfirm: (toMigrate: string) => void;
-  oldTokensBalance: BigNumber;
-  tokensToMigrate: string;
-  setTokensToMigrate: (value: string) => void;
+  description: WithValueDescription;
 }
 
-export const ConvertTokens = ({onAmountConfirm, onCancelClick, oldTokensBalance, tokensToMigrate, setTokensToMigrate}: ConvertTokensProps) => {
+export const ConvertTokens = ({onAmountConfirm, onCancelClick, description: {balance, from, to, title}}: ConvertTokensProps) => {
+  const [tokensToConvert, setTokensToConvert] = useState<string>('0.000');
   const {accountService, connectionService} = useServices();
   const network = useProperty(connectionService.network);
   const account = useProperty(connectionService.account);
@@ -31,19 +31,19 @@ export const ConvertTokens = ({onAmountConfirm, onCancelClick, oldTokensBalance,
   const [lowEth, setLowEth] = useState(false);
   const [error, setError] = useState<string | undefined>(undefined);
 
-  const tokensToMigrateAsNumber = useCallback(() => new Big(tokensToMigrate), [tokensToMigrate]);
+  const tokensToConvertAsNumber = useCallback(() => new Big(tokensToConvert), [tokensToConvert]);
 
-  const invalidNumbersOfTokensToMigrate = useCallback(() => isNotANumber(tokensToMigrate) ||
-    tokensToMigrateAsNumber().gt(convertBalanceToBigJs(oldTokensBalance)) ||
-    tokensToMigrateAsNumber().lte(0), [oldTokensBalance, tokensToMigrate, tokensToMigrateAsNumber]);
+  const invalidNumbersOfTokensToConvert = useCallback(() => isNotANumber(tokensToConvert) ||
+    tokensToConvertAsNumber().gt(convertBalanceToBigJs(balance)) ||
+    tokensToConvertAsNumber().lte(0), [balance, tokensToConvert, tokensToConvertAsNumber]);
 
   useEffect(() => {
-    if (invalidNumbersOfTokensToMigrate()) {
-      setError('Invalid number of tokens to migrate');
+    if (invalidNumbersOfTokensToConvert()) {
+      setError('Value entered is not a valid tokens amount');
     } else {
       setError(undefined);
     }
-  }, [tokensToMigrate, oldTokensBalance, invalidNumbersOfTokensToMigrate]);
+  }, [tokensToConvert, balance, invalidNumbersOfTokensToConvert]);
 
   useEffect(() => {
     if (!ethBalance) {
@@ -52,8 +52,7 @@ export const ConvertTokens = ({onAmountConfirm, onCancelClick, oldTokensBalance,
     setLowEth(convertBalanceToBigJs(ethBalance).lt(new Big('0.0002')));
   }, [ethBalance]);
 
-  const format = (value: BigNumber) => formatValue(value.toString(), 3);
-  const balance = format(new BigNumber(oldTokensBalance));
+  const formattedBalance = formatTokenBalance(balance);
 
   const isNotANumber = (value: string): boolean => {
     try {
@@ -65,42 +64,42 @@ export const ConvertTokens = ({onAmountConfirm, onCancelClick, oldTokensBalance,
   };
 
   const onConfirmClick = () => {
-    onAmountConfirm(tokensToMigrate);
+    onAmountConfirm(tokensToConvert);
   };
 
   const onAmountChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setTokensToMigrate(e.target.value);
+    setTokensToConvert(e.target.value);
   };
 
   return (
     <>
       <Box>
         <BoxContent>
-          <BoxTitle>Convert</BoxTitle>
+          <BoxTitle>{title}</BoxTitle>
           <Converting>
             <BoxSubTitle>Converting</BoxSubTitle>
             <ConvertingRow>
-              <Ticker>GNT</Ticker>
+              <Ticker>{from}</Ticker>
               <InputRow>
                 <InputWrapper>
                   <Input
                     data-testid="migrate-input"
                     type="number"
-                    max={balance}
+                    max={formattedBalance}
                     min="0.000"
                     step="0.001"
-                    value={tokensToMigrate}
+                    value={tokensToConvert}
                     onChange={onAmountChange}
                   />
                   {error && <ErrorInfo data-testid="migrate-error">{error}</ErrorInfo>}
                   <AvailableAmountRow>
                     <SmallTitle>Available:</SmallTitle>
-                    <AvailableAmount>{balance} GNT</AvailableAmount>
+                    <AvailableAmount>{formattedBalance} {from}</AvailableAmount>
                   </AvailableAmountRow>
                 </InputWrapper>
                 <SetMaxButton
                   data-testid="migrate-btn-set-max"
-                  onClick={() => setTokensToMigrate(convertBalanceToBigJs(oldTokensBalance).toString())}
+                  onClick={() => setTokensToConvert(convertBalanceToBigJs(balance).toString())}
                 >
                   SET MAX
                 </SetMaxButton>
@@ -110,8 +109,8 @@ export const ConvertTokens = ({onAmountConfirm, onCancelClick, oldTokensBalance,
           <div>
             <BoxSubTitle>Receiving</BoxSubTitle>
             <BoxRow>
-              <ReceivingTicker>NGNT</ReceivingTicker>
-              <ReceivingAmount>{balance}</ReceivingAmount>
+              <ReceivingTicker>{to}</ReceivingTicker>
+              <ReceivingAmount>{tokensToConvert}</ReceivingAmount>
             </BoxRow>
           </div>
         </BoxContent>
@@ -127,14 +126,14 @@ export const ConvertTokens = ({onAmountConfirm, onCancelClick, oldTokensBalance,
             <BoxFooterButton
               data-testid="migrate-button"
               onClick={onConfirmClick}
-              disabled={lowEth || invalidNumbersOfTokensToMigrate() || isEmpty(oldTokensBalance)}
+              disabled={lowEth || invalidNumbersOfTokensToConvert() || isEmpty(balance)}
             >
               Confirm Transaction
             </BoxFooterButton>
           </BoxFooterRow>
           {lowEth &&
           <ErrorInfo>
-            You do not have enough ETH on your account to cover gas fees and make NGNT Conversion. Please top up your account with at least 0.03 ETH.
+            You may not have enough ETH on your account to cover gas fees. Please top up your account with at least 0.03 ETH.
           </ErrorInfo>
           }
         </BoxFooter>

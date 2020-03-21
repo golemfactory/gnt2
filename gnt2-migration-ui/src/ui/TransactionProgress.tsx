@@ -1,6 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
 import {CTAButton} from './commons/CTAButton';
+import {useServices} from './hooks/useServices';
+import {useProperty} from './hooks/useProperty';
 
 
 interface TransactionProgressProps {
@@ -18,30 +20,57 @@ export const TransactionProgress = ({
   onClose,
   description
 }: TransactionProgressProps) => {
-  let title = 'Transaction is in progress';
-
-  if (!inProgress) {
-    title = 'Transaction completed';
-    if (errorMessage) {
-      title = 'Transaction failed';
-    }
-  }
   const showOKButton = !inProgress || !!errorMessage;
+  const {connectionService} = useServices();
+  const network = useProperty(connectionService.network);
+
+  function getTitle() {
+    if (errorMessage) {
+      return 'Transaction failed';
+    }
+    if (!inProgress) {
+      return 'Transaction completed';
+    }
+    return 'Transaction is in progress';
+  }
+
+  function getDescription() {
+    if (errorMessage) {
+      return `${description} failed. Reason: ${errorMessage}`;
+    }
+    if (!inProgress) {
+      return `${description} completed successfully`;
+    }
+    return description;
+  }
+
+  function doNotShowTransactionLink() {
+    return !network || network === 'local' || !transactionHash;
+  }
+
+  function transactionLink() {
+    if (doNotShowTransactionLink()) {
+      return;
+    }
+    return `https://${network === 'mainnet' ? '' : network + '.'}etherscan.io/tx/${transactionHash}`;
+  }
 
   return (
     <>
       <Title>
-        {title}
+        {getTitle()}
       </Title>
-      <ModalText data-testid='error-message'>{errorMessage || description}</ModalText>
+      <ModalText data-testid='error-message'>{getDescription()}</ModalText>
       <Buttons showOKButton={showOKButton}>
         <a
-          href={`https://rinkeby.etherscan.io/tx/${transactionHash && transactionHash}`}
+          href={transactionLink()}
           data-testid='etherscan-link'
+          target="_blank"
+          rel="noopener noreferrer"
         >
           <CTAButton
             data-testid='etherscan-button'
-            disabled={errorMessage !== undefined || transactionHash === undefined}
+            disabled={doNotShowTransactionLink()}
           >
             View on etherscan
           </CTAButton>

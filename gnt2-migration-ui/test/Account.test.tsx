@@ -103,8 +103,7 @@ describe('Account page', () => {
       await wait(() => {
         expect(accountPage.find('modal')).to.exist;
         expect(accountPage.find('etherscan-button')).to.have.trimmed.text('View on etherscan');
-        expect(accountPage.find('etherscan-button')).to.not.have.attr('disabled');
-        expect(accountPage.find('etherscan-link')).to.have.attr('href').match(/https:\/\/rinkeby.etherscan.io\/tx\/0x[0-9a-fA-F]{64}/);
+        expect(accountPage.find('etherscan-button')).to.have.attr('disabled');
       });
     });
 
@@ -114,7 +113,7 @@ describe('Account page', () => {
       };
       const accountPage = await new TestAccountPage(services).load();
 
-      await accountPage.migrate('5000000');
+      await accountPage.migrate('1000');
 
       await wait(() => {
         expect(accountPage.find('modal')).to.exist;
@@ -190,6 +189,7 @@ describe('Account page', () => {
       });
 
       fireEvent.click(accountPage.find('action-deposit-button'));
+      accountPage.confirmUnlock();
       await accountPage.completeTransaction();
 
       await wait(() => {

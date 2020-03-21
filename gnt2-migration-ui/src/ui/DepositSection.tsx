@@ -1,5 +1,4 @@
-import React, {Dispatch, SetStateAction} from 'react';
-import {ContractTransaction} from 'ethers';
+import React from 'react';
 import {DepositTimer} from './DepositTimer';
 import {useServices} from './hooks/useServices';
 import {useProperty} from './hooks/useProperty';
@@ -7,30 +6,26 @@ import {DepositState} from '../services/TokensService';
 import {isEmpty} from '../utils/bigNumberUtils';
 import {Amount, AmountWrapper, BalanceBlock, BalanceButton, BalanceRow, Ticker} from './Account/Balance';
 import {SmallTitle} from './commons/Text/SmallTitle';
-import {formatValue} from '../utils/formatter';
+import {formatTokenBalance} from '../utils/formatter';
 import lockIcon from '../assets/icons/lock.svg';
 import styled from 'styled-components';
 
 interface DepositSectionProps {
-  currentTransaction: (() => Promise<ContractTransaction>) | undefined;
-  setCurrentTransaction: Dispatch<SetStateAction<(() => Promise<ContractTransaction>) | undefined>>;
+  onMoveToWrapped: () => void;
+  onUnlock: () => void;
 }
 
-export function DepositSection({currentTransaction, setCurrentTransaction}: DepositSectionProps) {
-  const {tokensService, connectionService} = useServices();
-
-  const account = useProperty(connectionService.account);
+export function DepositSection({onMoveToWrapped, onUnlock}: DepositSectionProps) {
+  const {tokensService} = useServices();
 
   const depositBalance = useProperty(tokensService.depositBalance);
   const depositLockState = useProperty(tokensService.depositLockState);
 
   const changeDepositState = async () => {
-    if (currentTransaction) return null;
-
     if (depositLockState === DepositState.LOCKED) {
-      setCurrentTransaction(() => () => tokensService.unlockDeposit(account));
+      onUnlock();
     } else if (depositLockState === DepositState.UNLOCKED) {
-      setCurrentTransaction(() => () => tokensService.moveToWrapped(account));
+      onMoveToWrapped();
     }
   };
 
@@ -55,9 +50,9 @@ export function DepositSection({currentTransaction, setCurrentTransaction}: Depo
     <BalanceBlock>
       <SmallTitle>Locked Tokens</SmallTitle>
       <BalanceRow>
-        <TokenTicker>GNTb</TokenTicker>
+        <DepositTicker isLocked={depositLockState === DepositState.LOCKED || depositLockState === DepositState.TIME_LOCKED}>GNTb</DepositTicker>
         <AmountWrapper>
-          <Amount data-testid='deposit'>{depositBalance && formatValue(depositBalance.toString(), 3)}</Amount>
+          <Amount data-testid='deposit'>{formatTokenBalance(depositBalance)}</Amount>
           <BalanceButton
             data-testid="action-deposit-button"
             disabled={depositLockState === DepositState.TIME_LOCKED}
@@ -72,7 +67,15 @@ export function DepositSection({currentTransaction, setCurrentTransaction}: Depo
   );
 }
 
-const TokenTicker = styled(Ticker)`
+interface DepositTickerProps {
+  isLocked: boolean;
+}
+
+const DepositTicker = styled(Ticker)<DepositTickerProps>`
+
+${({isLocked}) =>
+    isLocked
+      ? `
   position: relative;
   padding-left: 32px;
 
@@ -86,4 +89,6 @@ const TokenTicker = styled(Ticker)`
     height: 16px;
     background: url(${lockIcon}) center no-repeat;
   }
+  `
+      : ''}
 `;

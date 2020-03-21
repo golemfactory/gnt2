@@ -13,10 +13,17 @@ import {isEmpty} from '../utils/bigNumberUtils';
 import {Modal} from './Modal';
 import {ConvertTokens} from './Account/ConvertTokens';
 import {parseEther} from 'ethers/utils';
-import {formatTokenBalance} from '../utils/formatter';
 import {MoveToWrapped} from './Account/MoveToWrapped';
 import {WarningModalContent} from './Account/WarningModalContent';
 import {BlurModal} from './BlurModal';
+import {DescribeAction} from './Account/AccountActionDescriptions';
+
+enum AccountActions {
+  MIGRATE,
+  UNWRAP,
+  WITHDRAW,
+  UNLOCK
+}
 
 export const Account = () => {
   const {tokensService, connectionService, contractAddressService} = useServices();
@@ -28,9 +35,9 @@ export const Account = () => {
   const gntbBalance = useProperty(tokensService.gntbBalance);
   const depositBalance = useProperty(tokensService.depositBalance);
   const [currentTransaction, setCurrentTransaction] = useState<(() => Promise<ContractTransaction>) | undefined>(undefined);
-  const [tokensToMigrate, setTokensToMigrate] = useState<string>('0.000');
+  const [transactionDescription, setTransactionDescription] = useState('');
   const [showOtherBalancesWarning, setShowOtherBalancesWarning] = React.useState(false);
-  const [migrationStarted, setMigrationStarted] = useState(false);
+  const [startedAction, setStartedAction] = useState<AccountActions | undefined>();
 
   function hasOtherTokens() {
     return !(isEmpty(gntbBalance) && isEmpty(depositBalance));
@@ -44,24 +51,52 @@ export const Account = () => {
     continueMigration();
   };
 
-  const stopMigration = () => {
-    setMigrationStarted(false);
+  const continueMigration = () => {
+    setStartedAction(AccountActions.MIGRATE);
   };
 
-  const continueMigration = () => {
-    setMigrationStarted(true);
+  const stopAction = () => {
+    setStartedAction(undefined);
+  };
+
+  const startMoveToWrapped = () => {
+    setStartedAction(AccountActions.WITHDRAW);
+  };
+
+  const startUnlock = () => {
+    setStartedAction(AccountActions.UNLOCK);
+  };
+
+  const startUnwrap = () => {
+    setStartedAction(AccountActions.UNWRAP);
   };
 
   const closeTransactionModal = () => {
     setCurrentTransaction(undefined);
-    setTokensToMigrate('0.000');
-    setMigrationStarted(false);
+    setTransactionDescription('');
+    setStartedAction(undefined);
   };
 
   const closeOtherBalancesWarning = () => setShowOtherBalancesWarning(false);
 
   function migrate(amount: string) {
+    setTransactionDescription(`Migrating ${amount} GNT tokens to NGNT`);
     setCurrentTransaction(() => () => tokensService.migrateTokens(account, parseEther(amount)));
+  }
+
+  const unwrapTokens = async (amount: string) => {
+    setTransactionDescription(`Unwrapping ${amount} GNTB tokens to GNT`);
+    setCurrentTransaction(() => () => tokensService.unwrap(account, parseEther(amount)));
+  };
+
+  function unlockDeposit() {
+    setTransactionDescription('Unlocking your GNTB deposit');
+    return setCurrentTransaction(() => () => tokensService.unlockDeposit(account));
+  }
+
+  function moveToWrapped() {
+    setTransactionDescription(`Withdrawing ${depositBalance} GNTB from your deposit`);
+    return setCurrentTransaction(() => () => tokensService.moveToWrapped(account));
   }
 
   return (
@@ -80,30 +115,49 @@ export const Account = () => {
         </AddressBlock>
         <Content>
           <Blur isBlurred={!hasContracts}>
-            {!currentTransaction && !migrationStarted &&
+            {!currentTransaction && startedAction === undefined &&
             <BalancesSection
-              currentTransaction={currentTransaction}
               onConvert={startMigration}
-              setCurrentTransaction={setCurrentTransaction}
+              onUnwrap={startUnwrap}
+              onUnlock={startUnlock}
+              onMoveToWrapped={startMoveToWrapped}
             />
             }
-            {!currentTransaction && migrationStarted && oldTokensBalance &&
+            {!currentTransaction && startedAction === AccountActions.MIGRATE && oldTokensBalance &&
             <ConvertTokens
-              onCancelClick={stopMigration}
-              oldTokensBalance={oldTokensBalance}
-              tokensToMigrate={tokensToMigrate}
-              setTokensToMigrate={setTokensToMigrate}
-              onAmountConfirm={(amount) => migrate(amount)}
+              onCancelClick={stopAction}
+              onAmountConfirm={migrate}
+              description={DescribeAction.migrate(oldTokensBalance)}
             />
+            }
+            {!currentTransaction && startedAction === AccountActions.UNWRAP && gntbBalance &&
+            <ConvertTokens
+              onCancelClick={stopAction}
+              onAmountConfirm={unwrapTokens}
+              description={DescribeAction.unwrap(gntbBalance)}
+            />
+            }
+            {!currentTransaction && startedAction === AccountActions.WITHDRAW && depositBalance &&
+            <MoveToWrapped
+              onCancelClick={stopAction}
+              onConfirm={moveToWrapped}
+              description={DescribeAction.withdraw(depositBalance)}
+            />
+            }
+            {!currentTransaction && startedAction === AccountActions.UNLOCK && depositBalance &&
+              <MoveToWrapped
+                onCancelClick={stopAction}
+                onConfirm={unlockDeposit}
+                description={DescribeAction.unlock(depositBalance)}
+              />
             }
             {currentTransaction &&
             <TransactionStatus
               onClose={() => closeTransactionModal()}
               transactionToBeExecuted={currentTransaction}
-              description={`Migrating ${formatTokenBalance(oldTokensBalance)} GNT tokens`}
+              description={transactionDescription}
             />
             }
-            <MoveToWrapped/>
           </Blur>
           <BlurModal isVisible={!hasContracts}/>
         </Content>
@@ -121,7 +175,7 @@ export const Account = () => {
   );
 };
 
-const WarningModal = styled(Modal)`
+const WarningModal = styled(Modal)`);
   max-width: 660px;
 `;
 
