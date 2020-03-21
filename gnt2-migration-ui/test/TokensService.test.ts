@@ -171,14 +171,14 @@ describe('Token Service', () => {
       const gntbBalance = await tokensService.balanceOfBatchingTokens(holder);
       const gntBalanceBefore = await tokensService.balanceOfOldTokens(holder);
 
-      await tokensService.unwrap(holder);
+      await tokensService.unwrap(holder, gntbBalance);
 
       const gntBalanceAfter = await tokensService.balanceOfOldTokens(holder);
       expect(gntBalanceAfter.sub(gntBalanceBefore)).to.eq(gntbBalance);
     });
 
     it('reverted with wrong address', async () => {
-      await expect(tokensService.unwrap('0xINVALID')).to.be.rejected;
+      await expect(tokensService.unwrap('0xINVALID', 1)).to.be.rejected;
     });
   });
 });

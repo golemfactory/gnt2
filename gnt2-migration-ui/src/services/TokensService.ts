@@ -198,8 +198,7 @@ export class TokensService {
     return this.gntDepositContractAsSigner(address).unlock();
   }
 
-  async unwrap(address: string): Promise<ContractTransaction> {
-    const tokensToUnwrap = await this.balanceOfBatchingTokens(address);
+  async unwrap(address: string, tokensToUnwrap: BigNumberish): Promise<ContractTransaction> {
     return this.gntbContractAsSigner(address).withdraw(tokensToUnwrap);
   }
 

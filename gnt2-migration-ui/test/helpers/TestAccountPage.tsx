@@ -2,17 +2,14 @@ import {Services} from '../../src/services';
 import {fireEvent, render, wait, waitForElement} from '@testing-library/react';
 import {expect} from 'chai';
 import {ServiceContext} from '../../src/ui/hooks/useServices';
-import {SnackbarProvider} from '../../src/ui/Snackbar/SnackbarProvider';
 import {Account} from '../../src/ui/Account';
 import React from 'react';
 
 
 function renderAccount(services: Services) {
   return render(
-    <ServiceContext.Provider value = {services}>
-      <SnackbarProvider>
-        <Account/>
-      </SnackbarProvider>
+    <ServiceContext.Provider value={services}>
+      <Account/>
     </ServiceContext.Provider>
   );
 }
@@ -71,5 +68,9 @@ export class TestAccountPage {
 
   async clickContinueMigration() {
     fireEvent.click(await waitForElement(() => this.getByTestId('continue-migrate-button')));
+  }
+
+  confirmUnlock() {
+    fireEvent.click(this.getByTestId('confirm-button'));
   }
 }

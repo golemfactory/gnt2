@@ -12,7 +12,6 @@ import {Web3Provider} from 'ethers/providers';
 import {Wallet} from 'ethers';
 import {advanceEthereumTime} from './helpers/ethereumHelpers';
 import {DepositSection} from '../src/ui/DepositSection';
-import {SnackbarProvider} from '../src/ui/Snackbar/SnackbarProvider';
 import {DEPOSIT_LOCK_DELAY} from './helpers/contractConstants';
 import {TestAccountPage} from './helpers/TestAccountPage';
 
@@ -21,9 +20,7 @@ chai.use(chaiDom);
 async function renderDeposit(services: Services) {
   return render(
     <ServiceContext.Provider value={services}>
-      <SnackbarProvider>
-        <DepositSection setCurrentTransaction={() => { /**/ }} currentTransaction={undefined}/>
-      </SnackbarProvider>
+      <DepositSection onMoveToWrapped={() => { /**/ }} onUnlock={() => { /**/ }}/>
     </ServiceContext.Provider>
   );
 }
@@ -70,6 +67,7 @@ describe('Deposit UI', () => {
 
     const btn = await waitForElement(() => accountPage.find('action-deposit-button'));
     fireEvent.click(btn);
+    await accountPage.confirmUnlock();
     await accountPage.completeTransaction();
 
     await wait(() => {

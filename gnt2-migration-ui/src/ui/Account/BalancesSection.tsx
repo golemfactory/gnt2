@@ -1,4 +1,4 @@
-import React, {Dispatch, SetStateAction} from 'react';
+import React from 'react';
 import {BigNumber} from 'ethers/utils';
 import {useAsync} from '../hooks/useAsync';
 import {useServices} from '../hooks/useServices';
@@ -8,15 +8,15 @@ import {BatchingTokensSection} from '../BatchingTokensSection';
 import {NewTokensBalance} from './NewTokensBalance';
 import {OldTokensBalance} from './OldTokensBalance';
 import {EthereumBalance} from './EthereumBalance';
-import {ContractTransaction} from 'ethers';
 
 interface BalancesSectionProps {
-  currentTransaction: (() => Promise<ContractTransaction>) | undefined;
-  setCurrentTransaction: Dispatch<SetStateAction<(() => Promise<ContractTransaction>) | undefined>>;
   onConvert: () => void;
+  onUnwrap: () => void;
+  onMoveToWrapped: () => void;
+  onUnlock: () => void;
 }
 
-export const BalancesSection = ({currentTransaction, setCurrentTransaction, onConvert}: BalancesSectionProps) => {
+export const BalancesSection = ({onConvert, onMoveToWrapped, onUnlock, onUnwrap}: BalancesSectionProps) => {
   const {tokensService, accountService, connectionService, contractAddressService, refreshService} = useServices();
   const account = useProperty(connectionService.account);
   const contractAddresses = useProperty(contractAddressService.contractAddresses);
@@ -31,8 +31,8 @@ export const BalancesSection = ({currentTransaction, setCurrentTransaction, onCo
     <>
       <NewTokensBalance balance={newTokensBalance}/>
       <OldTokensBalance balance={oldTokensBalance} onConvert={onConvert}/>
-      <BatchingTokensSection setCurrentTransaction={setCurrentTransaction}/>
-      <DepositSection setCurrentTransaction={setCurrentTransaction} currentTransaction={currentTransaction}/>
+      <BatchingTokensSection onUnwrap={onUnwrap}/>
+      <DepositSection onMoveToWrapped={onMoveToWrapped} onUnlock={onUnlock}/>
       <EthereumBalance balance={balance}/>
     </>
   );

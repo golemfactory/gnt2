@@ -16,20 +16,20 @@ describe('Batching tokens UI', () => {
     ({services} = await createTestServices());
   });
 
-  it('hides after unwrap tokens and closes modal', async () => {
+  it('hides after unwrap tokens', async () => {
     const accountPage = await new TestAccountPage(services).load();
     await waitForElement(() => accountPage.find('GNTB-balance'));
 
     const btn = await waitForElement(() => accountPage.find('unwrap-tokens-button'));
     fireEvent.click(btn);
+    const input = await accountPage.findMigrationInput();
+    await accountPage.confirmMigration(input, '4999900');
     await accountPage.completeTransaction();
 
     await wait(() => {
       expect(accountPage.query('unwrap-tokens-button')).to.not.exist;
       expect(accountPage.query('GNTB-balance')).to.not.exist;
     });
-
-
   });
 
   it('shows error in modal with when user denied transaction', async () => {
@@ -41,6 +41,8 @@ describe('Batching tokens UI', () => {
 
     const btn = await waitForElement(() => accountPage.find('unwrap-tokens-button'));
     fireEvent.click(btn);
+    const input = await accountPage.findMigrationInput();
+    await accountPage.confirmMigration(input, '100');
 
     await wait(() => {
       expect(accountPage.find('modal')).to.exist;

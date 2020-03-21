@@ -1,8 +1,6 @@
 import React, {useState} from 'react';
 import {useAsyncEffect} from './hooks/useAsyncEffect';
 import {ContractTransaction} from 'ethers';
-import {ContractReceipt} from 'ethers/contract';
-import {useSnackbar} from './hooks/useSnackbar';
 import {TransactionProgress} from './TransactionProgress';
 import {mapCodeToError} from '../utils/mapCodeToError';
 import {useServices} from './hooks/useServices';
@@ -21,8 +19,7 @@ export const TransactionStatus = ({
 }: TransactionModalProps) => {
   const [txInProgress, setTxInProgress] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
-  const [currentTx, setCurrentTx] = React.useState<ContractReceipt | undefined>();
-  const {show} = useSnackbar();
+  const [transactionHash, setTransactionHash] = React.useState<string | undefined>();
   const {refreshService} = useServices();
 
   const closeModal = () => {
@@ -33,6 +30,7 @@ export const TransactionStatus = ({
   async function executeTransaction(transactionToBeExecuted: () => Promise<ContractTransaction>) {
     try {
       const contractTransaction = await transactionToBeExecuted();
+      setTransactionHash(contractTransaction.hash);
       return (contractTransaction).wait();
     } catch (e) {
       throw mapCodeToError(e);
@@ -46,10 +44,9 @@ export const TransactionStatus = ({
       }
       setTxInProgress(true);
       try {
-        setCurrentTx(await executeTransaction(transactionToBeExecuted));
+        setTransactionHash((await executeTransaction(transactionToBeExecuted)).transactionHash);
         refreshService.refresh();
       } catch (e) {
-        show(e.message);
         setErrorMessage(e.message);
       } finally {
         setTxInProgress(false);
@@ -64,7 +61,7 @@ export const TransactionStatus = ({
   return (
     <TransactionModal inProgress={txInProgress} errorMessage={errorMessage}>
       <TransactionProgress
-        transactionHash={currentTx?.transactionHash}
+        transactionHash={transactionHash}
         description={description}
         errorMessage={errorMessage}
         inProgress={txInProgress}
