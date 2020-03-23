@@ -12,7 +12,7 @@ export const DepositTimer = () => {
   const account = useProperty(connectionService.account);
   const contractAddresses = useProperty(contractAddressService.contractAddresses);
 
-  const [depositState] = useAsync<DepositState>(async () => tokensService.getDepositState(account), [contractAddresses, account]);
+  const depositState = useProperty(tokensService.depositLockState);
   const [depositText, setDepositText] = useState('');
   const [timeLeft] = useAsync(async () => tokensService.getDepositUnlockTime(account), [contractAddresses, account]);
   const [timer, setTimer] = useState<string | undefined>(undefined);

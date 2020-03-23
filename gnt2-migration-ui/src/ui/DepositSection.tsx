@@ -5,10 +5,10 @@ import {useProperty} from './hooks/useProperty';
 import {DepositState} from '../services/TokensService';
 import {isEmpty} from '../utils/bigNumberUtils';
 import {Amount, AmountWrapper, BalanceBlock, BalanceButton, BalanceRow, Ticker} from './Account/Balance';
-import {SmallTitle} from './commons/Text/SmallTitle';
 import {formatTokenBalance} from '../utils/formatter';
 import lockIcon from '../assets/icons/lock.svg';
 import styled from 'styled-components';
+import {TitleWithTooltip} from './commons/Text/TitleWithTooltip';
 
 interface DepositSectionProps {
   onMoveToWrapped: () => void;
@@ -48,7 +48,11 @@ export function DepositSection({onMoveToWrapped, onUnlock}: DepositSectionProps)
 
   return (
     <BalanceBlock>
-      <SmallTitle>Locked Tokens</SmallTitle>
+      <TitleWithTooltip
+        tooltipText={getTitle()}
+      >
+        Locked Tokens
+      </TitleWithTooltip>
       <BalanceRow>
         <DepositTicker isLocked={depositLockState === DepositState.LOCKED || depositLockState === DepositState.TIME_LOCKED}>GNTb</DepositTicker>
         <AmountWrapper>
