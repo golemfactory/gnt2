@@ -8,6 +8,7 @@ import {ServiceContext} from '../src/ui/hooks/useServices';
 import {createTestServices} from './helpers/testServices';
 import {TransactionStatus} from '../src/ui/TransactionStatus';
 import {MetamaskError, TransactionDenied, UnknownError} from '../src/errors';
+import {TransactionWithDescription} from '../src/ui/Account';
 
 chai.use(chaiDom);
 
@@ -21,10 +22,10 @@ const providerUnknownError = async (): Promise<ContractTransaction> => {
   throw errors.throwError('Something went wrong, try again later.', '420', '');
 };
 
-async function renderTransaction(services: Services, transactionToBeExecuted: (() => Promise<ContractTransaction>) | undefined) {
+async function renderTransaction(services: Services, transactionToBeExecuted: TransactionWithDescription) {
   return render(
     <ServiceContext.Provider value={services}>
-      <TransactionStatus transactionToBeExecuted={transactionToBeExecuted} onClose={() => null} description={''}/>
+      <TransactionStatus transactionToBeExecuted={transactionToBeExecuted} onClose={() => null}/>
     </ServiceContext.Provider>
   );
 }
@@ -41,7 +42,7 @@ describe('Transaction Status UI', () => {
     {simulatedError: providerUnknownError, ExpectedError: UnknownError}
   ].forEach(({simulatedError, ExpectedError}) => {
     it(`returns error with message '${ExpectedError.name}'`, async () => {
-      const {getByTestId} = await renderTransaction(services, () => simulatedError());
+      const {getByTestId} = await renderTransaction(services, {txFunction: () => simulatedError(), description: ''});
 
       await wait(() => {
         expect(getByTestId('error-message')).to.contain.text((new ExpectedError(new Error())).message);

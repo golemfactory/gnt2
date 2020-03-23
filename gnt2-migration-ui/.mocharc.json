@@ -1,7 +1,7 @@
 {
   "extensions": ["ts", "tsx"],
   "timeout": 20000,
-  "require": ["ts-node/register/transpile-only", "jsdom-global/register", "test/shims/images.js"],
+  "require": ["ts-node/register/transpile-only", "jsdom-global/register", "test/shims/images.js", "mock-local-storage"],
   "spec": "test/**/*.test.*",
   "exit": true
 }

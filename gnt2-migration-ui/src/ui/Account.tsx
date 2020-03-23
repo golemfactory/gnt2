@@ -17,6 +17,7 @@ import {MoveToWrapped} from './Account/MoveToWrapped';
 import {WarningModalContent} from './Account/WarningModalContent';
 import {BlurModal} from './BlurModal';
 import {DescribeAction} from './Account/AccountActionDescriptions';
+import {useAsyncEffect} from './hooks/useAsyncEffect';
 
 enum AccountActions {
   MIGRATE,
@@ -25,19 +26,34 @@ enum AccountActions {
   UNLOCK
 }
 
+export interface TransactionWithDescription {
+  txFunction: () => Promise<ContractTransaction>;
+  description: string;
+}
+
 export const Account = () => {
-  const {tokensService, connectionService, contractAddressService} = useServices();
+  const {tokensService, connectionService, contractAddressService, transactionService} = useServices();
 
   const account = useProperty(connectionService.account);
+  const network = useProperty(connectionService.network);
   const hasContracts = useProperty(contractAddressService.hasContracts);
 
   const oldTokensBalance = useProperty(tokensService.gntBalance);
   const gntbBalance = useProperty(tokensService.gntbBalance);
   const depositBalance = useProperty(tokensService.depositBalance);
-  const [currentTransaction, setCurrentTransaction] = useState<(() => Promise<ContractTransaction>) | undefined>(undefined);
-  const [transactionDescription, setTransactionDescription] = useState('');
+  const [currentTransaction, setCurrentTransaction] = useState<TransactionWithDescription | undefined>(undefined);
   const [showOtherBalancesWarning, setShowOtherBalancesWarning] = React.useState(false);
   const [startedAction, setStartedAction] = useState<AccountActions | undefined>();
+
+  useAsyncEffect(async () => {
+    if (transactionService.isTxStored()) {
+      const txFromStore = await transactionService.getTxFromLocalStorage();
+      setCurrentTransaction(txFromStore);
+    } else {
+      setCurrentTransaction(undefined);
+    }
+  }, [account, network]);
+
 
   function hasOtherTokens() {
     return !(isEmpty(gntbBalance) && isEmpty(depositBalance));
@@ -73,30 +89,34 @@ export const Account = () => {
 
   const closeTransactionModal = () => {
     setCurrentTransaction(undefined);
-    setTransactionDescription('');
     setStartedAction(undefined);
   };
 
   const closeOtherBalancesWarning = () => setShowOtherBalancesWarning(false);
 
   function migrate(amount: string) {
-    setTransactionDescription(`Migrating ${amount} GNT tokens to NGNT`);
-    setCurrentTransaction(() => () => tokensService.migrateTokens(account, parseEther(amount)));
+    setCurrentTransaction({
+      txFunction: () => tokensService.migrateTokens(account, parseEther(amount)),
+      description: `Migrating ${amount} GNT tokens to NGNT`
+    });
   }
 
   const unwrapTokens = async (amount: string) => {
-    setTransactionDescription(`Unwrapping ${amount} GNTB tokens to GNT`);
-    setCurrentTransaction(() => () => tokensService.unwrap(account, parseEther(amount)));
+    setCurrentTransaction({
+      txFunction: () => tokensService.unwrap(account, parseEther(amount)),
+      description: `Unwrapping ${amount} GNTB tokens to GNT`
+    });
   };
 
   function unlockDeposit() {
-    setTransactionDescription('Unlocking your GNTB deposit');
-    return setCurrentTransaction(() => () => tokensService.unlockDeposit(account));
+    return setCurrentTransaction({txFunction: () => tokensService.unlockDeposit(account), description: 'Unlocking your GNTB deposit'});
   }
 
   function moveToWrapped() {
-    setTransactionDescription(`Withdrawing ${depositBalance} GNTB from your deposit`);
-    return setCurrentTransaction(() => () => tokensService.moveToWrapped(account));
+    return setCurrentTransaction({
+      txFunction: () => tokensService.moveToWrapped(account),
+      description: `Withdrawing ${depositBalance} GNTB from your deposit`
+    });
   }
 
   return (
@@ -145,17 +165,16 @@ export const Account = () => {
             />
             }
             {!currentTransaction && startedAction === AccountActions.UNLOCK && depositBalance &&
-              <MoveToWrapped
-                onCancelClick={stopAction}
-                onConfirm={unlockDeposit}
-                description={DescribeAction.unlock(depositBalance)}
-              />
+            <MoveToWrapped
+              onCancelClick={stopAction}
+              onConfirm={unlockDeposit}
+              description={DescribeAction.unlock(depositBalance)}
+            />
             }
             {currentTransaction &&
             <TransactionStatus
               onClose={() => closeTransactionModal()}
               transactionToBeExecuted={currentTransaction}
-              description={transactionDescription}
             />
             }
           </Blur>
