@@ -3,7 +3,7 @@ import infoIcon from '../../assets/icons/info.svg';
 import styled from 'styled-components';
 
 export interface TooltipProps {
-  tooltipText: string;
+  tooltipText: string | JSX.Element;
 }
 
 export const Tooltip = ({tooltipText}: TooltipProps) => (
@@ -27,14 +27,14 @@ const TooltipBody = styled.div`
   line-height: 18px;
   color: rgb(109, 113, 203);
   z-index: 10;
-  
+
   &::before {
     content: '';
     position: absolute;
     top: 0;
     left: 9px;
-    width: 0; 
-    height: 0; 
+    width: 0;
+    height: 0;
     transform: translateY(-100%);
     border-left: 6px solid transparent;
     border-right: 6px solid transparent;
