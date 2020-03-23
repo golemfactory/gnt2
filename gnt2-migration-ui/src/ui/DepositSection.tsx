@@ -63,8 +63,11 @@ export function DepositSection({onMoveToWrapped, onUnlock}: DepositSectionProps)
   return (
     <BalanceBlock>
       <TitleWithTooltip
-        data-testid='deposit-status'
-        tooltipText={`Deposit ${depositText}`}
+        tooltipText={
+          <div data-testid='deposit-status'>
+            Deposit {depositText}
+          </div>
+        }
       >
         Locked Tokens
       </TitleWithTooltip>
