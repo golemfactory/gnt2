@@ -194,7 +194,7 @@ export const Account = () => {
   );
 };
 
-const WarningModal = styled(Modal)`);
+const WarningModal = styled(Modal)`
   max-width: 660px;
 `;
 
@@ -238,4 +238,9 @@ const Address = styled.div`
   font-size: 14px;
   line-height: 16px;
   color: #1722A2;
+  @media (max-width: 600px) {
+    width: 240px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 `;

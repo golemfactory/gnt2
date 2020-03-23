@@ -8,7 +8,7 @@ export const Footer = () => (
     <FooterBlock>
       <FooterContainer>
         <div>
-          <ToTop href="#topSectionID">
+          <ToTop href="#topSectionID" data-action="scroll">
             <ToTopArrow src={totop}/>
             TO TOP
           </ToTop>

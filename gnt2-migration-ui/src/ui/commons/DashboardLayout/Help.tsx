@@ -17,9 +17,13 @@ export const Help = () => (
 );
 
 const HelpView = styled.div`
+  display: block;
   max-width: 370px;
   margin-left: 30px;
   text-align: right;
+  @media (max-width: 600px) {
+    display: none;
+  }
 `;
 
 const HelpTitle = styled(SectionTitle)`
