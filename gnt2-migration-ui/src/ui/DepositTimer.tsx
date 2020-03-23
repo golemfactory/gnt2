@@ -13,7 +13,6 @@ export const DepositTimer = () => {
   const contractAddresses = useProperty(contractAddressService.contractAddresses);
 
   const depositState = useProperty(tokensService.depositLockState);
-  const [depositText, setDepositText] = useState('');
   const [timeLeft] = useAsync(async () => tokensService.getDepositUnlockTime(account), [contractAddresses, account]);
   const [timer, setTimer] = useState<string | undefined>(undefined);
   const [flag, setFlag] = useState(false);
@@ -21,21 +20,10 @@ export const DepositTimer = () => {
   useEffect(() => {
     setTimer('');
     let timerId: number;
-    switch (depositState) {
-      case DepositState.EMPTY:
-        setDepositText('is empty');
-        break;
-      case DepositState.UNLOCKED:
-        setDepositText('is unlocked');
-        break;
-      case DepositState.TIME_LOCKED:
-        if (timeLeft) {
-          timerId = Timer(timeLeft.toNumber() * 1000, setTimer);
-        }
-        setDepositText('is time-locked');
-        break;
-      default:
-        setDepositText('is locked');
+    if (depositState === DepositState.TIME_LOCKED) {
+      if (timeLeft) {
+        timerId = Timer(timeLeft.toNumber() * 1000, setTimer);
+      }
     }
     return () => { if (timerId) { clearInterval(timerId); } };
   }, [timeLeft, depositState, account, contractAddresses]);
@@ -47,21 +35,24 @@ export const DepositTimer = () => {
   }
 
   return (
-    <>
-      <div data-testid='deposit-status'>Deposit {depositText}</div>
+    <Row>
       {timer &&
-        <Row>
+        <>
           <ClockIcon src={clockIcon} alt="clock"/>
           <Time data-testid='deposit-timer'>{timer}</Time>
-        </Row>
+        </>
       }
-    </>
+    </Row>
   );
 };
 
 const Row = styled.div`
   display: flex;
+  justify-content: center;
   align-items: center;
+  margin-left: 32px;
+  width: 148px;
+  height: 40px;
 `;
 
 const ClockIcon = styled.img`

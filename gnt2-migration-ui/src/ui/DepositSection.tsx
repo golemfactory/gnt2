@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {DepositTimer} from './DepositTimer';
 import {useServices} from './hooks/useServices';
 import {useProperty} from './hooks/useProperty';
@@ -17,9 +17,9 @@ interface DepositSectionProps {
 
 export function DepositSection({onMoveToWrapped, onUnlock}: DepositSectionProps) {
   const {tokensService} = useServices();
-
   const depositBalance = useProperty(tokensService.depositBalance);
   const depositLockState = useProperty(tokensService.depositLockState);
+  const [depositText, setDepositText] = useState('');
 
   const changeDepositState = async () => {
     if (depositLockState === DepositState.LOCKED) {
@@ -29,12 +29,26 @@ export function DepositSection({onMoveToWrapped, onUnlock}: DepositSectionProps)
     }
   };
 
+  useEffect(() => {
+    switch (depositLockState) {
+      case DepositState.EMPTY:
+        setDepositText('is empty');
+        break;
+      case DepositState.UNLOCKED:
+        setDepositText('is unlocked');
+        break;
+      case DepositState.TIME_LOCKED:
+        setDepositText('is time-locked');
+        break;
+      default:
+        setDepositText('is locked');
+    }
+  }, [depositLockState]);
+
   const getTitle = () => {
     switch (depositLockState) {
       case DepositState.LOCKED:
         return 'Unlock';
-      case DepositState.TIME_LOCKED:
-        return 'Time lock';
       case DepositState.UNLOCKED:
         return 'Move to wrapped';
       default:
@@ -49,7 +63,8 @@ export function DepositSection({onMoveToWrapped, onUnlock}: DepositSectionProps)
   return (
     <BalanceBlock>
       <TitleWithTooltip
-        tooltipText={getTitle()}
+        data-testid='deposit-status'
+        tooltipText={`Deposit ${depositText}`}
       >
         Locked Tokens
       </TitleWithTooltip>
@@ -57,16 +72,17 @@ export function DepositSection({onMoveToWrapped, onUnlock}: DepositSectionProps)
         <DepositTicker isLocked={depositLockState === DepositState.LOCKED || depositLockState === DepositState.TIME_LOCKED}>GNTb</DepositTicker>
         <AmountWrapper>
           <Amount data-testid='deposit'>{formatTokenBalance(depositBalance)}</Amount>
-          <BalanceButton
-            data-testid="action-deposit-button"
-            disabled={depositLockState === DepositState.TIME_LOCKED}
-            onClick={() => changeDepositState()}
-          >
-            {getTitle()}
-          </BalanceButton>
+          {depositLockState === DepositState.TIME_LOCKED
+            ? <DepositTimer/>
+            : <BalanceButton
+              data-testid="action-deposit-button"
+              onClick={() => changeDepositState()}
+            >
+              {getTitle()}
+            </BalanceButton>
+          }
         </AmountWrapper>
       </BalanceRow>
-      <DepositTimer/>
     </BalanceBlock>
   );
 }
