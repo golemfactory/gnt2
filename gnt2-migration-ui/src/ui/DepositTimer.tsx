@@ -20,10 +20,8 @@ export const DepositTimer = () => {
   useEffect(() => {
     setTimer('');
     let timerId: number;
-    if (depositState === DepositState.TIME_LOCKED) {
-      if (timeLeft) {
-        timerId = Timer(timeLeft.toNumber() * 1000, setTimer);
-      }
+    if (depositState === DepositState.TIME_LOCKED && timeLeft) {
+      timerId = Timer(timeLeft.toNumber() * 1000, setTimer);
     }
     return () => { if (timerId) { clearInterval(timerId); } };
   }, [timeLeft, depositState, account, contractAddresses]);
