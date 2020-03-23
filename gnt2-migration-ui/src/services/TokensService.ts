@@ -3,10 +3,13 @@ import {BigNumber, BigNumberish} from 'ethers/utils';
 import {GNTDepositFactory, GolemNetworkTokenBatchingFactory, GolemNetworkTokenFactory, NewGolemNetworkTokenFactory} from 'gnt2-contracts';
 import {ContractAddressService} from './ContractAddressService';
 import {gasLimit} from '../config';
-import {ContractTransaction} from 'ethers';
+import {Contract, ContractTransaction} from 'ethers';
 import {callEffectForEach, Property, State, withEffect, withSubscription} from 'reactive-properties';
 import {ConnectionService} from './ConnectionService';
 import {ContractUtils} from '../utils/contractUtils';
+import {AddressZero} from 'ethers/constants';
+import {GNTMigrationAgentFactory} from '../../../gnt2-contracts/build/contract-types/GNTMigrationAgentFactory';
+import {GNTMigrationAgent} from 'gnt2-contracts/build/contract-types/GNTMigrationAgent';
 
 export enum DepositState {
   LOCKED, TIME_LOCKED, UNLOCKED, EMPTY
@@ -62,8 +65,37 @@ export class TokensService {
         callback
       )
     );
+
+    this.migrationTargetProperty = this.createMigrationTargetProperty(async callback => ContractUtils.subscribeToEvents(
+    await this.gntMigrationAgentContract(),
+      [(await this.gntMigrationAgentContract()).filters.TargetChanged(null, null)],
+    callback
+  ));
   }
 
+
+  private createMigrationTargetProperty(
+    subscribeToEvents: (cb: () => void) => (() => void)
+  ) {
+    const contractAddresses = this.contractAddressService.contractAddresses;
+    const state = new State<string>(AddressZero);
+    const updateDepositLockState = async () =>
+      this.safeContractRead(async () => state.set(await (await this.gntMigrationAgentContract()).target()));
+
+    return state.pipe(
+      withSubscription(updateDepositLockState, contractAddresses),
+      withEffect(() => contractAddresses.pipe(
+        callEffectForEach(async () => {
+          await this.gntMigrationAgentContract()
+
+        })
+      ))
+    );
+  }
+
+  private async gntMigrationAgentContract(): Promise<GNTMigrationAgent> {
+    return GNTMigrationAgentFactory.connect(await this.gntContract().migrationAgent(), this.provider());
+  }
 
   private createDepositLockStateProperty(
     subscribeToEvents: (cb: () => void) => (() => void)
