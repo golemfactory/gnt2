@@ -8,7 +8,6 @@ import {useServices} from './hooks/useServices';
 import {ConnectionState} from '../services/ConnectionService';
 import {useAsyncEffect} from './hooks/useAsyncEffect';
 import {BrowserRouter} from 'react-router-dom';
-import {Footer} from './Footer';
 
 const App: React.FC = () => {
   const [ready, setReady] = useState(false);
@@ -25,12 +24,9 @@ const App: React.FC = () => {
   if (!ready) return null;
 
   return (
-    <>
-      <BrowserRouter>
-        <Dashboard/>
-      </BrowserRouter>
-      <Footer/>
-    </>
+    <BrowserRouter>
+      <Dashboard/>
+    </BrowserRouter>
   );
 };
 
