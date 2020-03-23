@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import logo from '../../../assets/logo.svg';
 import {Help} from './Help';
 import {BlockTitle} from '../Text/BlockTitle';
+import {Footer} from '../../Footer';
 
 export interface DashboardLayoutProps {
   children: ReactNode;
@@ -11,25 +12,28 @@ export interface DashboardLayoutProps {
 }
 
 export const DashboardLayout = ({title, backTo, children}: DashboardLayoutProps) => (
-  <DashboardContainer>
-    <Header>
-      <img src={logo} alt="Golem logo"/>
-      <PageName>GOLEM HOME</PageName>
-    </Header>
-    <Title>{title || 'GOLEM TOKEN MIGRATOR'}</Title>
-    <Row>
-      <DashboardContent>
-        {children}
-      </DashboardContent>
-      <Help/>
-    </Row>
-  </DashboardContainer>
+  <>
+    <DashboardContainer>
+      <Header>
+        <img src={logo} alt="Golem logo"/>
+        <PageName>GOLEM HOME</PageName>
+      </Header>
+      <Title>{title || 'GOLEM TOKEN MIGRATOR'}</Title>
+      <Row>
+        <DashboardContent>
+          {children}
+        </DashboardContent>
+        <Help/>
+      </Row>
+    </DashboardContainer>
+    <Footer/>
+  </>
 );
 
 const DashboardContainer = styled.div`
   max-width: 1230px;
   margin: 0 auto;
-  padding: 32px 30px 100px; 
+  padding: 32px 30px 100px;
 `;
 
 const Header = styled.div`
@@ -62,7 +66,7 @@ const Title = styled(BlockTitle)`
     width: 142px;
     height: 1px;
     background: #1722A2;
-  } 
+  }
 `;
 
 const Row = styled.div`
