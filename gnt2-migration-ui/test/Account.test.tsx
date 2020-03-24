@@ -8,16 +8,12 @@ import {TransactionDenied} from '../src/errors';
 import {advanceEthereumTime} from './helpers/ethereumHelpers';
 import chaiAsPromised from 'chai-as-promised';
 import {DEPOSIT_LOCK_DELAY} from './helpers/contractConstants';
-import {JsonRpcProvider, Web3Provider} from 'ethers/providers';
+import {Web3Provider} from 'ethers/providers';
 import {TestAccountPage} from './helpers/TestAccountPage';
 import {parseEther} from 'ethers/utils';
 
 chai.use(chaiDom);
 chai.use(chaiAsPromised);
-
-async function mineEmptyBlock(provider: JsonRpcProvider) {
-  await provider.send('evm_mine', []);
-}
 
 describe('Account page', () => {
 
@@ -42,10 +38,8 @@ describe('Account page', () => {
 
   context('with wallet with GNT tokens', async () => {
 
-    let provider: JsonRpcProvider;
-
     beforeEach(async () => {
-      ({services, provider} = await createTestServices('holder'));
+      ({services} = await createTestServices('holder'));
     });
 
     it('migrates user-specified number of tokens', async () => {
@@ -102,19 +96,6 @@ describe('Account page', () => {
       });
     });
 
-    it('shows modal on migrate', async () => {
-      const accountPage = await new TestAccountPage(services).load();
-
-      await accountPage.migrate('1000');
-
-      await wait(() => {
-        expect(accountPage.find('modal')).to.exist;
-        expect(accountPage.find('etherscan-button')).to.have.trimmed.text('View on etherscan');
-        expect(accountPage.find('etherscan-button')).to.have.attr('disabled');
-      });
-      await mineEmptyBlock(provider);
-    });
-
     it('shows error in modal when user denied transaction', async () => {
       services.tokensService.migrateTokens = async () => {
         throw new TransactionDenied(new Error());
@@ -129,12 +110,24 @@ describe('Account page', () => {
       });
     });
 
+    it('shows modal on migrate', async () => {
+      const accountPage = await new TestAccountPage(services).load();
+
+      await accountPage.migrate('2000');
+
+      await wait(() => {
+        expect(accountPage.find('modal')).to.exist;
+        expect(accountPage.find('etherscan-button')).to.have.trimmed.text('View on etherscan');
+        expect(accountPage.find('etherscan-button')).to.have.attr('disabled');
+      });
+      await accountPage.completeTransaction();
+    });
+
     it('renders successful transaction when one found in local storage', async () => {
       const account = services.connectionService.account.get();
       const contractTransaction = await services.tokensService.migrateTokens(account, parseEther('500'));
       services.transactionService.saveTxHashInLocalStorage({hash: contractTransaction.hash!, description: ''});
 
-      console.log(`localStorage = ${localStorage.length}`);
       const accountPage = await new TestAccountPage(services).load();
 
       await accountPage.completeTransaction();

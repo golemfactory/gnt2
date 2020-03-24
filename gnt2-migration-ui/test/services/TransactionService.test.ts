@@ -9,7 +9,7 @@ import {ContractTransaction} from 'ethers';
 import {createTestServices} from '../helpers/testServices';
 import {JsonRpcProvider} from 'ethers/providers';
 import {Services} from '../../src/services';
-import sinon from 'sinon';
+import sinon, {SinonSandbox} from 'sinon';
 import {TransactionFailedError} from '../../src/errors';
 
 chai.use(solidity);
@@ -57,6 +57,16 @@ describe('Transactions Service', () => {
   });
 
   describe('executing transaction', () => {
+
+    let sinonSandbox: SinonSandbox;
+    beforeEach(() => {
+      sinonSandbox = sinon.createSandbox();
+    });
+
+    afterEach(() => {
+      sinonSandbox.restore();
+    });
+
     it('executes a successful tx', async () => {
       const setTransactionHash = sinon.stub();
       const receipt = await txService.executeTransaction({txFunction: () => Promise.resolve(rawTx), description: ''}, setTransactionHash);
@@ -65,7 +75,7 @@ describe('Transactions Service', () => {
     });
 
     it('throws on failing tx', async () => {
-      provider.getTransactionReceipt = sinon.stub().resolves({status: 0, confirmations: 1});
+      sinonSandbox.stub(provider, 'getTransactionReceipt').resolves({status: 0, confirmations: 1, byzantium: true});
       await expect(txService.executeTransaction({txFunction: () => Promise.resolve(rawTx), description: ''}, sinon.stub()))
         .to.be.eventually.rejectedWith(TransactionFailedError);
     });
