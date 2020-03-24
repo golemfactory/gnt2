@@ -24,3 +24,10 @@ export class UnknownError extends ServiceError {
     Object.setPrototypeOf(this, UnknownError.prototype);
   }
 }
+
+export class TransactionFailedError extends Error {
+  constructor() {
+    super('Ethereum transaction failed');
+    Object.setPrototypeOf(this, TransactionFailedError.prototype);
+  }
+}

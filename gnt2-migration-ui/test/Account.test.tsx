@@ -10,6 +10,7 @@ import chaiAsPromised from 'chai-as-promised';
 import {DEPOSIT_LOCK_DELAY} from './helpers/contractConstants';
 import {Web3Provider} from 'ethers/providers';
 import {TestAccountPage} from './helpers/TestAccountPage';
+import {parseEther} from 'ethers/utils';
 import {AddressZero} from 'ethers/constants';
 import {DEFAULT_TEST_OVERRIDES} from '../../gnt2-contracts/test/utils';
 import {GNTMigrationAgentFactory} from '../../gnt2-contracts/build/contract-types/GNTMigrationAgentFactory';
@@ -133,18 +134,6 @@ describe('Account page', () => {
       });
     });
 
-    it('shows modal on migrate', async () => {
-      const accountPage = await new TestAccountPage(services).load();
-
-      await accountPage.migrate('1000');
-
-      await wait(() => {
-        expect(accountPage.find('modal')).to.exist;
-        expect(accountPage.find('etherscan-button')).to.have.trimmed.text('View on etherscan');
-        expect(accountPage.find('etherscan-button')).to.have.attr('disabled');
-      });
-    });
-
     it('shows error in modal when user denied transaction', async () => {
       services.tokensService.migrateTokens = async () => {
         throw new TransactionDenied(new Error());
@@ -159,6 +148,33 @@ describe('Account page', () => {
       });
     });
 
+    it('shows modal on migrate', async () => {
+      const accountPage = await new TestAccountPage(services).load();
+
+      await accountPage.migrate('2000');
+
+      await wait(() => {
+        expect(accountPage.find('modal')).to.exist;
+        expect(accountPage.find('etherscan-button')).to.have.trimmed.text('View on etherscan');
+        expect(accountPage.find('etherscan-button')).to.have.attr('disabled');
+      });
+      await accountPage.completeTransaction();
+    });
+
+    it('renders successful transaction when one found in local storage', async () => {
+      const account = services.connectionService.account.get();
+      const contractTransaction = await services.tokensService.migrateTokens(account, parseEther('500'));
+      services.transactionService.saveTxHashInLocalStorage({hash: contractTransaction.hash!, description: ''});
+
+      const accountPage = await new TestAccountPage(services).load();
+
+      await accountPage.completeTransaction();
+
+      await wait(() => {
+        expect(accountPage.find('NGNT-balance')).to.have.text('500.000');
+        expect(accountPage.find('GNT-balance')).to.have.text('4999500.000');
+      });
+    });
   });
 
   context('with wallet with GNT, GNTB and Deposit', async () => {

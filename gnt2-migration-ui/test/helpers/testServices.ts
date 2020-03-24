@@ -10,6 +10,7 @@ import {TokensService} from '../../src/services/TokensService';
 import {MockedEthereum} from './mockedEthereum';
 import {RefreshService} from '../../src/services/RefreshService';
 import {Wallet} from 'ethers';
+import {TransactionsService} from '../../src/services/TransactionService';
 
 const noOpLogger = {
   log: () => {
@@ -66,6 +67,11 @@ function selectWallet(loginAs: AccountType, emptyWallet: Wallet, holderWallet: W
   }
 }
 
+function testTransactionService(provider: Web3Provider, connectionService: ConnectionService) {
+  localStorage.clear();
+  return new TransactionsService(() => provider, connectionService);
+}
+
 export async function createTestServices(loginAs: AccountType = 'holderUser') {
   const {addresses, holderWallet, emptyWallet, gntOnlyWallet, provider} = await loadFixture(fixture);
   const wallet = selectWallet(loginAs, emptyWallet, holderWallet, gntOnlyWallet).address;
@@ -76,6 +82,7 @@ export async function createTestServices(loginAs: AccountType = 'holderUser') {
   await connectionService.checkConnection();
   await connectionService.checkNetwork();
   const refreshService = new RefreshService();
+  const transactionService = testTransactionService(provider, connectionService);
 
   return {
     services: {
@@ -84,7 +91,8 @@ export async function createTestServices(loginAs: AccountType = 'holderUser') {
       accountService,
       connectionService,
       contractAddressService,
-      refreshService
+      refreshService,
+      transactionService
     },
     provider
   };
