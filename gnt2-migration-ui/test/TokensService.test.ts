@@ -16,6 +16,10 @@ import {GolemNetworkTokenBatching} from 'gnt2-contracts/build/contract-types/Gol
 import {GolemNetworkToken} from 'gnt2-contracts/build/contract-types/GolemNetworkToken';
 import {Property} from 'reactive-properties';
 import {ContractAddressService} from '../src/services/ContractAddressService';
+import {GNTMigrationAgentFactory} from '../../gnt2-contracts/build/contract-types/GNTMigrationAgentFactory';
+import {GNTMigrationAgent} from 'gnt2-contracts/build/contract-types/GNTMigrationAgent';
+import {DEFAULT_TEST_OVERRIDES} from '../../gnt2-contracts/test/utils';
+import {AddressZero} from 'ethers/constants';
 
 chai.use(solidity);
 chai.use(chaiAsPromised);
@@ -29,9 +33,13 @@ describe('Token Service', () => {
   let tokensService: TokensService;
   let gntb: GolemNetworkTokenBatching;
   let gnt: GolemNetworkToken;
+  let gntMigrationAgent: GNTMigrationAgent;
+  let ngntAddress: string;
+
   let un1: () => void;
   let un2: () => void;
   let un3: () => void;
+  let un4: () => void;
 
   const advanceEthereumTimeBy = (seconds: number) => advanceEthereumTime(provider, seconds);
 
@@ -41,18 +49,23 @@ describe('Token Service', () => {
     services.push(tokensService);
     [holderWallet, anotherWallet] = getWallets(provider);
     holder = holderWallet.address;
+
     const contractAddresses = contractAddressService.contractAddresses.get();
+    ngntAddress = contractAddresses.newGolemToken;
     gntb = GolemNetworkTokenBatchingFactory.connect(contractAddresses.batchingGolemToken, holderWallet);
     gnt = GolemNetworkTokenFactory.connect(contractAddresses.oldGolemToken, holderWallet);
+    gntMigrationAgent = GNTMigrationAgentFactory.connect(contractAddresses.migrationAgent, anotherWallet);
     un1 = tokensService.gntbBalance.subscribe(sinon.stub());
     un2 = tokensService.gntBalance.subscribe(sinon.stub());
     un3 = tokensService.ngntBalance.subscribe(sinon.stub());
+    un4 = tokensService.migrationTarget.subscribe(sinon.stub());
   });
 
   afterEach(() => {
     un1();
     un2();
     un3();
+    un4();
   });
 
   function expectBalanceProp(balanceProp: Property<PossibleBalance>) {
@@ -69,6 +82,12 @@ describe('Token Service', () => {
 
   it('gets account balance', async () => {
     expect(await tokensService.balanceOfOldTokens(holder)).to.eq(parseEther('140000000'));
+  });
+
+  it('refreshes migration target property after change', async () => {
+    await wait(() => expect(tokensService.migrationTarget.get()).to.be.eq(ngntAddress));
+    await gntMigrationAgent.setTarget(AddressZero, DEFAULT_TEST_OVERRIDES);
+    await wait(() => expect(tokensService.migrationTarget.get()).to.be.eq(AddressZero));
   });
 
   it('refreshes GNT and GNTB balances on wrap', async () => {

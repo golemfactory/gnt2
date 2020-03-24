@@ -6,6 +6,7 @@ export interface ContractAddresses {
   newGolemToken: string;
   batchingGolemToken: string;
   gntDeposit: string;
+  migrationAgent: string;
 }
 
 export type NetworkName = 'mainnet' | 'ropsten' | 'rinkeby' | 'kovan' | 'local';
@@ -18,8 +19,7 @@ export const contractAddressesConfig: ContractAddressesByNetwork = Object.freeze
     newGolemToken: getEnv('NEW_GNT_TOKEN_CONTRACT_ADDRESS_RINKEBY', '0x3D775f0285ce59B470cFb21F82B5C6Aa2B931f16'),
     batchingGolemToken: getEnv('BATCHING_GNT_TOKEN_CONTRACT_ADDRESS_RINKEBY', '0x22f8707c775aEF9243B751F6831B59BfC85A4175'),
     gntDeposit: getEnv('GNT_DEPOSIT_CONTRACT_ADDRESS_RINKEBY', '0xD08D7EAd2b8FFA32dcF32754280484F4982c3c4B'),
-    migrationAgent: getEnv('MIGRATION_AGENT_CONTRACT_ADDRESS_RINKEBY', '')
-
+    migrationAgent: getEnv('MIGRATION_AGENT_CONTRACT_ADDRESS_RINKEBY', AddressZero)
   },
   local: {
     oldGolemToken: getEnv('OLD_GNT_TOKEN_CONTRACT_ADDRESS_LOCAL', '0xA193E42526F1FEA8C99AF609dcEabf30C1c29fAA'),
