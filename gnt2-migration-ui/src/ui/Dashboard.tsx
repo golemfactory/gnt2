@@ -4,7 +4,7 @@ import {Login} from './Login/Login';
 import {Account} from './Account';
 import {useServices} from './hooks/useServices';
 import {RouteComponentProps} from 'react-router';
-import {NotFound} from './NotFound';
+import {PageNotFound} from './PageNotFound';
 
 export const Dashboard = () => {
 
@@ -26,7 +26,7 @@ export const Dashboard = () => {
     <Switch>
       <Route exact path='/account' render={accountOrRedirectToLoginWhenNotConnected}/>
       <Route exact path='/' render={loginOrRedirectToAccountWhenConnected}/>
-      <Route path="*" render={NotFound}/>
+      <Route path="*" render={PageNotFound}/>
     </Switch>
   );
 };
