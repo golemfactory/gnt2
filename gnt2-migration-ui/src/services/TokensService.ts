@@ -2,6 +2,7 @@ import {JsonRpcProvider} from 'ethers/providers';
 import {BigNumber, BigNumberish} from 'ethers/utils';
 import {
   GNTDepositFactory,
+  GNTMigrationAgentFactory,
   GolemNetworkTokenBatchingFactory,
   GolemNetworkTokenFactory,
   NewGolemNetworkTokenFactory
@@ -12,7 +13,6 @@ import {ContractTransaction} from 'ethers';
 import {callEffectForEach, Property, State, withEffect, withSubscription} from 'reactive-properties';
 import {ConnectionService} from './ConnectionService';
 import {ContractUtils} from '../utils/contractUtils';
-import {GNTMigrationAgentFactory} from '../../../gnt2-contracts/build/contract-types/GNTMigrationAgentFactory';
 
 export enum DepositState {
   LOCKED, TIME_LOCKED, UNLOCKED, EMPTY
