@@ -4,6 +4,9 @@ import {ButtonPrimary} from '../commons/Buttons/ButtonPrimary';
 export const BalanceBlock = styled.div`
   padding: 24px 24px 32px;
   border-bottom: 1px solid rgb(232, 232, 246);
+  @media (max-width: 340px) {
+    padding: 24px 8px 32px;
+  }
 `;
 
 export const BalanceRow = styled.div`

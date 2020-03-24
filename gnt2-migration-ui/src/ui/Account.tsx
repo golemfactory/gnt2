@@ -243,4 +243,9 @@ const Address = styled.div`
     overflow: hidden;
     text-overflow: ellipsis;
   }
+  @media (max-width: 340px) {
+    width: 185px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 `;

@@ -1,6 +1,8 @@
 import React, {ReactNode} from 'react';
 import styled from 'styled-components';
 import logo from '../../../assets/logo.svg';
+import arrowBack from '../../../assets/icons/arrow-back.svg';
+
 import {Help} from './Help';
 import {BlockTitle} from '../Text/BlockTitle';
 import {Footer} from '../../Footer';
@@ -15,7 +17,15 @@ export const DashboardLayout = ({title, backTo, children}: DashboardLayoutProps)
   <>
     <DashboardContainer>
       <Header>
-        <img src={logo} alt="Golem logo"/>
+        <LogoWithBackButton>
+          <img src={logo} alt="Golem logo"/>
+          {backTo &&
+          <Back href={backTo}>
+            <Arrow src={arrowBack}/>
+            Back
+          </Back>
+          }
+        </LogoWithBackButton>
         <PageName>GOLEM HOME</PageName>
       </Header>
       <Title>{title || 'GOLEM TOKEN MIGRATOR'}</Title>
@@ -72,8 +82,35 @@ const Title = styled(BlockTitle)`
 const Row = styled.div`
   display: flex;
   justify-content: space-between;
+  @media (max-width: 900px) {
+    flex-direction: column;
+  }
 `;
 
 const DashboardContent = styled.div`
   width: 100%;
+`;
+
+const Back = styled.a`
+  width: 50px;
+  font-weight: 300;
+  font-size: 12px;
+  line-height: 15px;
+  display: flex;
+  align-items: center;
+  letter-spacing: 2.57143px;
+  color: #1722A2;
+  text-decoration: none;
+  margin-left: 50px;
+`;
+
+const Arrow = styled.img`
+  width: 20px;
+  height: 6px;
+  margin-bottom: 3px;
+  transform: rotate(90deg);
+`;
+
+const LogoWithBackButton = styled.div`
+  display: flex;
 `;

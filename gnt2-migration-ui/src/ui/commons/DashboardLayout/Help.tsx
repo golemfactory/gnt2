@@ -21,8 +21,8 @@ const HelpView = styled.div`
   max-width: 370px;
   margin-left: 30px;
   text-align: right;
-  @media (max-width: 600px) {
-    display: none;
+  @media (max-width: 900px) {
+    margin-top: 50px;
   }
 `;
 
@@ -42,6 +42,10 @@ const Video = styled.div`
   height: 152px;
   margin: 0 0 62px auto;
   background: #EDEEFF;
+  @media (max-width: 350px) {
+    width: 203px;
+  height: 114px;
+  }
 `;
 
 const PlatButton = styled.button`

@@ -10,4 +10,7 @@ export const ButtonPrimary = styled.button`
   letter-spacing: 2px;
   text-transform: uppercase;
   color: #FFFFFF;
+  @media (max-width: 340px) {
+    width: 100px;
+  }
 `;
