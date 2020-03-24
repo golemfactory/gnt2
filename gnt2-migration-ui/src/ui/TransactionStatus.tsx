@@ -1,7 +1,6 @@
 import React, {useState} from 'react';
 import {useAsyncEffect} from './hooks/useAsyncEffect';
 import {TransactionProgress} from './TransactionProgress';
-import {mapCodeToError} from '../utils/mapCodeToError';
 import {useServices} from './hooks/useServices';
 import {TransactionModal} from './TransactionModal';
 import {TransactionWithDescription} from './Account';
@@ -25,20 +24,6 @@ export const TransactionStatus = ({
     setErrorMessage(undefined);
   };
 
-  async function executeTransaction(transactionToBeExecuted: TransactionWithDescription) {
-    try {
-      const contractTransaction = await transactionToBeExecuted.txFunction();
-      const hash = contractTransaction.hash;
-      setTransactionHash(hash);
-      if (hash) {
-        transactionService.saveTxHashInLocalStorage({hash, description: transactionToBeExecuted.description});
-        return transactionService.waitForTx(hash);
-      }
-    } catch (e) {
-      throw mapCodeToError(e);
-    }
-  }
-
   useAsyncEffect(
     async () => {
       if (!transactionToBeExecuted) {
@@ -46,7 +31,7 @@ export const TransactionStatus = ({
       }
       setTxInProgress(true);
       try {
-        await executeTransaction(transactionToBeExecuted);
+        await transactionService.executeTransaction(transactionToBeExecuted, setTransactionHash);
         refreshService.refresh();
       } catch (e) {
         setErrorMessage(e.message);

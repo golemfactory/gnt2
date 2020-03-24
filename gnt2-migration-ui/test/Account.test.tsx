@@ -8,11 +8,16 @@ import {TransactionDenied} from '../src/errors';
 import {advanceEthereumTime} from './helpers/ethereumHelpers';
 import chaiAsPromised from 'chai-as-promised';
 import {DEPOSIT_LOCK_DELAY} from './helpers/contractConstants';
-import {Web3Provider} from 'ethers/providers';
+import {JsonRpcProvider, Web3Provider} from 'ethers/providers';
 import {TestAccountPage} from './helpers/TestAccountPage';
+import {parseEther} from 'ethers/utils';
 
 chai.use(chaiDom);
 chai.use(chaiAsPromised);
+
+async function mineEmptyBlock(provider: JsonRpcProvider) {
+  await provider.send('evm_mine', []);
+}
 
 describe('Account page', () => {
 
@@ -37,8 +42,10 @@ describe('Account page', () => {
 
   context('with wallet with GNT tokens', async () => {
 
+    let provider: JsonRpcProvider;
+
     beforeEach(async () => {
-      ({services} = await createTestServices('holder'));
+      ({services, provider} = await createTestServices('holder'));
     });
 
     it('migrates user-specified number of tokens', async () => {
@@ -105,6 +112,7 @@ describe('Account page', () => {
         expect(accountPage.find('etherscan-button')).to.have.trimmed.text('View on etherscan');
         expect(accountPage.find('etherscan-button')).to.have.attr('disabled');
       });
+      await mineEmptyBlock(provider);
     });
 
     it('shows error in modal when user denied transaction', async () => {
@@ -121,6 +129,21 @@ describe('Account page', () => {
       });
     });
 
+    it('renders successful transaction when one found in local storage', async () => {
+      const account = services.connectionService.account.get();
+      const contractTransaction = await services.tokensService.migrateTokens(account, parseEther('500'));
+      services.transactionService.saveTxHashInLocalStorage({hash: contractTransaction.hash!, description: ''});
+
+      console.log(`localStorage = ${localStorage.length}`);
+      const accountPage = await new TestAccountPage(services).load();
+
+      await accountPage.completeTransaction();
+
+      await wait(() => {
+        expect(accountPage.find('NGNT-balance')).to.have.text('500.000');
+        expect(accountPage.find('GNT-balance')).to.have.text('4999500.000');
+      });
+    });
   });
 
   context('with wallet with GNT, GNTB and Deposit', async () => {

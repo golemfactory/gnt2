@@ -4,20 +4,28 @@ import {solidity} from 'ethereum-waffle';
 
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
+import sinonChai from 'sinon-chai';
 import {ContractTransaction} from 'ethers';
 import {createTestServices} from '../helpers/testServices';
+import {JsonRpcProvider} from 'ethers/providers';
+import {Services} from '../../src/services';
+import sinon from 'sinon';
+import {TransactionFailedError} from '../../src/errors';
 
 chai.use(solidity);
 chai.use(chaiAsPromised);
+chai.use(sinonChai);
 const expect = chai.expect;
 
 describe('Transactions Service', () => {
   let txService: TransactionsService;
   let rawTx: ContractTransaction;
   let address: string;
+  let provider: JsonRpcProvider;
+  let services: Services;
 
   beforeEach(async () => {
-    const {services} = await createTestServices();
+    ({services, provider} = await createTestServices());
     txService = services.transactionService;
     address = services.connectionService.account.get();
     rawTx = await services.tokensService.unlockDeposit(address);
@@ -37,13 +45,6 @@ describe('Transactions Service', () => {
       expect(await txService.isTxStored()).to.be.true;
     });
 
-    it('returns transaction receipt', async () => {
-      const txReceipt = await txService.getTxReceipt(rawTx.hash!);
-
-      expect(txReceipt).to.haveOwnProperty('logs');
-    });
-
-
     it('removes transaction', async () => {
       const txToStore = {hash: rawTx.hash!, description: 'a tx'};
       await txService.saveTxHashInLocalStorage(txToStore);
@@ -53,14 +54,21 @@ describe('Transactions Service', () => {
       expect(await txService.isTxStored()).to.be.false;
     });
 
-    // it('returns true if stored tx is mined', async () => {
-    //   await txService.saveTxHashInLocalStorage(rawTx.hash!);
-    //
-    //   const isMined = await txService.isStoredTxMined(address);
-    //
-    //   expect(isMined).to.be.true;
-    // });
+  });
 
+  describe('executing transaction', () => {
+    it('executes a successful tx', async () => {
+      const setTransactionHash = sinon.stub();
+      const receipt = await txService.executeTransaction({txFunction: () => Promise.resolve(rawTx), description: ''}, setTransactionHash);
+      expect(setTransactionHash).to.have.been.calledWith(rawTx.hash);
+      expect(receipt?.confirmations).to.be.greaterThan(0);
+    });
+
+    it('throws on failing tx', async () => {
+      provider.getTransactionReceipt = sinon.stub().resolves({status: 0, confirmations: 1});
+      await expect(txService.executeTransaction({txFunction: () => Promise.resolve(rawTx), description: ''}, sinon.stub()))
+        .to.be.eventually.rejectedWith(TransactionFailedError);
+    });
   });
 
 });
