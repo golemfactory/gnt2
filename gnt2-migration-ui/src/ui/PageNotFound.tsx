@@ -2,9 +2,9 @@ import React from 'react';
 import styled from 'styled-components';
 import pageNotFound from '../assets/icons/404.svg';
 import logo from '../assets/logo.svg';
-import arrowBack from '../assets/icons/arrow-back.svg';
 import {RouteComponentProps} from 'react-router-dom';
 import {Footer} from './Footer';
+import {BackButton} from './commons/Buttons/BackButton';
 
 export function PageNotFound({history}: RouteComponentProps) {
   return (
@@ -18,10 +18,7 @@ export function PageNotFound({history}: RouteComponentProps) {
           <CenterContainer>
             <img src={pageNotFound}/>
             <Text>Sorry we can&apos;t find that page. Either something went wrong or the page doesn&apos;t exist anymore.</Text>
-            <Back onClick={() => history.goBack()}>
-              <Arrow src={arrowBack}/>
-              Back
-            </Back>
+            <Back onClick={() => history.goBack()}>Back</Back>
           </CenterContainer>
         </PageContainer>
       </DashboardContainer>
@@ -70,22 +67,7 @@ const Text = styled.p`
   margin-bottom: 100px;
 `;
 
-const Back = styled.button`
-  width: 50px;
+const Back = styled(BackButton)`
+  display: block;
   margin: 0 auto;
-  font-weight: 300;
-  font-size: 12px;
-  line-height: 15px;
-  display: flex;
-  align-items: center;
-  letter-spacing: 2.57143px;
-  color: #1722A2;
-  text-decoration: none;
-`;
-
-const Arrow = styled.img`
-  width: 20px;
-  height: 6px;
-  margin-bottom: 3px;
-  transform: rotate(90deg);
 `;
