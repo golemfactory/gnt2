@@ -4,7 +4,7 @@ import pageNotFound from '../assets/icons/404.svg';
 import logo from '../assets/logo.svg';
 import arrowBack from '../assets/icons/arrow-back.svg';
 import {RouteComponentProps} from 'react-router-dom';
-import { Footer } from './Footer';
+import {Footer} from './Footer';
 
 export function PageNotFound({history}: RouteComponentProps) {
   return (
