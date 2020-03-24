@@ -2,9 +2,9 @@ import React from 'react';
 import {Redirect, Route, Switch} from 'react-router-dom';
 import {Login} from './Login/Login';
 import {Account} from './Account';
-import {PageNotFound} from './PageNotFound';
 import {useServices} from './hooks/useServices';
 import {RouteComponentProps} from 'react-router';
+import {PageNotFound} from './PageNotFound';
 
 export const Dashboard = () => {
 
@@ -26,7 +26,7 @@ export const Dashboard = () => {
     <Switch>
       <Route exact path='/account' render={accountOrRedirectToLoginWhenNotConnected}/>
       <Route exact path='/' render={loginOrRedirectToAccountWhenConnected}/>
-      <Route component={PageNotFound}/>
+      <Route path="*" render={PageNotFound}/>
     </Switch>
   );
 };
