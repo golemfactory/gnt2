@@ -1,6 +1,12 @@
 import {JsonRpcProvider} from 'ethers/providers';
 import {BigNumber, BigNumberish} from 'ethers/utils';
-import {GNTDepositFactory, GolemNetworkTokenBatchingFactory, GolemNetworkTokenFactory, NewGolemNetworkTokenFactory} from 'gnt2-contracts';
+import {
+  GNTDepositFactory,
+  GNTMigrationAgentFactory,
+  GolemNetworkTokenBatchingFactory,
+  GolemNetworkTokenFactory,
+  NewGolemNetworkTokenFactory
+} from 'gnt2-contracts';
 import {ContractAddressService} from './ContractAddressService';
 import {gasLimit} from '../config';
 import {ContractTransaction} from 'ethers';
@@ -21,8 +27,13 @@ export class TokensService {
   ngntBalance: Property<PossibleBalance>;
   depositBalance: Property<PossibleBalance>;
   depositLockState: Property<DepositState>;
+  migrationTarget: Property<string>;
 
-  constructor(private provider: () => JsonRpcProvider, private contractAddressService: ContractAddressService, private connectionService: ConnectionService) {
+  constructor(
+    private provider: () => JsonRpcProvider,
+    private contractAddressService: ContractAddressService,
+    private connectionService: ConnectionService
+  ) {
     this.gntBalance = this.createBalanceProperty(
       () => this.balanceOfOldTokens(this.account()),
       callback => ContractUtils.subscribeToEvents(
@@ -62,8 +73,34 @@ export class TokensService {
         callback
       )
     );
+    this.migrationTarget = this.createMigrationTargetProperty(
+      callback => ContractUtils.subscribeToEvents(
+        this.gntMigrationAgentContract(),
+        this.migrationTargetEventFilters(),
+        callback
+      ));
   }
 
+
+  private createMigrationTargetProperty(
+    subscribeToEvents: (cb: () => void) => (() => void)
+  ) {
+    const contractAddresses = this.contractAddressService.contractAddresses;
+    const state = new State<string>(contractAddresses.get().newGolemToken);
+    const updateDepositLockState = async () =>
+      this.safeContractRead(async () => {
+        const gntMigrationAgent = await this.gntMigrationAgentContract();
+        const gntMigrationTarget = await gntMigrationAgent.target();
+        state.set(gntMigrationTarget);
+      });
+
+    return state.pipe(
+      withSubscription(updateDepositLockState, contractAddresses),
+      withEffect(() => contractAddresses.pipe(
+        callEffectForEach(() => subscribeToEvents(updateDepositLockState))
+      ))
+    );
+  }
 
   private createDepositLockStateProperty(
     subscribeToEvents: (cb: () => void) => (() => void)
@@ -108,6 +145,10 @@ export class TokensService {
 
   private networkHasContracts() {
     return this.contractAddressService.hasContracts.get();
+  }
+
+  private migrationTargetEventFilters() {
+    return [this.gntMigrationAgentContract().filters.TargetChanged(null, null)];
   }
 
   private depositLockStateEventFilters() {
@@ -215,7 +256,10 @@ export class TokensService {
   }
 
   private gntContractAsSigner(address: string) {
-    return GolemNetworkTokenFactory.connect(this.tokenContractsAddresses().oldGolemToken, this.provider().getSigner(address));
+    return GolemNetworkTokenFactory.connect(
+      this.tokenContractsAddresses().oldGolemToken,
+      this.provider().getSigner(address)
+    );
   }
 
   private ngntContract() {
@@ -227,6 +271,13 @@ export class TokensService {
   }
 
   private gntbContractAsSigner(address: string) {
-    return GolemNetworkTokenBatchingFactory.connect(this.tokenContractsAddresses().batchingGolemToken, this.provider().getSigner(address));
+    return GolemNetworkTokenBatchingFactory.connect(
+      this.tokenContractsAddresses().batchingGolemToken,
+      this.provider().getSigner(address)
+    );
+  }
+
+  private gntMigrationAgentContract() {
+    return GNTMigrationAgentFactory.connect(this.tokenContractsAddresses().migrationAgent, this.provider());
   }
 }

@@ -11,6 +11,12 @@ import {DEPOSIT_LOCK_DELAY} from './helpers/contractConstants';
 import {Web3Provider} from 'ethers/providers';
 import {TestAccountPage} from './helpers/TestAccountPage';
 import {parseEther} from 'ethers/utils';
+import {AddressZero} from 'ethers/constants';
+import {DEFAULT_TEST_OVERRIDES} from '../../gnt2-contracts/test/utils';
+import {GNTMigrationAgentFactory} from '../../gnt2-contracts/build/contract-types/GNTMigrationAgentFactory';
+import {GNTMigrationAgent} from 'gnt2-contracts/build/contract-types/GNTMigrationAgent';
+import {Wallet} from 'ethers';
+import sinon from 'sinon';
 
 chai.use(chaiDom);
 chai.use(chaiAsPromised);
@@ -37,9 +43,41 @@ describe('Account page', () => {
   });
 
   context('with wallet with GNT tokens', async () => {
+    let provider: Web3Provider;
+    let anotherWallet: Wallet;
+    let gntMigrationAgent: GNTMigrationAgent;
+    let un: () => void;
 
     beforeEach(async () => {
+      ({services, provider} = await createTestServices('holder'));
       ({services} = await createTestServices('holder'));
+      const contractAddressService = services.contractAddressService;
+      const tokensService = services.tokensService;
+      const contractAddresses = contractAddressService.contractAddresses.get();
+      anotherWallet = getWallets(provider)[1];
+      gntMigrationAgent = GNTMigrationAgentFactory.connect(contractAddresses.migrationAgent, anotherWallet);
+      un = tokensService.migrationTarget.subscribe(sinon.stub());
+    });
+
+    afterEach(() => {
+      un();
+    });
+
+    it('shows info & prevent interactions when migration is halted', async () => {
+      const accountPage = await new TestAccountPage(services).load();
+
+      await wait(() => {
+        expect(accountPage.find('GNT-btn-tooltip')).to.not.have.text('Migration Target is not set');
+        expect(accountPage.find('convert-button')).to.not.have.attr('disabled');
+      });
+
+      await gntMigrationAgent.setTarget(AddressZero, DEFAULT_TEST_OVERRIDES);
+
+      await wait(() => {
+        expect(accountPage.find('GNT-btn-tooltip')).to.have.text('Migration Target is not set');
+        expect(accountPage.find('convert-button')).to.have.attr('disabled');
+      });
+
     });
 
     it('migrates user-specified number of tokens', async () => {
@@ -188,6 +226,7 @@ describe('Account page', () => {
     });
 
   });
+
   context('wallet with unlocked deposit', async () => {
     beforeEach(async () => {
       let provider: Web3Provider;

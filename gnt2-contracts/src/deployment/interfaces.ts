@@ -3,4 +3,5 @@ export interface GolemContractsDevDeployment {
   newGolemToken: string;
   batchingGolemToken: string;
   gntDeposit: string;
+  migrationAgent: string;
 }
