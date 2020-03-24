@@ -31,6 +31,10 @@ const DashboardContainer = styled.div`
   max-width: 1230px;
   margin: 0 auto;
   padding: 32px 30px 100px;
+
+  @media(max-width: 600px) {
+    padding: 32px 15px 100px;
+  }
 `;
 
 const Header = styled.div`
@@ -50,8 +54,12 @@ const PageName = styled.p`
 
 const CenterContainer = styled.div`
   margin: 0 auto;
-  width: 421px;
+  max-width: 421px;
   display: block;
+
+  & img {
+    max-width: 100%;
+  }
 `;
 
 const PageContainer = styled.div`
