@@ -109,6 +109,7 @@ export async function deployDevGolemContracts(provider: Provider,
     oldGolemToken: oldToken.address,
     newGolemToken: newToken.address,
     batchingGolemToken: batchingToken.address,
-    gntDeposit: tokenDeposit.address
+    gntDeposit: tokenDeposit.address,
+    migrationAgent: migrationAgent.address
   };
 }

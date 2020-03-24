@@ -7,7 +7,8 @@ const emptyContractAddresses: ContractAddresses = {
   batchingGolemToken: AddressZero,
   oldGolemToken: AddressZero,
   gntDeposit: AddressZero,
-  newGolemToken: AddressZero
+  newGolemToken: AddressZero,
+  migrationAgent: AddressZero
 };
 
 export class ContractAddressService {
