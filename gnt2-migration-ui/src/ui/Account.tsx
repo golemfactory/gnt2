@@ -194,7 +194,7 @@ export const Account = () => {
   );
 };
 
-const WarningModal = styled(Modal)`);
+const WarningModal = styled(Modal)`
   max-width: 660px;
 `;
 
@@ -203,6 +203,10 @@ const View = styled.div`
   width: 100%;
   padding: 24px 0 0;
   border-top: 1px solid rgb(232, 232, 246);
+
+  @media(max-width: 900px) {
+    max-width: initial;
+  }
 `;
 
 const JazziconWrapper = styled.div`
@@ -219,7 +223,7 @@ interface BlurProps {
 
 const Blur = styled.div<BlurProps>`
   filter: ${({isBlurred}) => isBlurred ? 'blur(7px)' : 'none'};
-  pointer-events: ${({isBlurred}) => isBlurred ? 'none' : 'initial'}
+  pointer-events: ${({isBlurred}) => isBlurred ? 'none' : 'initial'};
 `;
 
 const AddressBlock = styled.div`
@@ -238,4 +242,14 @@ const Address = styled.div`
   font-size: 14px;
   line-height: 16px;
   color: #1722A2;
+  @media (max-width: 600px) {
+    width: 240px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  @media (max-width: 340px) {
+    width: 185px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 `;

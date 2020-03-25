@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {Amount, AmountWrapper, BalanceBlock, BalanceButton, BalanceRow, Ticker} from './Balance';
+import {Amount, BalanceBlock, BalanceButton, BalanceRow, Ticker} from './Balance';
 import {formatValue} from '../../utils/formatter';
 import {BigNumber} from 'ethers/utils';
 import {TitleWithTooltip} from '../commons/Text/TitleWithTooltip';
@@ -37,16 +37,14 @@ export const OldTokensBalance = ({balance, onConvert}: OldTokensBalanceProps) =>
       </TitleWithTooltip>
       <BalanceRow>
         <Ticker>GNT</Ticker>
-        <AmountWrapper>
-          <Amount data-testid='GNT-balance'>{balance ? formatValue(balance.toString(), 3) : 0}</Amount>
-          <BalanceButton
-            data-testid='convert-button'
-            onClick={onConvert}
-            disabled={balance?.eq(new BigNumber('0')) || isMigrationTargetSetToZero}
-          >
-            Convert
-          </BalanceButton>
-        </AmountWrapper>
+        <Amount data-testid='GNT-balance'>{balance ? formatValue(balance.toString(), 3) : 0}</Amount>
+        <BalanceButton
+          data-testid='convert-button'
+          onClick={onConvert}
+          disabled={balance?.eq(new BigNumber('0')) || isMigrationTargetSetToZero}
+        >
+          Convert
+        </BalanceButton>
       </BalanceRow>
     </BalanceBlock>
   );

@@ -1,39 +1,50 @@
 import React, {ReactNode} from 'react';
 import styled from 'styled-components';
 import logo from '../../../assets/logo.svg';
+
 import {Help} from './Help';
 import {BlockTitle} from '../Text/BlockTitle';
 import {Footer} from '../../Footer';
+import {BackButton} from '../Buttons/BackButton';
 
 export interface DashboardLayoutProps {
   children: ReactNode;
   title?: string;
-  backTo?: string;
+  backTo?: () => void;
 }
 
-export const DashboardLayout = ({title, backTo, children}: DashboardLayoutProps) => (
-  <>
-    <DashboardContainer>
-      <Header>
-        <img src={logo} alt="Golem logo"/>
-        <PageName>GOLEM HOME</PageName>
-      </Header>
-      <Title>{title || 'GOLEM TOKEN MIGRATOR'}</Title>
-      <Row>
-        <DashboardContent>
-          {children}
-        </DashboardContent>
-        <Help/>
-      </Row>
-    </DashboardContainer>
-    <Footer/>
-  </>
-);
+export const DashboardLayout = ({title, backTo, children}: DashboardLayoutProps) => {
+  return (
+    <>
+      <DashboardContainer>
+        <Header>
+          <LogoWithBackButton>
+            <img src={logo} alt="Golem logo"/>
+            {backTo && <BackButton onClick={backTo}/>}
+          </LogoWithBackButton>
+          <PageName>GOLEM HOME</PageName>
+        </Header>
+        <Title>{title || 'GOLEM TOKEN MIGRATOR'}</Title>
+        <Row>
+          <DashboardContent>
+            {children}
+          </DashboardContent>
+          <Help/>
+        </Row>
+      </DashboardContainer>
+      <Footer/>
+    </>
+  );
+};
 
 const DashboardContainer = styled.div`
   max-width: 1230px;
   margin: 0 auto;
   padding: 32px 30px 100px;
+
+  @media(max-width: 600px) {
+    padding: 32px 15px 100px;
+  }
 `;
 
 const Header = styled.div`
@@ -72,8 +83,15 @@ const Title = styled(BlockTitle)`
 const Row = styled.div`
   display: flex;
   justify-content: space-between;
+  @media (max-width: 900px) {
+    flex-direction: column;
+  }
 `;
 
 const DashboardContent = styled.div`
   width: 100%;
+`;
+
+const LogoWithBackButton = styled.div`
+  display: flex;
 `;

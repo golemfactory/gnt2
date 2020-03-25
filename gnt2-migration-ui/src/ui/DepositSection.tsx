@@ -4,7 +4,7 @@ import {useServices} from './hooks/useServices';
 import {useProperty} from './hooks/useProperty';
 import {DepositState} from '../services/TokensService';
 import {isEmpty} from '../utils/bigNumberUtils';
-import {Amount, AmountWrapper, BalanceBlock, BalanceButton, BalanceRow, Ticker} from './Account/Balance';
+import {Amount, BalanceBlock, BalanceButton, BalanceRow, Ticker} from './Account/Balance';
 import {formatTokenBalance} from '../utils/formatter';
 import lockIcon from '../assets/icons/lock.svg';
 import styled from 'styled-components';
@@ -73,18 +73,16 @@ export function DepositSection({onMoveToWrapped, onUnlock}: DepositSectionProps)
       </TitleWithTooltip>
       <BalanceRow>
         <DepositTicker isLocked={depositLockState === DepositState.LOCKED || depositLockState === DepositState.TIME_LOCKED}>GNTb</DepositTicker>
-        <AmountWrapper>
-          <Amount data-testid='deposit'>{formatTokenBalance(depositBalance)}</Amount>
-          {depositLockState === DepositState.TIME_LOCKED
-            ? <DepositTimer/>
-            : <BalanceButton
-              data-testid="action-deposit-button"
-              onClick={() => changeDepositState()}
-            >
-              {getTitle()}
-            </BalanceButton>
-          }
-        </AmountWrapper>
+        <Amount data-testid='deposit'>{formatTokenBalance(depositBalance)}</Amount>
+        {depositLockState === DepositState.TIME_LOCKED
+          ? <DepositTimer/>
+          : <BalanceButton
+            data-testid="action-deposit-button"
+            onClick={() => changeDepositState()}
+          >
+            {getTitle()}
+          </BalanceButton>
+        }
       </BalanceRow>
     </BalanceBlock>
   );

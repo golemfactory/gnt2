@@ -74,6 +74,10 @@ const ConnectButton = styled(ButtonSecondary)`
   font-size: 14px;
   line-height: 16px;
   font-weight: bold;
+
+  @media(max-width: 500px) {
+    max-width: initial;
+  }
 `;
 
 const MetaMaskButton = styled(ConnectButton)`
@@ -82,6 +86,11 @@ const MetaMaskButton = styled(ConnectButton)`
   & img {
     max-width: 40px;
     margin-right: 16px;
+  }
+
+  @media(max-width: 500px) {
+    max-width: initial;
+    justify-content: center;
   }
 `;
 
@@ -101,8 +110,17 @@ const ButtonsRow = styled.div`
   display: flex;
   align-items: center;
   margin: 16px 0;
+
+  @media(max-width: 500px) {
+    flex-direction: column;
+    align-items: flex-start;    
+  }
 `;
 
 const TextSeparator = styled(BlockTitle)`
   margin: 0 12px;
+
+  @media(max-width: 500px) {
+    margin: 15px auto;
+  }
 `;

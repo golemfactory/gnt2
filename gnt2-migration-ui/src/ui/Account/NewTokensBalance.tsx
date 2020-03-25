@@ -27,6 +27,15 @@ const View = styled(BalanceBlock)`
 const Row = styled(BalanceRow)`
   margin-top: 3px;
   max-width: 402px;
+
+  @media(max-width: 900px) {
+    max-width: initial;
+    padding-right: 180px;
+  }
+
+  @media(max-width: 600px) {
+    padding: 0;
+  }
 `;
 
 const TokenTicker = styled(Ticker)`
