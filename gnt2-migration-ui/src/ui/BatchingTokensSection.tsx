@@ -1,6 +1,6 @@
 import React from 'react';
 import {formatValue} from '../utils/formatter';
-import {Amount, AmountWrapper, BalanceBlock, BalanceButton, BalanceRow, Ticker} from './Account/Balance';
+import {Amount, BalanceBlock, BalanceButton, BalanceRow, Ticker} from './Account/Balance';
 import {useServices} from './hooks/useServices';
 import {useProperty} from './hooks/useProperty';
 import {isEmpty} from '../utils/bigNumberUtils';
@@ -28,15 +28,13 @@ export const BatchingTokensSection = ({onUnwrap}: BatchingTokensSectionProps) =>
       </TitleWithTooltip>
       <BalanceRow>
         <Ticker>GNTb</Ticker>
-        <AmountWrapper>
-          <Amount data-testid='GNTB-balance'>{batchingTokensBalance && formatValue(batchingTokensBalance.toString(), 3)}</Amount>
-          <BalanceButton
-            data-testid="unwrap-tokens-button"
-            onClick={onUnwrap}
-          >
-            Unwrap
-          </BalanceButton>
-        </AmountWrapper>
+        <Amount data-testid='GNTB-balance'>{batchingTokensBalance && formatValue(batchingTokensBalance.toString(), 3)}</Amount>
+        <BalanceButton
+          data-testid="unwrap-tokens-button"
+          onClick={onUnwrap}
+        >
+          Unwrap
+        </BalanceButton>
       </BalanceRow>
     </BalanceBlock>
   );

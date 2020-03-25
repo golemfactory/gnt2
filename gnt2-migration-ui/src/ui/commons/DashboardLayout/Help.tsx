@@ -21,8 +21,14 @@ const HelpView = styled.div`
   max-width: 370px;
   margin-left: 30px;
   text-align: right;
+
   @media (max-width: 900px) {
-    margin-top: 50px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    max-width: initial;
+    margin: 50px 0 0;
+    text-align: left;
   }
 `;
 
@@ -42,9 +48,14 @@ const Video = styled.div`
   height: 152px;
   margin: 0 0 62px auto;
   background: #EDEEFF;
+  
+  @media (max-width: 900px) {
+    margin: 0 auto 62px 0;
+  }
+
   @media (max-width: 350px) {
     width: 203px;
-  height: 114px;
+    height: 114px;
   }
 `;
 

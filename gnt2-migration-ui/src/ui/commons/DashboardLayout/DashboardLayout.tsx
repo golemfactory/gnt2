@@ -1,11 +1,12 @@
 import React, {ReactNode} from 'react';
 import styled from 'styled-components';
 import logo from '../../../assets/logo.svg';
-import arrowBack from '../../../assets/icons/arrow-back.svg';
 
 import {Help} from './Help';
 import {BlockTitle} from '../Text/BlockTitle';
 import {Footer} from '../../Footer';
+import {BackButton} from '../Buttons/BackButton';
+import {useHistory} from 'react-router-dom';
 
 export interface DashboardLayoutProps {
   children: ReactNode;
@@ -13,37 +14,41 @@ export interface DashboardLayoutProps {
   backTo?: string;
 }
 
-export const DashboardLayout = ({title, backTo, children}: DashboardLayoutProps) => (
-  <>
-    <DashboardContainer>
-      <Header>
-        <LogoWithBackButton>
-          <img src={logo} alt="Golem logo"/>
-          {backTo &&
-          <Back href={backTo}>
-            <Arrow src={arrowBack}/>
-            Back
-          </Back>
-          }
-        </LogoWithBackButton>
-        <PageName>GOLEM HOME</PageName>
-      </Header>
-      <Title>{title || 'GOLEM TOKEN MIGRATOR'}</Title>
-      <Row>
-        <DashboardContent>
-          {children}
-        </DashboardContent>
-        <Help/>
-      </Row>
-    </DashboardContainer>
-    <Footer/>
-  </>
-);
+export const DashboardLayout = ({title, backTo, children}: DashboardLayoutProps) => {
+  const history = useHistory();
+
+  return (
+    <>
+      <DashboardContainer>
+        <Header>
+          <LogoWithBackButton>
+            <img src={logo} alt="Golem logo"/>
+            {backTo && <BackButton onClick={() => history.push(backTo)}/>
+            }
+          </LogoWithBackButton>
+          <PageName>GOLEM HOME</PageName>
+        </Header>
+        <Title>{title || 'GOLEM TOKEN MIGRATOR'}</Title>
+        <Row>
+          <DashboardContent>
+            {children}
+          </DashboardContent>
+          <Help/>
+        </Row>
+      </DashboardContainer>
+      <Footer/>
+    </>
+  );
+};
 
 const DashboardContainer = styled.div`
   max-width: 1230px;
   margin: 0 auto;
   padding: 32px 30px 100px;
+
+  @media(max-width: 600px) {
+    padding: 32px 15px 100px;
+  }
 `;
 
 const Header = styled.div`
@@ -89,26 +94,6 @@ const Row = styled.div`
 
 const DashboardContent = styled.div`
   width: 100%;
-`;
-
-const Back = styled.a`
-  width: 50px;
-  font-weight: 300;
-  font-size: 12px;
-  line-height: 15px;
-  display: flex;
-  align-items: center;
-  letter-spacing: 2.57143px;
-  color: #1722A2;
-  text-decoration: none;
-  margin-left: 50px;
-`;
-
-const Arrow = styled.img`
-  width: 20px;
-  height: 6px;
-  margin-bottom: 3px;
-  transform: rotate(90deg);
 `;
 
 const LogoWithBackButton = styled.div`
