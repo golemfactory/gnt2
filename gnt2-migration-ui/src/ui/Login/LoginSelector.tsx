@@ -37,7 +37,7 @@ export const LoginSelector = ({onMetamaskClick}: LoginSelectorProps) => {
         onChange={setIsChecked}
         label={
           <>
-            Lorem ipsum dolor sit amet enim etiam <Link href="">Terms and Conditions</Link>.
+            <Link href="">Terms and Conditions</Link>.
           </>
         }
       />
