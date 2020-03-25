@@ -4,13 +4,14 @@ import sinon from 'sinon';
 import {ConnectionService} from '../../src/services/ConnectionService';
 import {deployDevGolemContracts, GolemContractsDeploymentAddresses} from 'gnt2-contracts';
 import {ContractAddressService} from '../../src/services/ContractAddressService';
-import {ContractAddresses} from '../../src/config';
 import {loadFixture} from 'ethereum-waffle';
 import {TokensService} from '../../src/services/TokensService';
 import {MockedEthereum} from './mockedEthereum';
 import {RefreshService} from '../../src/services/RefreshService';
 import {Wallet} from 'ethers';
 import {TransactionsService} from '../../src/services/TransactionService';
+import {ContractAddresses} from '../../src/domain/Network';
+import config from '../../src/config';
 
 const noOpLogger = {
   log: () => {
@@ -69,7 +70,7 @@ function selectWallet(loginAs: AccountType, emptyWallet: Wallet, holderWallet: W
 
 function testTransactionService(provider: Web3Provider, connectionService: ConnectionService) {
   localStorage.clear();
-  return new TransactionsService(() => provider, connectionService);
+  return new TransactionsService(() => provider, connectionService, config.confirmationHeights);
 }
 
 export async function createTestServices(loginAs: AccountType = 'holderUser') {
@@ -78,7 +79,7 @@ export async function createTestServices(loginAs: AccountType = 'holderUser') {
   const connectionService = await testConnectionService(provider, wallet);
   const contractAddressService = testContractAddressService(connectionService, addresses);
   const accountService = testAccountService(provider, wallet);
-  const tokensService = new TokensService(() => provider, contractAddressService, connectionService);
+  const tokensService = new TokensService(() => provider, contractAddressService, connectionService, config.gasLimit);
   await connectionService.checkConnection();
   await connectionService.checkNetwork();
   const refreshService = new RefreshService();

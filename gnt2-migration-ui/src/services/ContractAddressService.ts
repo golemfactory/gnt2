@@ -1,7 +1,7 @@
 import {map, Property} from 'reactive-properties';
-import {ContractAddresses, ContractAddressesByNetwork} from '../config';
 import {ConnectionService} from './ConnectionService';
 import {AddressZero} from 'ethers/constants';
+import {ContractAddresses, ContractAddressesByNetwork} from '../domain/Network';
 
 const emptyContractAddresses: ContractAddresses = {
   batchingGolemToken: AddressZero,

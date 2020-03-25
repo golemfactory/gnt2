@@ -8,7 +8,6 @@ import {
   NewGolemNetworkTokenFactory
 } from 'gnt2-contracts';
 import {ContractAddressService} from './ContractAddressService';
-import {gasLimit} from '../config';
 import {ContractTransaction} from 'ethers';
 import {callEffectForEach, Property, State, withEffect, withSubscription} from 'reactive-properties';
 import {ConnectionService} from './ConnectionService';
@@ -33,7 +32,7 @@ export class TokensService {
     private provider: () => JsonRpcProvider,
     private contractAddressService: ContractAddressService,
     private connectionService: ConnectionService
-  ) {
+    , private gasLimit: number) {
     this.gntBalance = this.createBalanceProperty(
       () => this.balanceOfOldTokens(this.account()),
       callback => ContractUtils.subscribeToEvents(
@@ -203,7 +202,7 @@ export class TokensService {
   }
 
   async migrateTokens(address: string, value: BigNumberish): Promise<ContractTransaction> {
-    return this.gntContractAsSigner(address).migrate(value, {gasLimit});
+    return this.gntContractAsSigner(address).migrate(value, {gasLimit: this.gasLimit});
   }
 
   async balanceOfBatchingTokens(address: string) {
@@ -232,7 +231,7 @@ export class TokensService {
   }
 
   async moveToWrapped(address: string): Promise<ContractTransaction> {
-    return this.gntDepositContractAsSigner(address).withdraw(address, {gasLimit: gasLimit});
+    return this.gntDepositContractAsSigner(address).withdraw(address, {gasLimit: this.gasLimit});
   }
 
   unlockDeposit(address: string): Promise<ContractTransaction> {

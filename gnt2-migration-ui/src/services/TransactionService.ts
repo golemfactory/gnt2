@@ -4,6 +4,7 @@ import {ConnectionService} from './ConnectionService';
 import {TransactionWithDescription} from '../ui/Account';
 import {mapCodeToError} from '../utils/mapCodeToError';
 import {TransactionFailedError} from '../errors';
+import {ConfirmationHeights} from '../domain/ConfirmationHeights';
 
 interface StoredTx {
   hash: string;
@@ -12,7 +13,7 @@ interface StoredTx {
 
 export class TransactionsService {
 
-  constructor(private provider: () => JsonRpcProvider, private connectionService: ConnectionService) {}
+  constructor(private provider: () => JsonRpcProvider, private connectionService: ConnectionService, private confirmationHeights: ConfirmationHeights) {}
 
   isTxStored() {
     const storedTxAsString = localStorage.getItem(this.getKey());
@@ -48,7 +49,7 @@ export class TransactionsService {
       setTransactionHash(txHash);
       if (txHash) {
         this.saveTxHashInLocalStorage({hash: txHash, description: transactionToBeExecuted.description});
-        receipt = await this.waitForTx(txHash);
+        receipt = await this.waitForTx(txHash, this.getConfirmationHeight());
       }
     } catch (e) {
       throw mapCodeToError(e);
@@ -57,6 +58,17 @@ export class TransactionsService {
       throw new TransactionFailedError();
     }
     return receipt;
+  }
+
+  private getConfirmationHeight() {
+    const networkName = this.connectionService.network.get();
+    if (!networkName) {
+      return 1;
+    }
+    if (this.confirmationHeights[networkName]) {
+      return this.confirmationHeights[networkName];
+    }
+    return this.confirmationHeights.default;
   }
 
   private async waitForTx(txHash: string, confirmations?: number): Promise<ContractReceipt | undefined> {

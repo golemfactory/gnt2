@@ -1,7 +1,7 @@
 import {JsonRpcProvider, Web3Provider} from 'ethers/providers';
 import {State} from 'reactive-properties';
-import {NetworkName} from '../config';
 import '../types';
+import {NetworkName} from '../domain/Network';
 
 export enum ConnectionState {
   UNKNOWN,
