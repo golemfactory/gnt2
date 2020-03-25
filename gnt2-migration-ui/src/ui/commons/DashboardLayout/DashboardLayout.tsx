@@ -6,25 +6,21 @@ import {Help} from './Help';
 import {BlockTitle} from '../Text/BlockTitle';
 import {Footer} from '../../Footer';
 import {BackButton} from '../Buttons/BackButton';
-import {useHistory} from 'react-router-dom';
 
 export interface DashboardLayoutProps {
   children: ReactNode;
   title?: string;
-  backTo?: string;
+  backTo?: () => void;
 }
 
 export const DashboardLayout = ({title, backTo, children}: DashboardLayoutProps) => {
-  const history = useHistory();
-
   return (
     <>
       <DashboardContainer>
         <Header>
           <LogoWithBackButton>
             <img src={logo} alt="Golem logo"/>
-            {backTo && <BackButton onClick={() => history.push(backTo)}/>
-            }
+            {backTo && <BackButton onClick={backTo}/>}
           </LogoWithBackButton>
           <PageName>GOLEM HOME</PageName>
         </Header>
