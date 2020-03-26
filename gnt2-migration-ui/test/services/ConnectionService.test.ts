@@ -1,10 +1,10 @@
 import chai, {expect} from 'chai';
-import {ConnectionService, ConnectionState} from '../src/services/ConnectionService';
+import {ConnectionService, ConnectionState} from '../../src/services/ConnectionService';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import chaiAsPromised from 'chai-as-promised';
 import {JsonRpcProvider} from 'ethers/providers';
-import {MockedEthereum} from './helpers/mockedEthereum';
+import {MockedEthereum} from '../helpers/mockedEthereum';
 
 chai.use(sinonChai);
 chai.use(chaiAsPromised);

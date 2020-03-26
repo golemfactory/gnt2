@@ -11,6 +11,7 @@ import {JsonRpcProvider} from 'ethers/providers';
 import {Services} from '../../src/services';
 import sinon, {SinonSandbox} from 'sinon';
 import {TransactionFailedError} from '../../src/errors';
+import {NetworkName} from '../../src/domain/Network';
 
 chai.use(solidity);
 chai.use(chaiAsPromised);
@@ -29,6 +30,21 @@ describe('Transactions Service', () => {
     txService = services.transactionService;
     address = services.connectionService.account.get();
     rawTx = await services.tokensService.unlockDeposit(address);
+  });
+
+  describe('transaction confirmation height', () => {
+    [
+      ['mainnet', 12],
+      ['ropsten', 12],
+      ['rinkeby', 6],
+      ['kovan', 12],
+      ['local', 1]
+    ].forEach(([network, confirmationHeight]) => {
+      it(`gets confirmation height for ${network}`, async () => {
+        services.connectionService.network.set(network as NetworkName);
+        expect(txService['getConfirmationHeight']()).to.eq(confirmationHeight);
+      });
+    });
   });
 
   describe('interactions with local storage', () => {
