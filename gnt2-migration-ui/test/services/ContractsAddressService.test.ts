@@ -1,10 +1,10 @@
 import {expect} from 'chai';
-import '../src/types';
-import {ContractAddressService} from '../src/services/ContractAddressService';
+import '../../src/types';
+import {ContractAddressService} from '../../src/services/ContractAddressService';
 import {State} from 'reactive-properties';
-import {ConnectionService} from '../src/services/ConnectionService';
-import {NetworkName} from '../src/domain/Network';
-import config from '../src/config';
+import {ConnectionService} from '../../src/services/ConnectionService';
+import {NetworkName} from '../../src/domain/Network';
+import config from '../../src/config';
 
 describe('Contract Address Service', () => {
   it('updates contract addresses on network change', async () => {
