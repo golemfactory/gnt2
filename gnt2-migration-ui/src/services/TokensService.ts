@@ -12,12 +12,11 @@ import {ContractTransaction} from 'ethers';
 import {callEffectForEach, Property, State, withEffect, withSubscription} from 'reactive-properties';
 import {ConnectionService} from './ConnectionService';
 import {ContractUtils} from '../utils/contractUtils';
+import {PossibleBalance} from '../domain/PossibleBalance';
 
 export enum DepositState {
   LOCKED, TIME_LOCKED, UNLOCKED, EMPTY
 }
-
-export type PossibleBalance = BigNumber | undefined;
 
 export class TokensService {
 

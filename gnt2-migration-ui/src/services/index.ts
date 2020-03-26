@@ -5,6 +5,7 @@ import {ContractAddressService} from './ContractAddressService';
 import {RefreshService} from './RefreshService';
 import {TransactionsService} from './TransactionService';
 import config from '../config';
+import {EtherService} from './EtherService';
 
 export type Services = ReturnType<typeof createServices>;
 
@@ -20,6 +21,7 @@ export function createServices() {
   };
   const refreshService = new RefreshService();
   const transactionService = new TransactionsService(getProvider, connectionService, config.confirmationHeights);
+  const etherService = new EtherService(getProvider, connectionService);
 
   return {
     contractAddressService,
@@ -28,6 +30,7 @@ export function createServices() {
     tokensService,
     startServices,
     refreshService,
-    transactionService
+    transactionService,
+    etherService
   };
 }

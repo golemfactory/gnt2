@@ -1,6 +1,6 @@
 import {BigNumberish} from 'ethers/utils';
 import {convertBalanceToBigJs} from './bigNumberUtils';
-import {PossibleBalance} from '../services/TokensService';
+import {PossibleBalance} from '../domain/PossibleBalance';
 
 export const formatValue = (value: BigNumberish, digits: number) => {
   return convertBalanceToBigJs(value).toFixed(digits);

@@ -12,6 +12,7 @@ import {Wallet} from 'ethers';
 import {TransactionsService} from '../../src/services/TransactionService';
 import {ContractAddresses} from '../../src/domain/Network';
 import config from '../../src/config';
+import {EtherService} from '../../src/services/EtherService';
 
 const noOpLogger = {
   log: () => {
@@ -84,6 +85,7 @@ export async function createTestServices(loginAs: AccountType = 'holderUser') {
   await connectionService.checkNetwork();
   const refreshService = new RefreshService();
   const transactionService = testTransactionService(provider, connectionService);
+  const etherService = new EtherService(() => provider, connectionService);
 
   return {
     services: {
@@ -93,7 +95,8 @@ export async function createTestServices(loginAs: AccountType = 'holderUser') {
       connectionService,
       contractAddressService,
       refreshService,
-      transactionService
+      transactionService,
+      etherService
     },
     provider
   };
