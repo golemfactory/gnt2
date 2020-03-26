@@ -42,7 +42,7 @@ describe('Transactions Service', () => {
     ].forEach(([network, confirmationHeight]) => {
       it(`gets confirmation height for ${network}`, async () => {
         services.connectionService.network.set(network as NetworkName);
-        expect(txService.getConfirmationHeight()).to.eq(confirmationHeight);
+        expect(txService['getConfirmationHeight']()).to.eq(confirmationHeight);
       });
     });
   });

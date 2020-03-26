@@ -60,7 +60,7 @@ export class TransactionsService {
     return receipt;
   }
 
-  getConfirmationHeight() {
+  private getConfirmationHeight() {
     const networkName = this.connectionService.network.get();
     if (!networkName) {
       return 1;
