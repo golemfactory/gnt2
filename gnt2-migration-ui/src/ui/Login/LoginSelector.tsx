@@ -35,11 +35,8 @@ export const LoginSelector = ({onMetamaskClick}: LoginSelectorProps) => {
       <Checkbox
         value={isChecked}
         onChange={setIsChecked}
-        label={
-          <>
-            Lorem ipsum dolor sit amet enim etiam <Link href="">Terms and Conditions</Link>.*
-          </>
-        }
+        label={'Lorem ipsum dolor sit amet enim etiam'}
+        nonClickableLabel={<><Link href="/google">Terms and Conditions</Link>.*</>}
       />
       <ConnectionBlock>
         <BlockTitle>Connect to:</BlockTitle>

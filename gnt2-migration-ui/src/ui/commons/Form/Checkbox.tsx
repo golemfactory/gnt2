@@ -4,19 +4,31 @@ import checkmark from '../../../assets/icons/checkmark.svg';
 
 export interface CheckboxProps {
   label: string | ReactNode;
+  nonClickableLabel?: string | ReactNode | undefined;
   value: boolean;
   onChange: (value: boolean) => void;
 }
 
-export const Checkbox = ({label, value, onChange}: CheckboxProps) => (
-  <CheckboxContainer onClick={() => onChange(!value)}>
-    <HiddenCheckbox onChange={() => onChange(!value)} checked={value}/>
-    <StyledCheckbox/>
-    <CheckboxLabel>{label}</CheckboxLabel>
+export const Checkbox = ({label, nonClickableLabel, value, onChange}: CheckboxProps) => (
+  <CheckboxContainer>
+    <ClickableContainer onClick={() => onChange(!value)}>
+      <HiddenCheckbox onChange={() => onChange(!value)} checked={value}/>
+      <StyledCheckbox/>
+      <CheckboxLabel>{label}</CheckboxLabel>
+    </ClickableContainer>
+    {
+      nonClickableLabel &&
+      <CheckboxLabel>&nbsp;{nonClickableLabel}</CheckboxLabel>
+    }
   </CheckboxContainer>
 );
 
 const CheckboxContainer = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
+const ClickableContainer = styled.div`
   display: flex;
   align-items: center;
   cursor: pointer;
