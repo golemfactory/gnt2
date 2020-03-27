@@ -6,5 +6,5 @@ export interface ContractAddresses {
   migrationAgent: string;
 }
 
-export type NetworkName = 'mainnet' | 'ropsten' | 'rinkeby' | 'kovan' | 'local';
+export type NetworkName = 'mainnet' | 'ropsten' | 'rinkeby' | 'kovan' | 'local' | 'unknown';
 export type ContractAddressesByNetwork = Partial<Record<NetworkName, ContractAddresses>>;

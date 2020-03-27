@@ -34,7 +34,7 @@ export interface TransactionWithDescription {
 export const Account = () => {
   const {tokensService, connectionService, contractAddressService, transactionService} = useServices();
 
-  const account = useProperty(connectionService.account);
+  const account = useProperty(connectionService.address);
   const network = useProperty(connectionService.network);
   const hasContracts = useProperty(contractAddressService.hasContracts);
 

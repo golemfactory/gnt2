@@ -109,7 +109,6 @@ export class TokensService {
       this.safeContractRead(async () => state.set(await this.getDepositState(this.account())));
 
     return state.pipe(
-      withSubscription(updateDepositLockState, contractAddresses),
       withSubscription(updateDepositLockState, this.connectionService.account),
       withEffect(() => contractAddresses.pipe(
         callEffectForEach(() => subscribeToEvents(updateDepositLockState))
@@ -127,7 +126,6 @@ export class TokensService {
       this.safeContractRead(async () => state.set(await fetchBalance()));
 
     return state.pipe(
-      withSubscription(updateBalance, contractAddresses),
       withSubscription(updateBalance, this.connectionService.account),
       withEffect(() => contractAddresses.pipe(
         callEffectForEach(() => this.networkHasContracts() ? subscribeToEvents(updateBalance) : () => { /**/ })
@@ -185,7 +183,7 @@ export class TokensService {
   }
 
   private account() {
-    return this.connectionService.account.get();
+    return this.connectionService.address.get();
   }
 
   tokenContractsAddresses() {

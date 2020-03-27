@@ -8,14 +8,14 @@ import clockIcon from '../assets/icons/clock.svg';
 import styled from 'styled-components';
 
 export const DepositTimer = () => {
-  const {tokensService, connectionService, contractAddressService, refreshService} = useServices();
-  const account = useProperty(connectionService.account);
+  const {tokensService, connectionService, contractAddressService} = useServices();
+  const account = useProperty(connectionService.address);
   const contractAddresses = useProperty(contractAddressService.contractAddresses);
 
   const depositState = useProperty(tokensService.depositLockState);
-  const [timeLeft] = useAsync(async () => tokensService.getDepositUnlockTime(account), [contractAddresses, account]);
-  const [timer, setTimer] = useState<string | undefined>(undefined);
   const [flag, setFlag] = useState(false);
+  const [timeLeft] = useAsync(async () => tokensService.getDepositUnlockTime(account), [contractAddresses, account, flag]);
+  const [timer, setTimer] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     setTimer('');
@@ -28,7 +28,6 @@ export const DepositTimer = () => {
 
 
   if (!flag && timer === '00:00:00') {
-    refreshService.refresh();
     setFlag(true);
   }
 

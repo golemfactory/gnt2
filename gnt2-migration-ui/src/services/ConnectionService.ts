@@ -1,7 +1,8 @@
 import {JsonRpcProvider, Web3Provider} from 'ethers/providers';
-import {State} from 'reactive-properties';
+import {combine, Property, State} from 'reactive-properties';
 import '../types';
 import {NetworkName} from '../domain/Network';
+import {Account} from '../domain/Account';
 
 export enum ConnectionState {
   UNKNOWN,
@@ -10,7 +11,7 @@ export enum ConnectionState {
   CONNECTED
 }
 
-const networkNameFrom = (chainId: string): NetworkName | undefined => {
+const networkNameFrom = (chainId: string): NetworkName => {
   switch (chainId) {
     case '1':
       return 'mainnet';
@@ -24,18 +25,21 @@ const networkNameFrom = (chainId: string): NetworkName | undefined => {
   if (!!Number(chainId) && Number(chainId) > 1000000000) {
     return 'local';
   }
+  return 'unknown';
 };
 
 export class ConnectionService {
   private provider: JsonRpcProvider | undefined;
-  network: State<NetworkName | undefined>;
+  network: State<NetworkName>;
   connectionState: ConnectionState;
-  account: State<string>;
+  address: State<string>;
+  account: Property<Account>;
 
   constructor(private injectedMetaMaskEthereum: MetamaskEthereum | undefined) {
     this.connectionState = ConnectionState.UNKNOWN;
-    this.account = new State<string>('');
+    this.address = new State<string>('');
     this.network = new State<NetworkName>('local');
+    this.account = combine<Account, NetworkName, string>([this.network, this.address], (network, address) => new Account(network, address));
   }
 
   static create() {
@@ -79,7 +83,7 @@ export class ConnectionService {
       this.connectionState = ConnectionState.NOT_CONNECTED;
       return;
     }
-    this.account.set(accounts[0]);
+    this.address.set(accounts[0]);
     this.connectionState = ConnectionState.CONNECTED;
   }
 

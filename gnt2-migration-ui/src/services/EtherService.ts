@@ -14,19 +14,17 @@ export class EtherService {
   private createEtherBalanceProperty() {
     const state = new State<PossibleBalance>(undefined);
     const updateEtherGivenBalance = (balance: PossibleBalance) => state.set(balance);
-    const updateEtherBalance = async () => state.set(await this.provider().getBalance(this.connectionService.account.get()));
+    const updateEtherBalance = async () => state.set(await this.provider().getBalance(this.connectionService.address.get()));
     return state.pipe(
       withSubscription(updateEtherBalance, this.connectionService.account),
-      withSubscription(updateEtherBalance, this.connectionService.network),
-      withEffect(() => this.connectionService.network.pipe(
-        callEffectForEach(() => this.subscribeToBalanceChange(updateEtherGivenBalance))
+      withEffect(() => this.connectionService.account.pipe(
+        callEffectForEach((account) => this.subscribeToBalanceChange(account.address, updateEtherGivenBalance))
       ))
     );
   }
 
-  private subscribeToBalanceChange(callback: (balance: PossibleBalance) => void) {
-    const account = this.connectionService.account.get();
-    this.provider().on(account, (newBalance) => callback(newBalance));
-    return () => this.provider().removeAllListeners(account);
+  private subscribeToBalanceChange(address: string, callback: (balance: PossibleBalance) => void) {
+    this.provider().on(address, (newBalance) => callback(newBalance));
+    return () => this.provider().removeAllListeners(address);
   }
 }

@@ -17,7 +17,7 @@ export const TransactionStatus = ({
   const [txInProgress, setTxInProgress] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | undefined>(undefined);
   const [transactionHash, setTransactionHash] = React.useState<string | undefined>();
-  const {refreshService, transactionService} = useServices();
+  const {transactionService} = useServices();
 
   const closeModal = () => {
     onClose();
@@ -32,7 +32,6 @@ export const TransactionStatus = ({
       setTxInProgress(true);
       try {
         await transactionService.executeTransaction(transactionToBeExecuted, setTransactionHash);
-        refreshService.refresh();
       } catch (e) {
         setErrorMessage(e.message);
       } finally {

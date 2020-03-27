@@ -4,10 +4,8 @@ import {Ticker} from './Balance';
 import styled from 'styled-components';
 import {TitleWithTooltip} from '../commons/Text/TitleWithTooltip';
 import {CancelButton} from '../commons/Buttons/CancelButton';
-import {BigNumber} from 'ethers/utils';
 import {useServices} from '../hooks/useServices';
 import {useProperty} from '../hooks/useProperty';
-import {useAsync} from '../hooks/useAsync';
 import {convertBalanceToBigJs} from '../../utils/bigNumberUtils';
 import {Big} from 'big.js';
 import {formatTokenBalance, formatValue} from '../../utils/formatter';
@@ -20,11 +18,8 @@ interface MoveToWrappedProps {
 }
 
 export const MoveToWrapped = ({onCancelClick, onConfirm, description}: MoveToWrappedProps) => {
-  const {accountService, connectionService} = useServices();
-  const network = useProperty(connectionService.network);
-  const account = useProperty(connectionService.account);
-  const useAsyncBalance = (execute: () => Promise<BigNumber | undefined>) => useAsync(execute, [network, account]);
-  const [ethBalance] = useAsyncBalance(async () => accountService.balanceOf(account));
+  const {etherService} = useServices();
+  const ethBalance = useProperty(etherService.etherBalance);
   const [lowEth, setLowEth] = useState(false);
 
   useEffect(() => {

@@ -24,7 +24,6 @@ import {PossibleBalance} from '../../src/domain/PossibleBalance';
 chai.use(solidity);
 chai.use(chaiAsPromised);
 const expect = chai.expect;
-const services: TokensService[] = [];
 
 describe('Token Service', () => {
   let provider: Web3Provider;
@@ -46,7 +45,6 @@ describe('Token Service', () => {
   beforeEach(async () => {
     let contractAddressService: ContractAddressService;
     ({services: {contractAddressService, tokensService}, provider} = await createTestServices());
-    services.push(tokensService);
     [holderWallet, anotherWallet] = getWallets(provider);
     holder = holderWallet.address;
 
