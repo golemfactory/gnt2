@@ -35,30 +35,35 @@ export const LoginSelector = ({onMetamaskClick}: LoginSelectorProps) => {
       <Checkbox
         value={isChecked}
         onChange={setIsChecked}
-        label={
-          <>
-            Lorem ipsum dolor sit amet enim etiam <Link href="">Terms and Conditions</Link>.
-          </>
-        }
+        label={'Lorem ipsum dolor sit amet enim etiam'}
+        nonClickableLabel={<><Link href="/google">Terms and Conditions</Link>.*</>}
       />
       <ConnectionBlock>
         <BlockTitle>Connect to:</BlockTitle>
         <ButtonsRow>
-          <MetaMaskButton onClick={onMetamaskClick} disabled={noMetaMask}>
+          <MetaMaskButton onClick={onMetamaskClick} disabled={noMetaMask || !isChecked}>
             <img src={metamaskIcon} alt="metamask logo"/> MetaMask
           </MetaMaskButton>
           <TextSeparator>OR</TextSeparator>
-          <ConnectButton onClick={() => setIsModalVisible(true)}>
+          <ConnectButton onClick={() => setIsModalVisible(true)} disabled={!isChecked}>
             <WalletName icon={trezorIcon}>Trezor</WalletName>
             <WalletName icon={ledgerIcon}>Ledger</WalletName>
           </ConnectButton>
         </ButtonsRow>
-        {
-          noMetaMask &&
+        <InfoRow>
+          {
+            noMetaMask &&
         <InfoBlock>
           To connect to MetaMask you should install official plugin via your web browser.
         </InfoBlock>
-        }
+          }
+          {
+            !noMetaMask && !isChecked &&
+          <InfoBlock>
+            You must accept terms and conditions.
+          </InfoBlock>
+          }
+        </InfoRow>
       </ConnectionBlock>
 
       <Modal isVisible={isModalVisible} onClose={() => setIsModalVisible(false)}>
@@ -94,6 +99,10 @@ const MetaMaskButton = styled(ConnectButton)`
   }
 `;
 
+const InfoRow = styled.div`
+  height: 36px;
+`;
+
 const StyledText = styled(Text)`
   margin: 24px 0 32px;
 `;
@@ -113,7 +122,7 @@ const ButtonsRow = styled.div`
 
   @media(max-width: 500px) {
     flex-direction: column;
-    align-items: flex-start;    
+    align-items: flex-start;
   }
 `;
 
