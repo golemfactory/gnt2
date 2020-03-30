@@ -21,10 +21,11 @@ interface ConvertTokensProps {
 }
 
 export const ConvertTokens = ({onAmountConfirm, onCancelClick, description: {balance, from, to, title}}: ConvertTokensProps) => {
-  const [tokensToConvert, setTokensToConvert] = useState<string>('0.000');
+  const [tokensToConvert, setTokensToConvert] = useState<string>('0');
   const {accountService, connectionService} = useServices();
   const network = useProperty(connectionService.network);
   const account = useProperty(connectionService.account);
+  const [isTouched, setTouched] = React.useState<boolean>(false);
   const useAsyncBalance = (execute: () => Promise<BigNumber | undefined>) => useAsync(execute, [network, account]);
   const [ethBalance] = useAsyncBalance(async () => accountService.balanceOf(account));
 
@@ -38,12 +39,12 @@ export const ConvertTokens = ({onAmountConfirm, onCancelClick, description: {bal
     tokensToConvertAsNumber().lte(0), [balance, tokensToConvert, tokensToConvertAsNumber]);
 
   useEffect(() => {
-    if (invalidNumbersOfTokensToConvert()) {
+    if (isTouched && invalidNumbersOfTokensToConvert()) {
       setError('Value entered is not a valid tokens amount');
     } else {
       setError(undefined);
     }
-  }, [tokensToConvert, balance, invalidNumbersOfTokensToConvert]);
+  }, [tokensToConvert, balance, invalidNumbersOfTokensToConvert, isTouched]);
 
   useEffect(() => {
     if (!ethBalance) {
@@ -64,11 +65,25 @@ export const ConvertTokens = ({onAmountConfirm, onCancelClick, description: {bal
   };
 
   const onConfirmClick = () => {
+    if (!isTouched) {
+      setTouched(true);
+      return;
+    }
     onAmountConfirm(tokensToConvert);
   };
 
   const onAmountChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setTokensToConvert(e.target.value);
+    if (!isTouched) setTouched(true);
+
+    const value = e.target.value;
+    if (value === '') {
+      setTokensToConvert('0');
+      return;
+    }
+    const regex = new RegExp('^[0-9]{0,18}([,.][0-9]{0,18})?$');
+    if (regex.test(value)) {
+      setTokensToConvert(value);
+    }
   };
 
   return (
@@ -84,10 +99,6 @@ export const ConvertTokens = ({onAmountConfirm, onCancelClick, description: {bal
                 <InputWrapper>
                   <Input
                     data-testid="migrate-input"
-                    type="number"
-                    max={formattedBalance}
-                    min="0.000"
-                    step="0.001"
                     value={tokensToConvert}
                     onChange={onAmountChange}
                   />
