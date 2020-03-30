@@ -90,6 +90,9 @@ const Row = styled.div`
 
 const DashboardContent = styled.div`
   width: 100%;
+  @media(min-width: 900px) {
+    width: 60%;
+  }
 `;
 
 const LogoWithBackButton = styled.div`

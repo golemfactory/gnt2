@@ -44,11 +44,11 @@ const Video = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 270px;
-  height: 152px;
+  width: 324px;
+  height: 182px;
   margin: 0 0 62px auto;
   background: #EDEEFF;
-  
+
   @media (max-width: 900px) {
     margin: 0 auto 62px 0;
   }
