@@ -105,8 +105,8 @@ describe('Account page', () => {
         fireEvent.change(input, {target: {value: tokensToMigrate}});
 
         await wait(() => {
-          expect(accountPage.find('migrate-error')).to.exist;
-          expect(accountPage.find('migrate-button')).to.have.attr('disabled');
+          expect(accountPage.find('convert-input-error')).to.exist;
+          expect(accountPage.find('convert-button')).to.have.attr('disabled');
         });
       });
     });
@@ -116,7 +116,7 @@ describe('Account page', () => {
 
       const input = await accountPage.startMigration();
 
-      fireEvent.click(accountPage.find('migrate-btn-set-max'));
+      fireEvent.click(accountPage.find('convert-input-set-max'));
 
       expect(input).to.have.value('5000000');
     });
