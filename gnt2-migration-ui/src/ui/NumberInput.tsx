@@ -1,4 +1,4 @@
-import React, {ChangeEvent, useEffect, useState} from 'react';
+import React, {ChangeEvent, useCallback, useEffect} from 'react';
 import styled from 'styled-components';
 import {SmallTitle} from './commons/Text/SmallTitle';
 import {Ticker} from './Account/Balance';
@@ -6,28 +6,54 @@ import {BoxRow} from './commons/Box';
 import {formatTokenBalance} from '../utils/formatter';
 import {convertBalanceToBigJs} from '../utils/bigNumberUtils';
 import {BigNumber} from 'ethers/utils';
+import {Big} from 'big.js';
 
 interface NumberInputInterface {
+  dataTestId?: string;
+  placeholder?: string;
   value: string;
   balance: BigNumber;
-  from: string;
+  unitName: string;
   isTouched: boolean;
   setTouched: (value: boolean) => void;
-  validator: () => void;
   setValue: (amount: string) => void;
+  error: string | undefined;
+  setError: (message: string| undefined) => void;
+  max: Big;
+  min: number;
 }
 
 export const NumberInput = ({
+  dataTestId = 'number',
+  placeholder,
   value,
   balance,
-  from,
+  unitName,
   isTouched,
   setTouched,
-  validator,
-  setValue
+  setValue,
+  error,
+  setError,
+  max,
+  min
 }: NumberInputInterface) => {
-  const [error, setError] = useState<string | undefined>(undefined);
+  const valueAsNumber = useCallback(() => new Big(value), [value]);
 
+  const isNotANumber = (value: string): boolean => {
+    try {
+      Big(value);
+      return false;
+    } catch {
+      return true;
+    }
+  };
+
+  const validator = useCallback(() =>
+    isNotANumber(value) ||
+    valueAsNumber().gt(max) ||
+    valueAsNumber().lte(min),
+  [max, min, value, valueAsNumber]
+  );
 
   useEffect(() => {
     if (isTouched && validator()) {
@@ -35,19 +61,17 @@ export const NumberInput = ({
     } else {
       setError(undefined);
     }
-  }, [balance, isTouched, validator, value]);
+  }, [balance, isTouched, setError, validator, value]);
 
   const onAmountChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (!isTouched) setTouched(true);
 
+
     const value = e.target.value;
-    if (value === '') {
-      setValue('0');
-      return;
-    }
-    const regex = new RegExp('^[0-9]*([,.][0-9]*)?$');
-    if (regex.test(value)) {
-      setValue(value);
+    const regex = new RegExp('^[0-9]*([.][0-9]*)?$');
+    const valueWithoutComma = value.replace(/,/g, '.');
+    if (regex.test(valueWithoutComma)) {
+      setValue(valueWithoutComma);
     }
   };
 
@@ -55,25 +79,27 @@ export const NumberInput = ({
 
   return (
     <Row>
-      <Ticker>{from}</Ticker>
+      <Ticker>{unitName}</Ticker>
       <InputRow>
         <InputWrapper>
           <Input
-            data-testid='convert-input'
+            autoFocus
+            placeholder={placeholder}
+            data-testid={`${dataTestId}-input`}
             value={value}
             onChange={onAmountChange}
           />
-          {error && <ErrorInfo data-testid='convert-input-error'>{error}</ErrorInfo>}
+          {error && <ErrorInfo data-testid={`${dataTestId}-input-error`}>{error}</ErrorInfo>}
           <AvailableAmountRow>
             <SmallTitle>Available:</SmallTitle>
-            <AvailableAmount>{formattedBalance} {from}</AvailableAmount>
+            <AvailableAmount>{formattedBalance} {unitName}</AvailableAmount>
           </AvailableAmountRow>
         </InputWrapper>
         <SetMaxButton
-          data-testid='convert-input-set-max'
+          data-testid={`${dataTestId}-input-set-max`}
           onClick={() => setValue(convertBalanceToBigJs(balance).toString())}
         >
-        SET MAX
+          SET MAX
         </SetMaxButton>
       </InputRow>
     </Row>
@@ -106,6 +132,11 @@ const Input = styled.input`
   border: none;
   border-bottom: 1px solid #1722A2;
   outline: none;
+  ::placeholder {
+    letter-spacing: 1px;
+    color: #181EA9;
+    opacity: 0.6;
+  }
 `;
 
 const SetMaxButton = styled.button`

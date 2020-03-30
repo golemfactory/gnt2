@@ -95,8 +95,7 @@ describe('Account page', () => {
     [
       ['6000000.0', 'number of tokens greater then GNT-balance'],
       ['5000001.0', 'number of tokens greater then GNT-balance'],
-      ['-1000', 'number of tokens lower then 0'],
-      ['', 'empty value']
+      ['-1000', 'number of tokens lower then 0']
     ].forEach(([tokensToMigrate, message]) => {
       it(`shows error for ${message}`, async () => {
         const accountPage = await new TestAccountPage(services).load();
@@ -108,6 +107,21 @@ describe('Account page', () => {
           expect(accountPage.find('convert-input-error')).to.exist;
           expect(accountPage.find('convert-button')).to.have.attr('disabled');
         });
+      });
+    });
+
+    it('shows error for empty value', async () => {
+      const accountPage = await new TestAccountPage(services).load();
+
+      const input = await accountPage.startMigration();
+      fireEvent.change(input, {target: {value: ''}});
+      const convertBtn = await accountPage.find('convert-button');
+
+      fireEvent.click(convertBtn);
+
+      await wait(() => {
+        expect(accountPage.find('convert-input-error')).to.exist;
+        expect(accountPage.find('convert-button')).to.have.attr('disabled');
       });
     });
 

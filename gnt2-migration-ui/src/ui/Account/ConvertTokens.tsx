@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import styled from 'styled-components';
 import {Ticker} from './Balance';
 import {TitleWithTooltip} from '../commons/Text/TitleWithTooltip';
@@ -10,7 +10,17 @@ import {useServices} from '../hooks/useServices';
 import {useProperty} from '../hooks/useProperty';
 import {useAsync} from '../hooks/useAsync';
 import {CancelButton} from '../commons/Buttons/CancelButton';
-import {Box, BoxContent, BoxFooter, BoxFooterRow, BoxFooterButton, BoxTitle, BoxSubTitle, BoxFooterAmount, BoxRow} from '../commons/Box';
+import {
+  Box,
+  BoxContent,
+  BoxFooter,
+  BoxFooterAmount,
+  BoxFooterButton,
+  BoxFooterRow,
+  BoxRow,
+  BoxSubTitle,
+  BoxTitle
+} from '../commons/Box';
 import {WithValueDescription} from './AccountActionDescriptions';
 import {NumberInput} from '../NumberInput';
 
@@ -21,7 +31,7 @@ interface ConvertTokensProps {
 }
 
 export const ConvertTokens = ({onAmountConfirm, onCancelClick, description: {balance, from, to, title}}: ConvertTokensProps) => {
-  const [tokensToConvert, setTokensToConvert] = useState<string>('0');
+  const [tokensToConvert, setTokensToConvert] = useState<string>('');
   const {accountService, connectionService} = useServices();
   const network = useProperty(connectionService.network);
   const account = useProperty(connectionService.account);
@@ -30,28 +40,12 @@ export const ConvertTokens = ({onAmountConfirm, onCancelClick, description: {bal
   const [ethBalance] = useAsyncBalance(async () => accountService.balanceOf(account));
 
   const [lowEth, setLowEth] = useState(false);
-
-  const tokensToConvertAsNumber = useCallback(() => new Big(tokensToConvert), [tokensToConvert]);
-
-  const invalidNumbersOfTokens = useCallback(() => isNotANumber(tokensToConvert) ||
-    tokensToConvertAsNumber().gt(convertBalanceToBigJs(balance)) ||
-    tokensToConvertAsNumber().lte(0),
-  [balance, tokensToConvert, tokensToConvertAsNumber]
-  );
+  const [inputError, setInputError] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     if (!ethBalance) { return; }
     setLowEth(convertBalanceToBigJs(ethBalance).lt(new Big('0.0002')));
   }, [ethBalance]);
-
-  const isNotANumber = (value: string): boolean => {
-    try {
-      Big(value);
-      return false;
-    } catch {
-      return true;
-    }
-  };
 
   const onConfirmClick = () => {
     if (!isTouched) {
@@ -69,13 +63,18 @@ export const ConvertTokens = ({onAmountConfirm, onCancelClick, description: {bal
           <Converting>
             <BoxSubTitle>Converting</BoxSubTitle>
             <NumberInput
+              dataTestId='convert'
+              placeholder='Set number of tokens...'
               value={tokensToConvert}
               setValue={amount => setTokensToConvert(amount)}
-              from={from}
+              unitName={from}
               balance={balance}
-              setTouched={value => setTouched(value)}
+              error={inputError}
+              setError={message => setInputError(message)}
               isTouched={isTouched}
-              validator={() => invalidNumbersOfTokens()}
+              setTouched={value => setTouched(value)}
+              min={0}
+              max={convertBalanceToBigJs(balance)}
             />
           </Converting>
           <div>
@@ -98,7 +97,7 @@ export const ConvertTokens = ({onAmountConfirm, onCancelClick, description: {bal
             <BoxFooterButton
               data-testid="convert-button"
               onClick={onConfirmClick}
-              disabled={lowEth || invalidNumbersOfTokens() || isEmpty(balance)}
+              disabled={lowEth || !!inputError || isEmpty(balance)}
             >
               Confirm Transaction
             </BoxFooterButton>
