@@ -10,8 +10,7 @@ import {getGasLimit} from '../config';
 import {GNTMigrationAgentFactory} from '../../build/contract-types/GNTMigrationAgentFactory';
 import {getChainId} from '../utils/network';
 
-// const delay = 48 * 60 * 60;
-const delay = 10;
+const delay = 48 * 60 * 60;
 
 function sleep(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms));
