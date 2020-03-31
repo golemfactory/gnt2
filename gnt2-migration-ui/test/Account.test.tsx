@@ -13,7 +13,7 @@ import {TestAccountPage} from './helpers/TestAccountPage';
 import {parseEther} from 'ethers/utils';
 import {AddressZero} from 'ethers/constants';
 import {DEFAULT_TEST_OVERRIDES} from '../../gnt2-contracts/test/utils';
-import {GNTMigrationAgentFactory} from '../../gnt2-contracts/build/contract-types/GNTMigrationAgentFactory';
+import {GNTMigrationAgentFactory} from 'gnt2-contracts';
 import {GNTMigrationAgent} from 'gnt2-contracts/build/contract-types/GNTMigrationAgent';
 import {Wallet} from 'ethers';
 import sinon from 'sinon';
@@ -95,7 +95,6 @@ describe('Account page', () => {
     [
       ['6000000.0', 'number of tokens greater then GNT-balance'],
       ['5000001.0', 'number of tokens greater then GNT-balance'],
-      ['-1000', 'number of tokens lower then 0']
     ].forEach(([tokensToMigrate, message]) => {
       it(`shows error for ${message}`, async () => {
         const accountPage = await new TestAccountPage(services).load();

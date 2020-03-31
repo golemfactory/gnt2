@@ -10,17 +10,7 @@ import {useServices} from '../hooks/useServices';
 import {useProperty} from '../hooks/useProperty';
 import {useAsync} from '../hooks/useAsync';
 import {CancelButton} from '../commons/Buttons/CancelButton';
-import {
-  Box,
-  BoxContent,
-  BoxFooter,
-  BoxFooterAmount,
-  BoxFooterButton,
-  BoxFooterRow,
-  BoxRow,
-  BoxSubTitle,
-  BoxTitle
-} from '../commons/Box';
+import {Box, BoxContent, BoxFooter, BoxFooterAmount, BoxFooterButton, BoxFooterRow, BoxRow, BoxSubTitle, BoxTitle} from '../commons/Box';
 import {WithValueDescription} from './AccountActionDescriptions';
 import {NumberInput} from '../NumberInput';
 
@@ -64,7 +54,6 @@ export const ConvertTokens = ({onAmountConfirm, onCancelClick, description: {bal
             <BoxSubTitle>Converting</BoxSubTitle>
             <NumberInput
               dataTestId='convert'
-              placeholder='Set number of tokens...'
               value={tokensToConvert}
               setValue={amount => setTokensToConvert(amount)}
               unitName={from}

@@ -48,7 +48,7 @@ export const NumberInput = ({
     }
   };
 
-  const validator = useCallback(() =>
+  const validate = useCallback(() =>
     isNotANumber(value) ||
     valueAsNumber().gt(max) ||
     valueAsNumber().lte(min),
@@ -56,22 +56,24 @@ export const NumberInput = ({
   );
 
   useEffect(() => {
-    if (isTouched && validator()) {
+    if (isTouched && validate()) {
       setError('Value entered is not a valid tokens amount');
     } else {
       setError(undefined);
     }
-  }, [balance, isTouched, setError, validator, value]);
+  }, [balance, isTouched, setError, validate, value]);
+
+  function updateValue(newValue: string) {
+    if (!isTouched) setTouched(true);
+    setValue(newValue);
+  }
 
   const onAmountChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (!isTouched) setTouched(true);
-
-
     const value = e.target.value;
     const regex = new RegExp('^[0-9]*([.][0-9]*)?$');
     const valueWithoutComma = value.replace(/,/g, '.');
     if (regex.test(valueWithoutComma)) {
-      setValue(valueWithoutComma);
+      updateValue(valueWithoutComma);
     }
   };
 
@@ -97,7 +99,7 @@ export const NumberInput = ({
         </InputWrapper>
         <SetMaxButton
           data-testid={`${dataTestId}-input-set-max`}
-          onClick={() => setValue(convertBalanceToBigJs(balance).toString())}
+          onClick={() => updateValue(convertBalanceToBigJs(balance).toString())}
         >
           SET MAX
         </SetMaxButton>
