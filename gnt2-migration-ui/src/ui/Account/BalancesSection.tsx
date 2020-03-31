@@ -1,6 +1,4 @@
 import React from 'react';
-import {BigNumber} from 'ethers/utils';
-import {useAsync} from '../hooks/useAsync';
 import {useServices} from '../hooks/useServices';
 import {useProperty} from '../hooks/useProperty';
 import {DepositSection} from '../DepositSection';
@@ -17,15 +15,11 @@ interface BalancesSectionProps {
 }
 
 export const BalancesSection = ({onConvert, onMoveToWrapped, onUnlock, onUnwrap}: BalancesSectionProps) => {
-  const {tokensService, accountService, connectionService, contractAddressService, refreshService} = useServices();
-  const account = useProperty(connectionService.account);
-  const contractAddresses = useProperty(contractAddressService.contractAddresses);
-  const refreshTrigger = useProperty(refreshService.refreshTrigger);
-  const useAsyncBalance = (execute: () => Promise<BigNumber | undefined>) => useAsync(execute, [refreshTrigger, contractAddresses, account]);
+  const {tokensService, etherService} = useServices();
 
   const newTokensBalance = useProperty(tokensService.ngntBalance);
   const oldTokensBalance = useProperty(tokensService.gntBalance);
-  const [balance] = useAsyncBalance(async () => accountService.balanceOf(account));
+  const balance = useProperty(etherService.etherBalance);
 
   return (
     <>

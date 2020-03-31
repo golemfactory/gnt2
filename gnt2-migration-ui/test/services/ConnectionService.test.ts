@@ -62,7 +62,7 @@ describe('Connections Service', () => {
   it('delivers account change event', () => {
     tryToCreateProvider();
     const callback = sinon.mock();
-    connectionService.account.subscribe(callback);
+    connectionService.address.subscribe(callback);
     mockedEthereum.simulateAccountChanged(['account']);
     expect(callback).to.have.been.called;
   });

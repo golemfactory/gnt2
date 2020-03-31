@@ -25,6 +25,5 @@ export class MockedEthereum implements MetamaskEthereum {
     }
   }
 
-  off(eventName: string, callback: () => void) { /* do anything */
-  }
+  off(eventName: string, callback: () => void) { /* empty */ }
 }

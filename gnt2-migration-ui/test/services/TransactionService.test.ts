@@ -28,7 +28,7 @@ describe('Transactions Service', () => {
   beforeEach(async () => {
     ({services, provider} = await createTestServices());
     txService = services.transactionService;
-    address = services.connectionService.account.get();
+    address = services.connectionService.address.get();
     rawTx = await services.tokensService.unlockDeposit(address);
   });
 

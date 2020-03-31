@@ -1,4 +1,4 @@
-import {DepositState, PossibleBalance, TokensService} from '../../src/services/TokensService';
+import {DepositState, TokensService} from '../../src/services/TokensService';
 import {getWallets, solidity} from 'ethereum-waffle';
 import {Wallet} from 'ethers';
 import chai from 'chai';
@@ -10,21 +10,20 @@ import {createTestServices} from '../helpers/testServices';
 import {Web3Provider} from 'ethers/providers';
 import sinon from 'sinon';
 import {wrapGNTtoGNTB} from 'gnt2-contracts/src/deployment/deployDevGolemContracts';
-import {GolemNetworkTokenBatchingFactory, GolemNetworkTokenFactory} from 'gnt2-contracts';
+import {GNTMigrationAgentFactory, GolemNetworkTokenBatchingFactory, GolemNetworkTokenFactory} from 'gnt2-contracts';
 import {wait} from '@testing-library/react';
 import {GolemNetworkTokenBatching} from 'gnt2-contracts/build/contract-types/GolemNetworkTokenBatching';
 import {GolemNetworkToken} from 'gnt2-contracts/build/contract-types/GolemNetworkToken';
 import {Property} from 'reactive-properties';
 import {ContractAddressService} from '../../src/services/ContractAddressService';
-import {GNTMigrationAgentFactory} from '../../../gnt2-contracts/build/contract-types/GNTMigrationAgentFactory';
 import {GNTMigrationAgent} from 'gnt2-contracts/build/contract-types/GNTMigrationAgent';
 import {DEFAULT_TEST_OVERRIDES} from '../../../gnt2-contracts/test/utils';
 import {AddressZero} from 'ethers/constants';
+import {PossibleBalance} from '../../src/domain/PossibleBalance';
 
 chai.use(solidity);
 chai.use(chaiAsPromised);
 const expect = chai.expect;
-const services: TokensService[] = [];
 
 describe('Token Service', () => {
   let provider: Web3Provider;
@@ -46,7 +45,6 @@ describe('Token Service', () => {
   beforeEach(async () => {
     let contractAddressService: ContractAddressService;
     ({services: {contractAddressService, tokensService}, provider} = await createTestServices());
-    services.push(tokensService);
     [holderWallet, anotherWallet] = getWallets(provider);
     holder = holderWallet.address;
 

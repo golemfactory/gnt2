@@ -6,16 +6,17 @@ import {DepositState} from '../services/TokensService';
 import {Timer} from './commons/Timer';
 import clockIcon from '../assets/icons/clock.svg';
 import styled from 'styled-components';
+import {useAsyncEffect} from './hooks/useAsyncEffect';
 
 export const DepositTimer = () => {
-  const {tokensService, connectionService, contractAddressService, refreshService} = useServices();
-  const account = useProperty(connectionService.account);
+  const {tokensService, connectionService, contractAddressService} = useServices();
+  const account = useProperty(connectionService.address);
   const contractAddresses = useProperty(contractAddressService.contractAddresses);
 
   const depositState = useProperty(tokensService.depositLockState);
+  const [unlockUpdateDone, setUnlockUpdateDone] = useState(false);
   const [timeLeft] = useAsync(async () => tokensService.getDepositUnlockTime(account), [contractAddresses, account]);
   const [timer, setTimer] = useState<string | undefined>(undefined);
-  const [flag, setFlag] = useState(false);
 
   useEffect(() => {
     setTimer('');
@@ -26,11 +27,12 @@ export const DepositTimer = () => {
     return () => { if (timerId) { clearInterval(timerId); } };
   }, [timeLeft, depositState, account, contractAddresses]);
 
-
-  if (!flag && timer === '00:00:00') {
-    refreshService.refresh();
-    setFlag(true);
-  }
+  useAsyncEffect(async () => {
+    if (!unlockUpdateDone && timer === '00:00:00') {
+      await tokensService.updateDepositLockState();
+      setUnlockUpdateDone(true);
+    }
+  }, [unlockUpdateDone, timer]);
 
   return (
     <Row>

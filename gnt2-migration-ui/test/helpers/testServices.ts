@@ -1,5 +1,4 @@
 import {JsonRpcProvider, Provider, Web3Provider} from 'ethers/providers';
-import {AccountService} from '../../src/services/AccountsService';
 import sinon from 'sinon';
 import {ConnectionService} from '../../src/services/ConnectionService';
 import {deployDevGolemContracts, GolemContractsDeploymentAddresses} from 'gnt2-contracts';
@@ -7,11 +6,11 @@ import {ContractAddressService} from '../../src/services/ContractAddressService'
 import {loadFixture} from 'ethereum-waffle';
 import {TokensService} from '../../src/services/TokensService';
 import {MockedEthereum} from './mockedEthereum';
-import {RefreshService} from '../../src/services/RefreshService';
 import {Wallet} from 'ethers';
 import {TransactionsService} from '../../src/services/TransactionService';
 import {ContractAddresses} from '../../src/domain/Network';
 import config from '../../src/config';
+import {EtherService} from '../../src/services/EtherService';
 
 const noOpLogger = {
   log: () => {
@@ -19,28 +18,9 @@ const noOpLogger = {
   }
 };
 
-function testAccountService(provider: JsonRpcProvider, address: string) {
-  const accountService = new AccountService(() => provider);
-  sinon.stub(accountService, 'getDefaultAccount').resolves(address);
-  return accountService;
-}
-
-function restoreStubs(provider: JsonRpcProvider) {
-  const possibleStub = provider.listAccounts as any;
-  if (possibleStub.restore) {
-    possibleStub.restore();
-  }
-}
-
-async function testConnectionService(provider: JsonRpcProvider, address?: string) {
-  const connectionService = new ConnectionService(new MockedEthereum());
+async function testConnectionService(provider: JsonRpcProvider, mockedEthereum: MockedEthereum) {
+  const connectionService = new ConnectionService(mockedEthereum);
   connectionService['provider'] = provider;
-  restoreStubs(provider);
-  if (!address) {
-    const wallets = await provider.listAccounts();
-    address = wallets[0];
-  }
-  sinon.stub(provider, 'listAccounts').resolves([address]);
   return connectionService;
 }
 
@@ -76,25 +56,25 @@ function testTransactionService(provider: Web3Provider, connectionService: Conne
 export async function createTestServices(loginAs: AccountType = 'holderUser') {
   const {addresses, holderWallet, emptyWallet, gntOnlyWallet, provider} = await loadFixture(fixture);
   const wallet = selectWallet(loginAs, emptyWallet, holderWallet, gntOnlyWallet).address;
-  const connectionService = await testConnectionService(provider, wallet);
+  const mockedEthereum = new MockedEthereum();
+  const connectionService = await testConnectionService(provider, mockedEthereum);
   const contractAddressService = testContractAddressService(connectionService, addresses);
-  const accountService = testAccountService(provider, wallet);
   const tokensService = new TokensService(() => provider, contractAddressService, connectionService, config.gasLimit);
-  await connectionService.checkConnection();
-  await connectionService.checkNetwork();
-  const refreshService = new RefreshService();
   const transactionService = testTransactionService(provider, connectionService);
+  const etherService = new EtherService(() => provider, connectionService);
+  await connectionService['handleAccountsChange']([wallet]);
+  await connectionService.checkNetwork();
 
   return {
     services: {
       startServices: sinon.stub(),
       tokensService,
-      accountService,
       connectionService,
       contractAddressService,
-      refreshService,
-      transactionService
+      transactionService,
+      etherService
     },
-    provider
+    provider,
+    mockedEthereum
   };
 }

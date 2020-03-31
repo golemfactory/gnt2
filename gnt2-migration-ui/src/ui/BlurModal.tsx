@@ -16,7 +16,7 @@ export const BlurModal = ({isVisible, className}: BlurModalProps) => {
     return (
       <ModalView data-testid="modal" className={className || ''}>
         <Title>Wrong Network</Title>
-        <Text>You are on an unsupported network ({network || 'unknown'}). Please switch to Ethereum Mainnet to migrate your tokens.</Text>
+        <Text>You are on an unsupported network ({network}). Please switch to Ethereum Mainnet to migrate your tokens.</Text>
       </ModalView>
     );
   } else return null;

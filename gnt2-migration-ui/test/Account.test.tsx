@@ -175,7 +175,7 @@ describe('Account page', () => {
     });
 
     it('renders successful transaction when one found in local storage', async () => {
-      const account = services.connectionService.account.get();
+      const account = services.connectionService.address.get();
       const contractTransaction = await services.tokensService.migrateTokens(account, parseEther('500'));
       services.transactionService.saveTxHashInLocalStorage({hash: contractTransaction.hash!, description: ''});
 

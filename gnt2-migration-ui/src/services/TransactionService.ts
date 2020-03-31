@@ -76,7 +76,7 @@ export class TransactionsService {
   }
 
   private getKey() {
-    return this.connectionService.network.get() + this.connectionService.account.get().toLowerCase();
+    return this.connectionService.network.get() + this.connectionService.address.get().toLowerCase();
   }
 
   private static isFailed(receipt: ContractReceipt | undefined) {

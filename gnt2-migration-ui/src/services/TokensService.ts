@@ -12,12 +12,11 @@ import {ContractTransaction} from 'ethers';
 import {callEffectForEach, Property, State, withEffect, withSubscription} from 'reactive-properties';
 import {ConnectionService} from './ConnectionService';
 import {ContractUtils} from '../utils/contractUtils';
+import {PossibleBalance} from '../domain/PossibleBalance';
 
 export enum DepositState {
   LOCKED, TIME_LOCKED, UNLOCKED, EMPTY
 }
-
-export type PossibleBalance = BigNumber | undefined;
 
 export class TokensService {
 
@@ -27,12 +26,14 @@ export class TokensService {
   depositBalance: Property<PossibleBalance>;
   depositLockState: Property<DepositState>;
   migrationTarget: Property<string>;
+  private depositLockInternalState: State<DepositState>;
 
   constructor(
     private provider: () => JsonRpcProvider,
     private contractAddressService: ContractAddressService,
     private connectionService: ConnectionService
     , private gasLimit: number) {
+    this.depositLockInternalState = new State<DepositState>(DepositState.LOCKED);
     this.gntBalance = this.createBalanceProperty(
       () => this.balanceOfOldTokens(this.account()),
       callback => ContractUtils.subscribeToEvents(
@@ -105,15 +106,11 @@ export class TokensService {
     subscribeToEvents: (cb: () => void) => (() => void)
   ) {
     const contractAddresses = this.contractAddressService.contractAddresses;
-    const state = new State<DepositState>(DepositState.LOCKED);
-    const updateDepositLockState = async () =>
-      this.safeContractRead(async () => state.set(await this.getDepositState(this.account())));
 
-    return state.pipe(
-      withSubscription(updateDepositLockState, contractAddresses),
-      withSubscription(updateDepositLockState, this.connectionService.account),
+    return this.depositLockInternalState.pipe(
+      withSubscription(() => this.updateDepositLockState(), this.connectionService.account),
       withEffect(() => contractAddresses.pipe(
-        callEffectForEach(() => subscribeToEvents(updateDepositLockState))
+        callEffectForEach(() => subscribeToEvents(() => this.updateDepositLockState()))
       ))
     );
   }
@@ -128,12 +125,15 @@ export class TokensService {
       this.safeContractRead(async () => state.set(await fetchBalance()));
 
     return state.pipe(
-      withSubscription(updateBalance, contractAddresses),
       withSubscription(updateBalance, this.connectionService.account),
       withEffect(() => contractAddresses.pipe(
         callEffectForEach(() => this.networkHasContracts() ? subscribeToEvents(updateBalance) : () => { /**/ })
       ))
     );
+  }
+
+  async updateDepositLockState() {
+    this.safeContractRead(async () => this.depositLockInternalState.set(await this.getDepositState(this.account())));
   }
 
   private safeContractRead(cb: () => void) {
@@ -186,7 +186,7 @@ export class TokensService {
   }
 
   private account() {
-    return this.connectionService.account.get();
+    return this.connectionService.address.get();
   }
 
   tokenContractsAddresses() {

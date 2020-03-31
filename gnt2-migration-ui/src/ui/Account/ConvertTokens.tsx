@@ -3,12 +3,10 @@ import styled from 'styled-components';
 import {Ticker} from './Balance';
 import {TitleWithTooltip} from '../commons/Text/TitleWithTooltip';
 import {formatValue} from '../../utils/formatter';
-import {BigNumber} from 'ethers/utils';
 import {convertBalanceToBigJs, isEmpty} from '../../utils/bigNumberUtils';
 import {Big} from 'big.js';
 import {useServices} from '../hooks/useServices';
 import {useProperty} from '../hooks/useProperty';
-import {useAsync} from '../hooks/useAsync';
 import {CancelButton} from '../commons/Buttons/CancelButton';
 import {Box, BoxContent, BoxFooter, BoxFooterAmount, BoxFooterButton, BoxFooterRow, BoxRow, BoxSubTitle, BoxTitle} from '../commons/Box';
 import {WithValueDescription} from './AccountActionDescriptions';
@@ -21,13 +19,10 @@ interface ConvertTokensProps {
 }
 
 export const ConvertTokens = ({onAmountConfirm, onCancelClick, description: {balance, from, to, title}}: ConvertTokensProps) => {
-  const [tokensToConvert, setTokensToConvert] = useState<string>('');
-  const {accountService, connectionService} = useServices();
-  const network = useProperty(connectionService.network);
-  const account = useProperty(connectionService.account);
+  const [tokensToConvert, setTokensToConvert] = useState<string>('0.000');
+  const {etherService} = useServices();
+  const ethBalance = useProperty(etherService.etherBalance);
   const [isTouched, setTouched] = React.useState<boolean>(false);
-  const useAsyncBalance = (execute: () => Promise<BigNumber | undefined>) => useAsync(execute, [network, account]);
-  const [ethBalance] = useAsyncBalance(async () => accountService.balanceOf(account));
 
   const [lowEth, setLowEth] = useState(false);
   const [inputError, setInputError] = useState<string | undefined>(undefined);

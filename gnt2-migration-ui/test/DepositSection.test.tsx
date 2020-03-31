@@ -14,6 +14,9 @@ import {advanceEthereumTime} from './helpers/ethereumHelpers';
 import {DepositSection} from '../src/ui/DepositSection';
 import {DEPOSIT_LOCK_DELAY} from './helpers/contractConstants';
 import {TestAccountPage} from './helpers/TestAccountPage';
+import {DepositState} from '../src/services/TokensService';
+import {BigNumber} from 'ethers/utils';
+import sinon from 'sinon';
 
 chai.use(chaiDom);
 
@@ -98,8 +101,22 @@ describe('Deposit UI', () => {
 
   });
 
+  it('updates status when time is up', async () => {
+    sinon.stub(services.tokensService, 'getDepositUnlockTime').resolves(new BigNumber(Date.now()).div(1000).add(3));
+    const getDepositStateStub = sinon.stub(services.tokensService, 'getDepositState').resolves(DepositState.TIME_LOCKED);
+    const {getByTestId, queryByTestId} = await renderDeposit(services);
+    await wait(() => {
+      expect(getByTestId('deposit-status')).to.have.text('Deposit is time-locked');
+      expect(getByTestId('deposit-timer').textContent).to.match(/00:00:01/);
+    });
+    getDepositStateStub.resolves(DepositState.UNLOCKED);
+    await wait(() => {
+      expect(getByTestId('deposit-status')).to.have.text('Deposit is unlocked');
+      expect(queryByTestId('deposit-timer')).to.not.exist;
+    });
+  });
+
   async function unlockDeposit() {
     await (await gntDeposit.unlock()).wait();
   }
-
 });
