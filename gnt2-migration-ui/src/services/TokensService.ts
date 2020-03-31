@@ -9,7 +9,7 @@ import {
 } from 'gnt2-contracts';
 import {ContractAddressService} from './ContractAddressService';
 import {ContractTransaction} from 'ethers';
-import {callEffectForEach, map, Property, State, withEffect, withSubscription} from 'reactive-properties';
+import {callEffectForEach, Property, State, withEffect, withSubscription} from 'reactive-properties';
 import {ConnectionService} from './ConnectionService';
 import {ContractUtils} from '../utils/contractUtils';
 import {PossibleBalance} from '../domain/PossibleBalance';
@@ -27,7 +27,6 @@ export class TokensService {
   depositBalance: Property<PossibleBalance>;
   depositLockState: Property<DepositState>;
   isMigrationTargetSetToZero: Property<boolean>;
-  private migrationTarget: Property<string>;
   private depositLockInternalState: State<DepositState>;
 
   constructor(
@@ -75,13 +74,12 @@ export class TokensService {
         callback
       )
     );
-    this.migrationTarget = this.createMigrationTargetProperty(
+    this.isMigrationTargetSetToZero = this.createMigrationTargetProperty(
       callback => ContractUtils.subscribeToEvents(
         this.gntMigrationAgentContract(),
         this.migrationTargetEventFilters(),
         callback
       ));
-    this.isMigrationTargetSetToZero = this.migrationTarget.pipe(map(target => target === AddressZero));
   }
 
 
@@ -89,11 +87,11 @@ export class TokensService {
     subscribeToEvents: (cb: () => void) => (() => void)
   ) {
     const contractAddresses = this.contractAddressService.contractAddresses;
-    const state = new State<string>(contractAddresses.get().newGolemToken);
+    const state = new State<boolean>(false);
     const updateDepositLockState = async () =>
       this.safeContractRead(async () => {
         const gntMigrationAgent = await this.gntMigrationAgentContract();
-        const gntMigrationTarget = await gntMigrationAgent.target();
+        const gntMigrationTarget = await gntMigrationAgent.target() === AddressZero;
         state.set(gntMigrationTarget);
       });
 
