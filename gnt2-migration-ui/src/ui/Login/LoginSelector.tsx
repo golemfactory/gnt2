@@ -11,6 +11,9 @@ import metamaskIcon from '../../assets/icons/metamask.svg';
 import {InfoBlock} from '../commons/InfoBlock';
 import {useServices} from '../hooks/useServices';
 import {ConnectionState} from '../../services/ConnectionService';
+import trezorIcon from '../../assets/icons/trezor.svg';
+import ledgerIcon from '../../assets/icons/ledger.svg';
+import {WalletName} from './WalletName';
 
 export interface LoginSelectorProps {
   onMetamaskClick: () => void;
@@ -37,15 +40,9 @@ export const LoginSelector = ({onMetamaskClick}: LoginSelectorProps) => {
       />
       <ConnectionBlock>
         <BlockTitle>Connect to:</BlockTitle>
-        <ButtonsRow>
-          <MetaMaskButton onClick={onMetamaskClick} disabled={noMetaMask || !isChecked}>
-            <img src={metamaskIcon} alt="metamask logo"/> MetaMask
-          </MetaMaskButton>
-          <TextSeparator/>
-          <ConnectButton onClick={() => setIsModalVisible(true)} disabled={!isChecked}>
-            How to connect with Trezor or Ledger
-          </ConnectButton>
-        </ButtonsRow>
+        <MetaMaskButton onClick={onMetamaskClick} disabled={noMetaMask || !isChecked}>
+          <img src={metamaskIcon} alt="metamask logo"/> MetaMask
+        </MetaMaskButton>
         <InfoRow>
           {
             noMetaMask &&
@@ -60,6 +57,11 @@ export const LoginSelector = ({onMetamaskClick}: LoginSelectorProps) => {
           </InfoBlock>
           }
         </InfoRow>
+        <ConnectLabel onClick={() => setIsModalVisible(true)}>
+          How to connect with&nbsp;
+          <WalletName icon={trezorIcon}>Trezor</WalletName>&nbsp;
+          or&nbsp;&nbsp;<WalletName icon={ledgerIcon}>Ledger</WalletName>
+        </ConnectLabel>
       </ConnectionBlock>
 
       <Modal isVisible={isModalVisible} onClose={() => setIsModalVisible(false)}>
@@ -69,35 +71,16 @@ export const LoginSelector = ({onMetamaskClick}: LoginSelectorProps) => {
   );
 };
 
-const ConnectButton = styled(ButtonSecondary)`
-  max-width: 270px;
-  height: 48px;
+const ConnectLabel = styled.a`
+  display: flex;
   font-size: 14px;
-  line-height: 16px;
-  font-weight: bold;
-  border: transparent;
-
-  @media(max-width: 500px) {
-    max-width: initial;
-  }
+  color: #181EA9;
+  cursor: pointer;
+  text-decoration: underline;
 `;
 
-// const ConnectButton = styled.a`
-//   display: flex;
-//   align-items: center;
-//   justify-content: center;
-//   max-width: 270px;
-//   color: #181EA9;
-//   height: 48px;
-//   width: 100%;
-//   font-size: 14px;
-//   line-height: 16px;
-//   font-weight: bold;
-//   border: transparent;
-//   cursor: pointer;
-// `;
-
 const MetaMaskButton = styled(ButtonSecondary)`
+  margin: 16px 0;
   max-width: 270px;
   height: 48px;
   font-size: 14px;
@@ -130,23 +113,4 @@ const Link = styled.a`
 
 const ConnectionBlock = styled.div`
   margin-top: 162px;
-`;
-
-const ButtonsRow = styled.div`
-  display: flex;
-  align-items: center;
-  margin: 16px 0;
-
-  @media(max-width: 500px) {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-`;
-
-const TextSeparator = styled(BlockTitle)`
-  margin: 0 12px;
-
-  @media(max-width: 500px) {
-    margin: 15px auto;
-  }
 `;
