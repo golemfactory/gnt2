@@ -1,16 +1,12 @@
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import styled from 'styled-components';
 import {Ticker} from './Balance';
-import {TitleWithTooltip} from '../commons/Text/TitleWithTooltip';
-import {formatValue} from '../../utils/formatter';
 import {convertBalanceToBigJs, isEmpty} from '../../utils/bigNumberUtils';
-import {Big} from 'big.js';
-import {useServices} from '../hooks/useServices';
-import {useProperty} from '../hooks/useProperty';
 import {CancelButton} from '../commons/Buttons/CancelButton';
-import {Box, BoxContent, BoxFooter, BoxFooterAmount, BoxFooterButton, BoxFooterRow, BoxRow, BoxSubTitle, BoxTitle} from '../commons/Box';
+import {Box, BoxContent, BoxRow, BoxSubTitle, BoxTitle} from '../commons/Box';
 import {WithValueDescription} from './AccountActionDescriptions';
 import {NumberInput} from '../NumberInput';
+import {BoxFooterContainer} from '../BoxFooterContainer';
 
 interface ConvertTokensProps {
   onCancelClick: () => void;
@@ -20,17 +16,8 @@ interface ConvertTokensProps {
 
 export const ConvertTokens = ({onAmountConfirm, onCancelClick, description: {balance, from, to, title}}: ConvertTokensProps) => {
   const [tokensToConvert, setTokensToConvert] = useState<string>('');
-  const {etherService} = useServices();
   const [isTouched, setTouched] = React.useState<boolean>(false);
-  const ethBalance = useProperty(etherService.etherBalance);
-
-  const [lowEth, setLowEth] = useState(false);
   const [inputError, setInputError] = useState<string | undefined>(undefined);
-
-  useEffect(() => {
-    if (!ethBalance) { return; }
-    setLowEth(convertBalanceToBigJs(ethBalance).lt(new Big('0.0002')));
-  }, [ethBalance]);
 
   const onConfirmClick = () => {
     if (!isTouched) {
@@ -69,29 +56,11 @@ export const ConvertTokens = ({onAmountConfirm, onCancelClick, description: {bal
             </BoxRow>
           </div>
         </BoxContent>
-        <BoxFooter>
-          <BoxFooterRow>
-            <div>
-              <TitleWithTooltip
-                tooltipText="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce vehicula vehicula odio, ut scelerisque massa.Learn more">
-                ETH Balance:
-              </TitleWithTooltip>
-              {ethBalance && <BoxFooterAmount isError={lowEth}>{formatValue(ethBalance, 4)} ETH</BoxFooterAmount>}
-            </div>
-            <BoxFooterButton
-              data-testid="convert-button"
-              onClick={onConfirmClick}
-              disabled={lowEth || !!inputError || isEmpty(balance)}
-            >
-              Confirm Transaction
-            </BoxFooterButton>
-          </BoxFooterRow>
-          {lowEth &&
-          <ErrorInfo>
-            You may not have enough ETH on your account to cover gas fees. Please top up your account with at least 0.03 ETH.
-          </ErrorInfo>
-          }
-        </BoxFooter>
+        <BoxFooterContainer
+          confirmBtnDataTestId='convert-button'
+          onConfirmClick={onConfirmClick}
+          disabled={!!inputError || isEmpty(balance)}
+        />
       </Box>
       <CancelButton onClick={onCancelClick}>Cancel Converting</CancelButton>
     </>
@@ -112,12 +81,4 @@ const ReceivingAmount = styled.p`
   line-height: 28px;
   text-align: right;
   color: #1722A2;
-`;
-
-const ErrorInfo = styled.p`
-  margin-top: 16px;
-  font-size: 12px;
-  line-height: 18px;
-  color: #EC0505;
-  opacity: 0.6;
 `;
