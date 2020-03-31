@@ -1,6 +1,6 @@
 import React, {ReactNode} from 'react';
 import styled from 'styled-components';
-import {Spinner} from './Spinner';
+import {Spinner} from './commons/Spinner';
 import txfail from '../assets/icons/txfail.svg';
 import txpass from '../assets/icons/txpass.svg';
 

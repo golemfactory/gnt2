@@ -1,7 +1,7 @@
 import React from 'react';
 import metamaskIcon from '../../assets/icons/metamask.svg';
 import styled from 'styled-components';
-import {Spinner} from '../Spinner';
+import {Spinner} from '../commons/Spinner';
 import {SectionTitle} from '../commons/Text/SectionTitle';
 
 export const LoginConnecting = () => (

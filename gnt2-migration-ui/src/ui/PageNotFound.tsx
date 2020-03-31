@@ -16,7 +16,7 @@ export function PageNotFound({history}: RouteComponentProps) {
         </Header>
         <PageContainer>
           <CenterContainer>
-            <img src={pageNotFound}/>
+            <img src={pageNotFound} alt='Page not found'/>
             <Text>Sorry we can&apos;t find that page. Either something went wrong or the page doesn&apos;t exist anymore.</Text>
             <Back onClick={() => history.goBack()}>Back</Back>
           </CenterContainer>

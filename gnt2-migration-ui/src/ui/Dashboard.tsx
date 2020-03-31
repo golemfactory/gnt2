@@ -11,11 +11,7 @@ export const Dashboard = () => {
   const {connectionService} = useServices();
 
   const loginOrRedirectToAccountWhenConnected = (props: RouteComponentProps) => {
-    return connectionService.isConnected() ? (
-      <Redirect to='/account'/>
-    ) : (
-      <Login {...props}/>
-    );
+    return connectionService.isConnected() ? <Redirect to='/account'/> : <Login {...props}/>;
   };
 
   const accountOrRedirectToLoginWhenNotConnected = () => {

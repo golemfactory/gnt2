@@ -1,14 +1,21 @@
 import {JsonRpcProvider} from 'ethers/providers';
 import {PossibleBalance} from '../domain/PossibleBalance';
-import {callEffectForEach, Property, State, withEffect, withSubscription} from 'reactive-properties';
+import {callEffectForEach, map, Property, State, withEffect, withSubscription} from 'reactive-properties';
 import {ConnectionService} from './ConnectionService';
+import {convertBalanceToBigJs} from '../utils/bigNumberUtils';
+import {Big} from 'big.js';
 
 export class EtherService {
 
   etherBalance: Property<PossibleBalance>;
+  lowBalance: Property<boolean>;
 
   constructor(private provider: () => JsonRpcProvider, private connectionService: ConnectionService) {
     this.etherBalance = this.createEtherBalanceProperty();
+    this.lowBalance = this.etherBalance.pipe(map(balance => {
+      if (!balance) return false;
+      return convertBalanceToBigJs(balance).lt(new Big('0.0002'));
+    }));
   }
 
   private createEtherBalanceProperty() {

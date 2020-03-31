@@ -1,7 +1,7 @@
 import React, {ReactNode, useEffect, useCallback} from 'react';
 import styled from 'styled-components';
 import {createPortal} from 'react-dom';
-import crossIcon from '../assets/icons/cross.svg';
+import crossIcon from '../../assets/icons/cross.svg';
 
 export interface ModalProps {
   isVisible: boolean;

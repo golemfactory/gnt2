@@ -25,8 +25,7 @@ export const Login = ({history}: RouteComponentProps) => {
     <DashboardLayout title={isConnecting ? 'GOLEM TOKEN MIGRATOR' : 'WELCOME TO'}>
       {isConnecting
         ? <LoginConnecting/>
-        : <LoginSelector onMetamaskClick={onMetamaskClick}/>
-      }
+        : <LoginSelector onMetamaskClick={onMetamaskClick}/>}
     </DashboardLayout>
   );
 };

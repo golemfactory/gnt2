@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {Modal} from '../Modal';
+import {Modal} from '../commons/Modal';
 import {TrezorLedgerInstruction} from './TrezorLedgerInstruction';
 import {MainTitle} from '../commons/Text/MainTitle';
 import {BlockTitle} from '../commons/Text/BlockTitle';
