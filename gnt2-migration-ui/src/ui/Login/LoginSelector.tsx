@@ -8,12 +8,12 @@ import {Text} from '../commons/Text/Text';
 import {ButtonSecondary} from '../commons/Buttons/ButtonSecondary';
 import {Checkbox} from '../commons/Form/Checkbox';
 import metamaskIcon from '../../assets/icons/metamask.svg';
-import trezorIcon from '../../assets/icons/trezor.svg';
-import ledgerIcon from '../../assets/icons/ledger.svg';
 import {InfoBlock} from '../commons/InfoBlock';
-import {WalletName} from './WalletName';
 import {useServices} from '../hooks/useServices';
 import {ConnectionState} from '../../services/ConnectionService';
+import trezorIcon from '../../assets/icons/trezor.svg';
+import ledgerIcon from '../../assets/icons/ledger.svg';
+import {WalletName} from './WalletName';
 
 export interface LoginSelectorProps {
   onMetamaskClick: () => void;
@@ -40,16 +40,9 @@ export const LoginSelector = ({onMetamaskClick}: LoginSelectorProps) => {
       />
       <ConnectionBlock>
         <BlockTitle>Connect to:</BlockTitle>
-        <ButtonsRow>
-          <MetaMaskButton onClick={onMetamaskClick} disabled={noMetaMask || !isChecked}>
-            <img src={metamaskIcon} alt="metamask logo"/> MetaMask
-          </MetaMaskButton>
-          <TextSeparator>OR</TextSeparator>
-          <ConnectButton onClick={() => setIsModalVisible(true)} disabled={!isChecked}>
-            <WalletName icon={trezorIcon}>Trezor</WalletName>
-            <WalletName icon={ledgerIcon}>Ledger</WalletName>
-          </ConnectButton>
-        </ButtonsRow>
+        <MetaMaskButton onClick={onMetamaskClick} disabled={noMetaMask || !isChecked}>
+          <img src={metamaskIcon} alt="metamask logo"/> MetaMask
+        </MetaMaskButton>
         <InfoRow>
           {
             noMetaMask &&
@@ -64,6 +57,11 @@ export const LoginSelector = ({onMetamaskClick}: LoginSelectorProps) => {
           </InfoBlock>
           }
         </InfoRow>
+        <ConnectLabel onClick={() => setIsModalVisible(true)}>
+          How to connect with&nbsp;
+          <WalletName icon={trezorIcon}>Trezor</WalletName>&nbsp;
+          or&nbsp;&nbsp;<WalletName icon={ledgerIcon}>Ledger</WalletName>
+        </ConnectLabel>
       </ConnectionBlock>
 
       <Modal isVisible={isModalVisible} onClose={() => setIsModalVisible(false)}>
@@ -73,19 +71,21 @@ export const LoginSelector = ({onMetamaskClick}: LoginSelectorProps) => {
   );
 };
 
-const ConnectButton = styled(ButtonSecondary)`
+const ConnectLabel = styled.a`
+  display: flex;
+  font-size: 14px;
+  color: #181EA9;
+  cursor: pointer;
+  text-decoration: underline;
+`;
+
+const MetaMaskButton = styled(ButtonSecondary)`
+  margin: 16px 0;
   max-width: 270px;
   height: 48px;
   font-size: 14px;
   line-height: 16px;
   font-weight: bold;
-
-  @media(max-width: 500px) {
-    max-width: initial;
-  }
-`;
-
-const MetaMaskButton = styled(ConnectButton)`
   justify-content: flex-start;
 
   & img {
@@ -113,23 +113,4 @@ const Link = styled.a`
 
 const ConnectionBlock = styled.div`
   margin-top: 162px;
-`;
-
-const ButtonsRow = styled.div`
-  display: flex;
-  align-items: center;
-  margin: 16px 0;
-
-  @media(max-width: 500px) {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-`;
-
-const TextSeparator = styled(BlockTitle)`
-  margin: 0 12px;
-
-  @media(max-width: 500px) {
-    margin: 15px auto;
-  }
 `;

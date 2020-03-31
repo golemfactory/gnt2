@@ -8,24 +8,18 @@ export interface WalletNameProps {
 
 export const WalletName = ({icon, children}: WalletNameProps) => (
   <WalletNameRow>
-    <img src={icon}/>
+    <img src={icon} alt='Wallet name'/>
     <WalletNameText>{children}</WalletNameText>
   </WalletNameRow>
 );
 
 const WalletNameRow = styled.div`
   display: flex;
-  align-items: center;
-
-  & + & {
-    margin-left: 23px;
-  }
 `;
 
 const WalletNameText = styled.p`
-  margin-left: 10px;
+  margin-left: 3px;
   font-size: 14px;
-  line-height: 16px;
-  letter-spacing: 2px;
-  color: #1722a2;
+  color: #181EA9;
+  font-weight: bold;
 `;
