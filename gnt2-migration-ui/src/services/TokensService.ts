@@ -9,10 +9,11 @@ import {
 } from 'gnt2-contracts';
 import {ContractAddressService} from './ContractAddressService';
 import {ContractTransaction} from 'ethers';
-import {callEffectForEach, Property, State, withEffect, withSubscription} from 'reactive-properties';
+import {callEffectForEach, map, Property, State, withEffect, withSubscription} from 'reactive-properties';
 import {ConnectionService} from './ConnectionService';
 import {ContractUtils} from '../utils/contractUtils';
 import {PossibleBalance} from '../domain/PossibleBalance';
+import {AddressZero} from 'ethers/constants';
 
 export enum DepositState {
   LOCKED, TIME_LOCKED, UNLOCKED, EMPTY
@@ -25,7 +26,8 @@ export class TokensService {
   ngntBalance: Property<PossibleBalance>;
   depositBalance: Property<PossibleBalance>;
   depositLockState: Property<DepositState>;
-  migrationTarget: Property<string>;
+  isMigrationTargetSetToZero: Property<boolean>;
+  private migrationTarget: Property<string>;
   private depositLockInternalState: State<DepositState>;
 
   constructor(
@@ -79,6 +81,7 @@ export class TokensService {
         this.migrationTargetEventFilters(),
         callback
       ));
+    this.isMigrationTargetSetToZero = this.migrationTarget.pipe(map(target => target === AddressZero));
   }
 
 

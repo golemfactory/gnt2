@@ -67,7 +67,7 @@ export class TestAccountPage {
   }
 
   async clickContinueMigration() {
-    fireEvent.click(await waitForElement(() => this.getByTestId('continue-migrate-button')));
+    fireEvent.click(await waitForElement(() => this.getByTestId('modal-button-continue')));
   }
 
   confirmUnlock() {

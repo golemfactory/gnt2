@@ -4,7 +4,6 @@ import {formatValue} from '../../utils/formatter';
 import {BigNumber} from 'ethers/utils';
 import {TitleWithTooltip} from '../commons/Text/TitleWithTooltip';
 import {useProperty} from '../hooks/useProperty';
-import {AddressZero} from 'ethers/constants';
 import {useServices} from '../hooks/useServices';
 
 interface OldTokensBalanceProps {
@@ -15,18 +14,15 @@ interface OldTokensBalanceProps {
 export const OldTokensBalance = ({balance, onConvert}: OldTokensBalanceProps) => {
   const {tokensService} = useServices();
   const [tooltipText, setTooltipText] = useState<string>('');
-  const [isMigrationTargetSetToZero, setMigrationTargetSetToZero] = useState<boolean>(false);
-  const migrationTarget = useProperty(tokensService.migrationTarget);
+  const isMigrationTargetSetToZero = useProperty(tokensService.isMigrationTargetSetToZero);
 
   useEffect(() => {
-    const isTargetZero = migrationTarget === AddressZero;
-    setMigrationTargetSetToZero(isTargetZero);
-    if (isTargetZero) {
-      setTooltipText('Migration Target is not set');
+    if (isMigrationTargetSetToZero) {
+      setTooltipText('Migration is currently stopped. You won\'t be able to migrate your tokens.');
       return;
     }
     setTooltipText('Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce vehicula vehicula odio, ut scelerisque massa.Learn more');
-  }, [migrationTarget]);
+  }, [isMigrationTargetSetToZero]);
 
   return (
     <BalanceBlock>

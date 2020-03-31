@@ -9,9 +9,17 @@ export interface ModalProps {
   children: ReactNode;
   inProgress?: boolean;
   className?: string;
+  dataTestId?: string;
 }
 
-export const Modal = ({isVisible, onClose, children, inProgress, className}: ModalProps) => {
+export const Modal = ({
+  isVisible,
+  onClose,
+  children,
+  inProgress,
+  className,
+  dataTestId = 'modal'
+}: ModalProps) => {
   const listenKeyboard = useCallback((event: KeyboardEvent) => {
     if (!!onClose && !inProgress && (event.key === 'Escape' || event.keyCode === 27)) {
       onClose();
@@ -29,7 +37,7 @@ export const Modal = ({isVisible, onClose, children, inProgress, className}: Mod
 
   if (isVisible) {
     return createPortal(
-      <ModalView data-testid="modal">
+      <ModalView data-testid={dataTestId}>
         <ModalOverlay onClick={onClose}/>
         <ModalBodyWrapper className={className || ''}>
           <ModalBody>

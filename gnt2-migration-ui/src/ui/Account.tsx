@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 
 import styled from 'styled-components';
 import {ContractTransaction} from 'ethers';
@@ -42,8 +42,10 @@ export const Account = () => {
   const gntbBalance = useProperty(tokensService.gntbBalance);
   const depositBalance = useProperty(tokensService.depositBalance);
   const [currentTransaction, setCurrentTransaction] = useState<TransactionWithDescription | undefined>(undefined);
-  const [showOtherBalancesWarning, setShowOtherBalancesWarning] = React.useState(false);
+  const [showOtherBalancesWarning, setOtherBalancesWarning] = useState<boolean>(false);
+  const [showMigrationStoppedWarning, setMigrationStoppedWarning] = useState<boolean>(false);
   const [startedAction, setStartedAction] = useState<AccountActions | undefined>();
+  const isMigrationTargetSetToZero = useProperty(tokensService.isMigrationTargetSetToZero);
 
   useAsyncEffect(async () => {
     if (transactionService.isTxStored()) {
@@ -54,12 +56,19 @@ export const Account = () => {
     }
   }, [account, network]);
 
+  useEffect(() => {
+    if (isMigrationTargetSetToZero) {
+      setMigrationStoppedWarning(true);
+    } else {
+      setMigrationStoppedWarning(false);
+    }
+  }, [isMigrationTargetSetToZero]);
 
   const hasOtherTokens = () => !(isEmpty(gntbBalance) && isEmpty(depositBalance));
 
   const startMigration = () => {
     if (hasOtherTokens()) {
-      setShowOtherBalancesWarning(true);
+      setOtherBalancesWarning(true);
       return;
     }
     continueMigration();
@@ -90,7 +99,9 @@ export const Account = () => {
     setStartedAction(undefined);
   };
 
-  const closeOtherBalancesWarning = () => setShowOtherBalancesWarning(false);
+  const closeOtherBalancesWarning = () => setOtherBalancesWarning(false);
+
+  const closeMigrationStoppedWarning = () => setMigrationStoppedWarning(false);
 
   const migrate = (amount: string) => {
     setCurrentTransaction({
@@ -191,10 +202,26 @@ export const Account = () => {
               />
             }
           </Blur>
-          <BlurModal isVisible={!hasContracts}/>
+          <BlurModal
+            isVisible={!hasContracts}
+            title="Wrong Network"
+            body={`You are on an unsupported network (${network}). Please switch to Ethereum Mainnet to migrate your tokens.`}
+          />
         </Content>
+        <WarningModal
+          dataTestId="migration-stopped-warning"
+          isVisible={showMigrationStoppedWarning}
+          onClose={closeMigrationStoppedWarning}
+        >
+          <WarningModalContent
+            onConfirmClick={closeMigrationStoppedWarning}
+            body="Migration is currently stopped. You won't be able to migrate your tokens."
+          />
+        </WarningModal>
         <WarningModal isVisible={showOtherBalancesWarning} onClose={closeOtherBalancesWarning}>
           <WarningModalContent
+            body="You are going to convert your GNT and you still have balance in GNTb and/or GNTb Deposit.
+             If you plan to convert them later, additional Ethereum transactions will be required."
             onConfirmClick={() => {
               closeOtherBalancesWarning();
               continueMigration();

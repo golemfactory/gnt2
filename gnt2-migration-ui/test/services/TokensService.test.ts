@@ -33,7 +33,6 @@ describe('Token Service', () => {
   let gntb: GolemNetworkTokenBatching;
   let gnt: GolemNetworkToken;
   let gntMigrationAgent: GNTMigrationAgent;
-  let ngntAddress: string;
 
   let un1: () => void;
   let un2: () => void;
@@ -49,14 +48,13 @@ describe('Token Service', () => {
     holder = holderWallet.address;
 
     const contractAddresses = contractAddressService.contractAddresses.get();
-    ngntAddress = contractAddresses.newGolemToken;
     gntb = GolemNetworkTokenBatchingFactory.connect(contractAddresses.batchingGolemToken, holderWallet);
     gnt = GolemNetworkTokenFactory.connect(contractAddresses.oldGolemToken, holderWallet);
     gntMigrationAgent = GNTMigrationAgentFactory.connect(contractAddresses.migrationAgent, anotherWallet);
     un1 = tokensService.gntbBalance.subscribe(sinon.stub());
     un2 = tokensService.gntBalance.subscribe(sinon.stub());
     un3 = tokensService.ngntBalance.subscribe(sinon.stub());
-    un4 = tokensService.migrationTarget.subscribe(sinon.stub());
+    un4 = tokensService.isMigrationTargetSetToZero.subscribe(sinon.stub());
   });
 
   afterEach(() => {
@@ -83,9 +81,9 @@ describe('Token Service', () => {
   });
 
   it('refreshes migration target property after change', async () => {
-    await wait(() => expect(tokensService.migrationTarget.get()).to.be.eq(ngntAddress));
+    await wait(() => expect(tokensService.isMigrationTargetSetToZero.get()).to.be.false);
     await gntMigrationAgent.setTarget(AddressZero, DEFAULT_TEST_OVERRIDES);
-    await wait(() => expect(tokensService.migrationTarget.get()).to.be.eq(AddressZero));
+    await wait(() => expect(tokensService.isMigrationTargetSetToZero.get()).to.be.true);
   });
 
   it('refreshes GNT and GNTB balances on wrap', async () => {
