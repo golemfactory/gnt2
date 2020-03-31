@@ -13,7 +13,7 @@ import {TestAccountPage} from './helpers/TestAccountPage';
 import {parseEther} from 'ethers/utils';
 import {AddressZero} from 'ethers/constants';
 import {DEFAULT_TEST_OVERRIDES} from '../../gnt2-contracts/test/utils';
-import {GNTMigrationAgentFactory} from '../../gnt2-contracts/build/contract-types/GNTMigrationAgentFactory';
+import {GNTMigrationAgentFactory} from 'gnt2-contracts';
 import {GNTMigrationAgent} from 'gnt2-contracts/build/contract-types/GNTMigrationAgent';
 import {Wallet} from 'ethers';
 import sinon from 'sinon';
@@ -95,8 +95,6 @@ describe('Account page', () => {
     [
       ['6000000.0', 'number of tokens greater then GNT-balance'],
       ['5000001.0', 'number of tokens greater then GNT-balance'],
-      ['-1000', 'number of tokens lower then 0'],
-      ['', 'empty value']
     ].forEach(([tokensToMigrate, message]) => {
       it(`shows error for ${message}`, async () => {
         const accountPage = await new TestAccountPage(services).load();
@@ -105,9 +103,24 @@ describe('Account page', () => {
         fireEvent.change(input, {target: {value: tokensToMigrate}});
 
         await wait(() => {
-          expect(accountPage.find('migrate-error')).to.exist;
-          expect(accountPage.find('migrate-button')).to.have.attr('disabled');
+          expect(accountPage.find('convert-input-error')).to.exist;
+          expect(accountPage.find('convert-button')).to.have.attr('disabled');
         });
+      });
+    });
+
+    it('shows error for empty value', async () => {
+      const accountPage = await new TestAccountPage(services).load();
+
+      const input = await accountPage.startMigration();
+      fireEvent.change(input, {target: {value: ''}});
+      const convertBtn = await accountPage.find('convert-button');
+
+      fireEvent.click(convertBtn);
+
+      await wait(() => {
+        expect(accountPage.find('convert-input-error')).to.exist;
+        expect(accountPage.find('convert-button')).to.have.attr('disabled');
       });
     });
 
@@ -116,7 +129,7 @@ describe('Account page', () => {
 
       const input = await accountPage.startMigration();
 
-      fireEvent.click(accountPage.find('migrate-btn-set-max'));
+      fireEvent.click(accountPage.find('convert-input-set-max'));
 
       expect(input).to.have.value('5000000');
     });

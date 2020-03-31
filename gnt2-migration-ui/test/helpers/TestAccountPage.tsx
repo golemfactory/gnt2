@@ -44,11 +44,11 @@ export class TestAccountPage {
 
   confirmMigration(input: any, amount: string) {
     fireEvent.change(input, {target: {value: amount}});
-    fireEvent.click(this.getByTestId('migrate-button'));
+    fireEvent.click(this.getByTestId('convert-button'));
   }
 
   async findMigrationInput() {
-    return waitForElement(() => this.getByTestId('migrate-input'));
+    return waitForElement(() => this.getByTestId('convert-input'));
   }
 
   async completeTransaction() {
