@@ -7,13 +7,13 @@ import {formatTokenBalance} from '../../utils/formatter';
 import {WithoutValueDescription} from './AccountActionDescriptions';
 import {BoxFooterContainer} from '../BoxFooterContainer';
 
-interface MoveToWrappedProps {
+interface TxDetailsProps {
   onCancelClick: () => void;
   onConfirm: () => void;
   description: WithoutValueDescription;
 }
 
-export const MoveToWrapped = ({onCancelClick, onConfirm, description}: MoveToWrappedProps) =>
+export const TxDetails = ({onCancelClick, onConfirm, description}: TxDetailsProps) =>
   <>
     <Box>
       <BoxContent>

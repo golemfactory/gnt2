@@ -34,7 +34,7 @@ export const BoxFooterContainer = ({
         <BoxFooterButton
           data-testid={confirmBtnDataTestId}
           onClick={onConfirmClick}
-          disabled={lowEth || disabled}
+          disabled={disabled}
         >
           Confirm Transaction
         </BoxFooterButton>

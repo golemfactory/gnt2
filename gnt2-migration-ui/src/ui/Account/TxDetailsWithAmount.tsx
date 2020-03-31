@@ -8,13 +8,13 @@ import {WithValueDescription} from './AccountActionDescriptions';
 import {NumberInput} from '../NumberInput';
 import {BoxFooterContainer} from '../BoxFooterContainer';
 
-interface ConvertTokensProps {
+interface TxDetailsWithAmountProps {
   onCancelClick: () => void;
   onAmountConfirm: (toMigrate: string) => void;
   description: WithValueDescription;
 }
 
-export const ConvertTokens = ({onAmountConfirm, onCancelClick, description: {balance, from, to, title}}: ConvertTokensProps) => {
+export const TxDetailsWithAmount = ({onAmountConfirm, onCancelClick, description: {balance, from, to, title}}: TxDetailsWithAmountProps) => {
   const [tokensToConvert, setTokensToConvert] = useState<string>('');
   const [isTouched, setTouched] = React.useState<boolean>(false);
   const [inputError, setInputError] = useState<string | undefined>(undefined);

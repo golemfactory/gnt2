@@ -11,9 +11,9 @@ import {useProperty} from './hooks/useProperty';
 import {DashboardLayout} from './commons/DashboardLayout/DashboardLayout';
 import {isEmpty} from '../utils/bigNumberUtils';
 import {Modal} from './commons/Modal';
-import {ConvertTokens} from './Account/ConvertTokens';
+import {TxDetailsWithAmount} from './Account/TxDetailsWithAmount';
 import {parseEther} from 'ethers/utils';
-import {MoveToWrapped} from './Account/MoveToWrapped';
+import {TxDetails} from './Account/TxDetails';
 import {WarningModalContent} from './Account/WarningModalContent';
 import {BlurModal} from './BlurModal';
 import {DescribeAction} from './Account/AccountActionDescriptions';
@@ -119,10 +119,19 @@ export const Account = () => {
 
   const renderContent = () => {
     switch (startedAction) {
+      case AccountActions.MIGRATE:
+        if (!oldTokensBalance) return null;
+        return (
+          <TxDetailsWithAmount
+            onCancelClick={stopAction}
+            onAmountConfirm={migrate}
+            description={DescribeAction.migrate(oldTokensBalance)}
+          />
+        );
       case AccountActions.UNWRAP:
         if (!gntbBalance) return null;
         return (
-          <ConvertTokens
+          <TxDetailsWithAmount
             onCancelClick={stopAction}
             onAmountConfirm={unwrapTokens}
             description={DescribeAction.unwrap(gntbBalance)}
@@ -131,7 +140,7 @@ export const Account = () => {
       case AccountActions.WITHDRAW:
         if (!depositBalance) return null;
         return (
-          <MoveToWrapped
+          <TxDetails
             onCancelClick={stopAction}
             onConfirm={moveToWrapped}
             description={DescribeAction.withdraw(depositBalance)}
@@ -140,19 +149,10 @@ export const Account = () => {
       case AccountActions.UNLOCK:
         if (!depositBalance) return null;
         return (
-          <MoveToWrapped
+          <TxDetails
             onCancelClick={stopAction}
             onConfirm={unlockDeposit}
             description={DescribeAction.unlock(depositBalance)}
-          />
-        );
-      case AccountActions.MIGRATE:
-        if (!oldTokensBalance) return null;
-        return (
-          <ConvertTokens
-            onCancelClick={stopAction}
-            onAmountConfirm={migrate}
-            description={DescribeAction.migrate(oldTokensBalance)}
           />
         );
       case undefined:
