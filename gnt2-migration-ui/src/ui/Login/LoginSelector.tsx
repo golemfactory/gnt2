@@ -8,10 +8,7 @@ import {Text} from '../commons/Text/Text';
 import {ButtonSecondary} from '../commons/Buttons/ButtonSecondary';
 import {Checkbox} from '../commons/Form/Checkbox';
 import metamaskIcon from '../../assets/icons/metamask.svg';
-import trezorIcon from '../../assets/icons/trezor.svg';
-import ledgerIcon from '../../assets/icons/ledger.svg';
 import {InfoBlock} from '../commons/InfoBlock';
-import {WalletName} from './WalletName';
 import {useServices} from '../hooks/useServices';
 import {ConnectionState} from '../../services/ConnectionService';
 
@@ -44,10 +41,9 @@ export const LoginSelector = ({onMetamaskClick}: LoginSelectorProps) => {
           <MetaMaskButton onClick={onMetamaskClick} disabled={noMetaMask || !isChecked}>
             <img src={metamaskIcon} alt="metamask logo"/> MetaMask
           </MetaMaskButton>
-          <TextSeparator>OR</TextSeparator>
+          <TextSeparator/>
           <ConnectButton onClick={() => setIsModalVisible(true)} disabled={!isChecked}>
-            <WalletName icon={trezorIcon}>Trezor</WalletName>
-            <WalletName icon={ledgerIcon}>Ledger</WalletName>
+            How to connect with Trezor or Ledger
           </ConnectButton>
         </ButtonsRow>
         <InfoRow>
@@ -79,13 +75,34 @@ const ConnectButton = styled(ButtonSecondary)`
   font-size: 14px;
   line-height: 16px;
   font-weight: bold;
+  border: transparent;
 
   @media(max-width: 500px) {
     max-width: initial;
   }
 `;
 
-const MetaMaskButton = styled(ConnectButton)`
+// const ConnectButton = styled.a`
+//   display: flex;
+//   align-items: center;
+//   justify-content: center;
+//   max-width: 270px;
+//   color: #181EA9;
+//   height: 48px;
+//   width: 100%;
+//   font-size: 14px;
+//   line-height: 16px;
+//   font-weight: bold;
+//   border: transparent;
+//   cursor: pointer;
+// `;
+
+const MetaMaskButton = styled(ButtonSecondary)`
+  max-width: 270px;
+  height: 48px;
+  font-size: 14px;
+  line-height: 16px;
+  font-weight: bold;
   justify-content: flex-start;
 
   & img {
