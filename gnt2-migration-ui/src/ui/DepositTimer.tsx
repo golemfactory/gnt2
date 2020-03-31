@@ -27,12 +27,10 @@ export const DepositTimer = () => {
     return () => { if (timerId) { clearInterval(timerId); } };
   }, [timeLeft, depositState, account, contractAddresses]);
 
-
   useAsyncEffect(async () => {
     if (!unlockUpdateDone && timer === '00:00:00') {
-      setUnlockUpdateDone(false);
-      console.log(`timer = ${timer}`);
       await tokensService.updateDepositLockState();
+      setUnlockUpdateDone(true);
     }
   }, [unlockUpdateDone, timer]);
 
