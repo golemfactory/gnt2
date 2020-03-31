@@ -19,10 +19,10 @@ interface ConvertTokensProps {
 }
 
 export const ConvertTokens = ({onAmountConfirm, onCancelClick, description: {balance, from, to, title}}: ConvertTokensProps) => {
-  const [tokensToConvert, setTokensToConvert] = useState<string>('0.000');
+  const [tokensToConvert, setTokensToConvert] = useState<string>('');
   const {etherService} = useServices();
-  const ethBalance = useProperty(etherService.etherBalance);
   const [isTouched, setTouched] = React.useState<boolean>(false);
+  const ethBalance = useProperty(etherService.etherBalance);
 
   const [lowEth, setLowEth] = useState(false);
   const [inputError, setInputError] = useState<string | undefined>(undefined);
