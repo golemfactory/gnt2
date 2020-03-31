@@ -29,7 +29,7 @@ export const LoginSelector = ({onMetamaskClick}: LoginSelectorProps) => {
     <>
       <MainTitle>Golem token migrator</MainTitle>
       <StyledText>
-        Use Token Migrator to move your GNT into new version. Connect your wallet to view available migrations on your
+        Use Token Migrator to move your GNT into new version.<br/>Connect your wallet to view available migrations on your
         account.
       </StyledText>
       <Checkbox
