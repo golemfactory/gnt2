@@ -1,22 +1,26 @@
 import React from 'react';
 import styled from 'styled-components';
-import {useProperty} from './hooks/useProperty';
-import {useServices} from './hooks/useServices';
 
 export interface BlurModalProps {
   isVisible: boolean;
   className?: string;
+  dataTestId?: string;
+  title: string;
+  body: string;
 }
 
-export const BlurModal = ({isVisible, className}: BlurModalProps) => {
-  const {connectionService} = useServices();
-  const network = useProperty(connectionService.network);
-
+export const BlurModal = ({
+  isVisible,
+  className,
+  dataTestId = 'modal',
+  title,
+  body
+}: BlurModalProps) => {
   if (isVisible) {
     return (
-      <ModalView data-testid="modal" className={className || ''}>
-        <Title>Wrong Network</Title>
-        <Text>You are on an unsupported network ({network}). Please switch to Ethereum Mainnet to migrate your tokens.</Text>
+      <ModalView data-testid={dataTestId} className={className || ''}>
+        <Title>{title}</Title>
+        <Text>{body}</Text>
       </ModalView>
     );
   } else return null;

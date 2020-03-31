@@ -56,28 +56,41 @@ describe('Account page', () => {
       const contractAddresses = contractAddressService.contractAddresses.get();
       anotherWallet = getWallets(provider)[1];
       gntMigrationAgent = GNTMigrationAgentFactory.connect(contractAddresses.migrationAgent, anotherWallet);
-      un = tokensService.migrationTarget.subscribe(sinon.stub());
+      un = tokensService.isMigrationTargetSetToZero.subscribe(sinon.stub());
     });
 
     afterEach(() => {
       un();
     });
 
-    it('shows info & prevent interactions when migration is halted', async () => {
+    it('shows info in tooltip & prevent interactions when migration is halted', async () => {
       const accountPage = await new TestAccountPage(services).load();
 
       await wait(() => {
-        expect(accountPage.find('GNT-btn-tooltip')).to.not.have.text('Migration Target is not set');
+        expect(accountPage.find('GNT-btn-tooltip')).to.not.have.text('Migration is currently stopped. You won\'t be able to migrate your tokens.');
         expect(accountPage.find('convert-button')).to.not.have.attr('disabled');
       });
 
       await gntMigrationAgent.setTarget(AddressZero, DEFAULT_TEST_OVERRIDES);
 
       await wait(() => {
-        expect(accountPage.find('GNT-btn-tooltip')).to.have.text('Migration Target is not set');
+        expect(accountPage.find('GNT-btn-tooltip')).to.have.text('Migration is currently stopped. You won\'t be able to migrate your tokens.');
         expect(accountPage.find('convert-button')).to.have.attr('disabled');
       });
 
+    });
+
+    it('shows and hide modal when migration is halted', async () => {
+      const accountPage = await new TestAccountPage(services).load();
+
+      await gntMigrationAgent.setTarget(AddressZero, DEFAULT_TEST_OVERRIDES);
+      await wait(() => {
+        expect(accountPage.find('migration-stopped-warning')).to.exist;
+      });
+
+      const continueBtn = await accountPage.find('modal-button-continue');
+      fireEvent.click(continueBtn);
+      expect(accountPage.query('migration-stopped-warning')).to.not.exist;
     });
 
     it('migrates user-specified number of tokens', async () => {

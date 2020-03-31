@@ -7,21 +7,32 @@ import styled from 'styled-components';
 
 export interface WarningModalContentProps {
   onConfirmClick: () => void;
-  onCancelClick: () => void;
+  onCancelClick?: () => void;
+  confirmText?: string;
+  title?: string;
+  body: string;
 }
 
-export const WarningModalContent = ({onConfirmClick, onCancelClick}: WarningModalContentProps) => (
+export const WarningModalContent = ({
+  onConfirmClick,
+  onCancelClick,
+  title = 'Warning',
+  body,
+  confirmText = 'OK, GOT IT'
+}: WarningModalContentProps) => (
   <ModalContent>
-    <Title>Warning</Title>
-    <Text>You are going to convert your GNT and you still have balance in GNTb and/or GNTb Deposit. If you plan to convert them later,
-      additional Ethereum transactions will be required.</Text>
+    <Title>{title}</Title>
+    <Text>{body}</Text>
     <Button
-      data-testid="continue-migrate-button"
+      data-testid="modal-button-continue"
       onClick={onConfirmClick}
     >
-      OK, GOT IT
+      {confirmText}
     </Button>
-    <CancelButton onClick={onCancelClick}>Cancel converting</CancelButton>
+    {
+      onCancelClick &&
+      <CancelButton onClick={onCancelClick}>Cancel converting</CancelButton>
+    }
   </ModalContent>
 );
 

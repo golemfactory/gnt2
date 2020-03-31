@@ -13,6 +13,7 @@ import {callEffectForEach, Property, State, withEffect, withSubscription} from '
 import {ConnectionService} from './ConnectionService';
 import {ContractUtils} from '../utils/contractUtils';
 import {PossibleBalance} from '../domain/PossibleBalance';
+import {AddressZero} from 'ethers/constants';
 
 export enum DepositState {
   LOCKED, TIME_LOCKED, UNLOCKED, EMPTY
@@ -25,7 +26,7 @@ export class TokensService {
   ngntBalance: Property<PossibleBalance>;
   depositBalance: Property<PossibleBalance>;
   depositLockState: Property<DepositState>;
-  migrationTarget: Property<string>;
+  isMigrationTargetSetToZero: Property<boolean>;
   private depositLockInternalState: State<DepositState>;
 
   constructor(
@@ -73,7 +74,7 @@ export class TokensService {
         callback
       )
     );
-    this.migrationTarget = this.createMigrationTargetProperty(
+    this.isMigrationTargetSetToZero = this.createMigrationTargetProperty(
       callback => ContractUtils.subscribeToEvents(
         this.gntMigrationAgentContract(),
         this.migrationTargetEventFilters(),
@@ -86,11 +87,11 @@ export class TokensService {
     subscribeToEvents: (cb: () => void) => (() => void)
   ) {
     const contractAddresses = this.contractAddressService.contractAddresses;
-    const state = new State<string>(contractAddresses.get().newGolemToken);
+    const state = new State<boolean>(false);
     const updateDepositLockState = async () =>
       this.safeContractRead(async () => {
         const gntMigrationAgent = await this.gntMigrationAgentContract();
-        const gntMigrationTarget = await gntMigrationAgent.target();
+        const gntMigrationTarget = await gntMigrationAgent.target() === AddressZero;
         state.set(gntMigrationTarget);
       });
 
