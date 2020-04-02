@@ -4,16 +4,16 @@ import {Text} from '../commons/Text/Text';
 
 export const TrezorLedgerInstruction = () => (
   <View>
-    <Title>Connect to Hardware</Title>
+    <Title>Connecting your Hardware Wallet</Title>
     <OL>
       <LI>
-        <StyledText>Head to the top-right menu, and look for the &ldquo;Connect Hardware Wallet&rdquo; option</StyledText>
+        <StyledText>Head over to the top-right menu on your Metamask wallet - select the &ldquo;connect a hardware wallet&ldquo; option.</StyledText>
       </LI>
       <LI>
-        <StyledText>Plug your Ledger device in to your computer.</StyledText>
+        <StyledText>Plug your Ledger or Trezor device into your computer</StyledText>
       </LI>
       <LI>
-        <StyledText>Select &ldquo;Ledger&rdquo;, then click &ldquo;Connect&rdquo;</StyledText>
+        <StyledText>Select your wallet and click connect</StyledText>
       </LI>
       <LI>
         <StyledText>Select the account you want to use, then click &ldquo;Import&rdquo; and you&apos;re good to go!</StyledText>
@@ -31,10 +31,10 @@ const View = styled.div`
 const Title = styled.h2`
   margin-bottom: 38px;
   font-size: 24px;
-  font-weight: 700px;
   line-height: 31px;
   text-align: center;
   color: #181EA9;
+  font-weight: bold;
 `;
 
 const OL = styled.ol`

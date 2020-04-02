@@ -9,6 +9,7 @@ export interface WarningModalContentProps {
   onConfirmClick: () => void;
   onCancelClick?: () => void;
   confirmText?: string;
+  cancelText?: string;
   title?: string;
   body: string;
 }
@@ -18,7 +19,8 @@ export const WarningModalContent = ({
   onCancelClick,
   title = 'Warning',
   body,
-  confirmText = 'OK, GOT IT'
+  confirmText = 'OK, GOT IT',
+  cancelText = 'Cancel this Conversion'
 }: WarningModalContentProps) => (
   <ModalContent>
     <Title>{title}</Title>
@@ -31,7 +33,7 @@ export const WarningModalContent = ({
     </Button>
     {
       onCancelClick &&
-      <CancelButton onClick={onCancelClick}>Cancel converting</CancelButton>
+      <CancelButton onClick={onCancelClick}>{cancelText}</CancelButton>
     }
   </ModalContent>
 );

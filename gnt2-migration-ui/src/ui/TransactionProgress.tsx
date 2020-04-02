@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import {CTAButton} from './commons/CTAButton';
 import {useServices} from './hooks/useServices';
 import {useProperty} from './hooks/useProperty';
+import {tokens} from '../domain/constants';
 
 
 interface TransactionProgressProps {
@@ -31,17 +32,17 @@ export const TransactionProgress = ({
     if (!inProgress) {
       return 'Transaction completed';
     }
-    return 'Transaction is in progress';
+    return 'Transaction in Progress';
   }
 
   function getDescription() {
     if (errorMessage) {
-      return `${description} failed. Reason: ${errorMessage}`;
+      return `This conversion has failed. Check the videos and text guides for troubleshooting. Reason: ${errorMessage}`;
     }
     if (!inProgress) {
       return `${description} completed successfully`;
     }
-    return description;
+    return `It might take some time, but soon you'll receive your ${tokens.ngnt.name}!`;
   }
 
   function doNotShowTransactionLink() {
