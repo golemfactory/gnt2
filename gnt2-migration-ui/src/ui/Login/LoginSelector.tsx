@@ -36,9 +36,9 @@ export const LoginSelector = ({onMetamaskClick}: LoginSelectorProps) => {
       <Checkbox
         value={isChecked}
         onChange={setIsChecked}
-        label={'I have read and agree to the '}
-        nonClickableLabel={<Link href="/">&quot;Terms and Conditions&quot;</Link>}
-      />
+      >
+        I have read and agree to the&nbsp;<Link href='/' onClick={e => e.stopPropagation()}>&quot;Terms and Conditions&quot;</Link>
+      </Checkbox>
       <ConnectionBlock>
         <BlockTitle>Connect to:</BlockTitle>
         <MetaMaskButton onClick={onMetamaskClick} disabled={noMetaMask || !isChecked}>
@@ -119,6 +119,8 @@ const StyledText = styled(Text)`
 `;
 
 const Link = styled.a`
+  display: flex;
+  flex-wrap: no-wrap;
   color: inherit;
 `;
 

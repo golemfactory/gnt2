@@ -3,23 +3,18 @@ import styled from 'styled-components';
 import checkmark from '../../../assets/icons/checkmark.svg';
 
 export interface CheckboxProps {
-  label: string | ReactNode;
-  nonClickableLabel?: string | ReactNode | undefined;
   value: boolean;
   onChange: (value: boolean) => void;
+  children: ReactNode;
 }
 
-export const Checkbox = ({label, nonClickableLabel, value, onChange}: CheckboxProps) => (
+export const Checkbox = ({children, value, onChange}: CheckboxProps) => (
   <CheckboxContainer>
     <ClickableContainer onClick={() => onChange(!value)}>
       <HiddenCheckbox onChange={() => onChange(!value)} checked={value}/>
       <StyledCheckbox/>
-      <CheckboxLabel>{label}</CheckboxLabel>
+      <CheckboxLabel>{children}</CheckboxLabel>
     </ClickableContainer>
-    {
-      nonClickableLabel &&
-      <CheckboxLabel>&nbsp;{nonClickableLabel}</CheckboxLabel>
-    }
   </CheckboxContainer>
 );
 
@@ -62,6 +57,8 @@ const StyledCheckbox = styled.div`
   }
 `;
 const CheckboxLabel = styled.p`
+  display: flex;
+  flex-wrap: wrap;
   font-size: 14px;
   line-height: 17px;
   color: #181EA9;

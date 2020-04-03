@@ -20,12 +20,17 @@ export const LoginConnecting = () => (
 const Row = styled.div`
   display: flex;
   align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
 `;
 
 const WalletNameWrapper = styled.div`
   display: flex;
   align-items: center;
-  margin-left: 25px;
+
+  @media (min-width: 350px) {
+    margin-left: 25px;
+  }
 `;
 
 const MetamaskIcon = styled.img`
