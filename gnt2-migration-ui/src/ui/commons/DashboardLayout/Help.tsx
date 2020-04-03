@@ -7,12 +7,12 @@ import arrow from '../../../assets/icons/arrow.svg';
 
 export const Help = () => (
   <HelpView>
-    <HelpTitle>Need some help?</HelpTitle>
-    <HelpText>Check some tips and tutorials on how to migrate your tokens in a safe and secure way.</HelpText>
+    <HelpTitle>WATCH THIS BEFORE YOU GET STARTED</HelpTitle>
+    <HelpText>Please watch this video - migrate in a safe and secure way!</HelpText>
     <Video>
       <PlatButton/>
     </Video>
-    <HelpLink>Text guides</HelpLink>
+    <HelpLink>Need more information? We got you covered.</HelpLink>
   </HelpView>
 );
 

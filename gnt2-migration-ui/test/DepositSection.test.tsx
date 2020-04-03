@@ -51,7 +51,7 @@ describe('Deposit UI', () => {
     const {getByTestId} = await renderDeposit(services);
 
     await wait(() => {
-      expect(getByTestId('deposit-status')).to.have.text('Deposit is locked');
+      expect(getByTestId('deposit-status')).to.have.text('Deposit is locked.');
     });
   });
 
@@ -60,7 +60,7 @@ describe('Deposit UI', () => {
     const {getByTestId} = await renderDeposit(services);
 
     await wait(() => {
-      expect(getByTestId('deposit-status')).to.have.text('Deposit is time-locked');
+      expect(getByTestId('deposit-status')).to.have.text('Deposit is time-locked.');
       expect(getByTestId('deposit-timer').textContent).to.match(/47:59:\d\d/);
     });
   });
@@ -74,7 +74,7 @@ describe('Deposit UI', () => {
     await accountPage.completeTransaction();
 
     await wait(() => {
-      expect(accountPage.find('deposit-status')).to.have.text('Deposit is time-locked');
+      expect(accountPage.find('deposit-status')).to.have.text('Deposit is time-locked.');
       expect(accountPage.find('deposit-timer').textContent).to.match(/47:59:\d\d/);
     });
   });
@@ -85,7 +85,7 @@ describe('Deposit UI', () => {
     const {getByTestId} = await renderDeposit(services);
 
     await wait(() => {
-      expect(getByTestId('deposit-status')).to.have.text('Deposit is unlocked');
+      expect(getByTestId('deposit-status')).to.have.text('Deposit is unlocked.');
     });
   });
 
@@ -106,12 +106,12 @@ describe('Deposit UI', () => {
     const getDepositStateStub = sinon.stub(services.tokensService, 'getDepositState').resolves(DepositState.TIME_LOCKED);
     const {getByTestId, queryByTestId} = await renderDeposit(services);
     await wait(() => {
-      expect(getByTestId('deposit-status')).to.have.text('Deposit is time-locked');
+      expect(getByTestId('deposit-status')).to.have.text('Deposit is time-locked.');
       expect(getByTestId('deposit-timer').textContent).to.match(/00:00:01/);
     });
     getDepositStateStub.resolves(DepositState.UNLOCKED);
     await wait(() => {
-      expect(getByTestId('deposit-status')).to.have.text('Deposit is unlocked');
+      expect(getByTestId('deposit-status')).to.have.text('Deposit is unlocked.');
       expect(queryByTestId('deposit-timer')).to.not.exist;
     });
   });

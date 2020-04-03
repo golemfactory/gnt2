@@ -12,7 +12,7 @@ interface EthereumBalanceProps {
 export const EthereumBalance = ({balance}: EthereumBalanceProps) => (
   <EthereumBalanceBlock>
     <TitleWithTooltip
-      tooltipText="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce vehicula vehicula odio, ut scelerisque massa.Learn more"
+      tooltipText="Remember: you need ETH to pay for gas, otherwise the migration will not be effective."
     >
       ETH Balance
     </TitleWithTooltip>
