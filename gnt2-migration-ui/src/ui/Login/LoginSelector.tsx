@@ -36,7 +36,7 @@ export const LoginSelector = ({onMetamaskClick}: LoginSelectorProps) => {
         value={isChecked}
         onChange={setIsChecked}
         label={'Lorem ipsum dolor sit amet enim etiam'}
-        nonClickableLabel={<><Link href="/google">Terms and Conditions</Link>.*</>}
+        nonClickableLabel={<><Link href="/">Terms and Conditions</Link>.*</>}
       />
       <ConnectionBlock>
         <BlockTitle>Connect to:</BlockTitle>
@@ -72,6 +72,8 @@ export const LoginSelector = ({onMetamaskClick}: LoginSelectorProps) => {
 };
 
 const ConnectLabel = styled.a`
+  font-family: AktivGrotesk;
+  font-weight: 300;
   display: flex;
   font-size: 14px;
   color: #181EA9;

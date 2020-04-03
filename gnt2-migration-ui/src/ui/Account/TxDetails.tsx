@@ -30,6 +30,8 @@ export const TxDetails = ({onCancelClick, onConfirm, description}: TxDetailsProp
   </>;
 
 const Amount = styled.p`
+  font-family: Roboto Mono;
+  font-weight: normal;
   font-size: 18px;
   line-height: 21px;
   text-align: right;

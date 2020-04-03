@@ -50,8 +50,9 @@ export interface BoxFooterAmountProps {
 }
 
 export const BoxFooterAmount = styled.p<BoxFooterAmountProps>`
+  font-family: Roboto Mono;
+  font-weight: normal;
   margin-top: 3px;
-  font-weight: 500;
   font-size: 14px;
   line-height: 16px;
   color: ${({isError}) => isError ? '#EC0505' : '#1722A2'};

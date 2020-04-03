@@ -29,9 +29,10 @@ const View = styled.div`
 `;
 
 const Title = styled.h2`
+  font-family: AktivGroteskEx;
   margin-bottom: 38px;
   font-size: 24px;
-  font-weight: 700px;
+  font-weight: bold;
   line-height: 31px;
   text-align: center;
   color: #181EA9;
@@ -45,8 +46,10 @@ const OL = styled.ol`
 const LI = styled.li`
   font-size: 18px;
   line-height: 30px;
+  font-family: AktivGrotesk;
+  font-weight: 500;
   color: #1722A2;
-  font-weight: 700;
+  font-weight: 500;
 
   & + & {
     margin-top: 24px;

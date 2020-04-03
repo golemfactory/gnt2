@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 
 export const BlockTitle = styled.p`
+  font-family: AktivGroteskEx;
   font-weight: 300;
   font-size: 12px;
   line-height: 15px;

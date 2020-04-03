@@ -77,6 +77,8 @@ const ReceivingTicker = styled(Ticker)`
 `;
 
 const ReceivingAmount = styled.p`
+  font-family: Roboto Mono;
+  font-weight: normal;
   font-size: 24px;
   line-height: 28px;
   text-align: right;

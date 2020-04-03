@@ -41,6 +41,7 @@ const ModalView = styled.div`
 `;
 
 const Title = styled.h1`
+  font-family: AktivGroteskEx;
   text-align: center;
   font-weight: bold;
   font-size: 24px;
@@ -51,6 +52,8 @@ const Title = styled.h1`
 
 
 const Text = styled.p`
+  font-family: AktivGrotesk;
+  font-weight: 300;
   font-size: 18px;
   line-height: 30px;
   text-align: center;
