@@ -37,7 +37,7 @@ export const LoginSelector = ({onMetamaskClick}: LoginSelectorProps) => {
         value={isChecked}
         onChange={setIsChecked}
         label={'I have read and agree to the '}
-        nonClickableLabel={<><Link href="/">&quot;Terms and Conditions&quot;</Link></>}
+        nonClickableLabel={<Link href="/">&quot;Terms and Conditions&quot;</Link>}
       />
       <ConnectionBlock>
         <BlockTitle>Connect to:</BlockTitle>
@@ -59,9 +59,13 @@ export const LoginSelector = ({onMetamaskClick}: LoginSelectorProps) => {
           }
         </InfoRow>
         <ConnectLabel onClick={() => setIsModalVisible(true)}>
-          You can also connect with&nbsp;
-          <WalletName icon={trezorIcon}>Trezor</WalletName>&nbsp;
-          or&nbsp;&nbsp;<WalletName icon={ledgerIcon}>Ledger</WalletName>
+          You can also connect&nbsp;
+          <WalletContainer>
+            with&nbsp;
+            <WalletName icon={trezorIcon}>Trezor</WalletName>&nbsp;
+            or&nbsp;&nbsp;
+            <WalletName icon={ledgerIcon}>Ledger</WalletName>
+          </WalletContainer>
         </ConnectLabel>
       </ConnectionBlock>
 
@@ -74,10 +78,16 @@ export const LoginSelector = ({onMetamaskClick}: LoginSelectorProps) => {
 
 const ConnectLabel = styled.a`
   display: flex;
+  flex-wrap: wrap;
   font-size: 14px;
   color: #181EA9;
   cursor: pointer;
   text-decoration: underline;
+`;
+
+const WalletContainer = styled.div`
+  display: flex;
+  height: 14px;
 `;
 
 const MetaMaskButton = styled(ButtonSecondary)`

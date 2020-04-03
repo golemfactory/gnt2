@@ -25,6 +25,7 @@ export const Checkbox = ({label, nonClickableLabel, value, onChange}: CheckboxPr
 
 const CheckboxContainer = styled.div`
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
 `;
 
