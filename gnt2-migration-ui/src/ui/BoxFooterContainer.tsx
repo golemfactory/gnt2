@@ -41,7 +41,7 @@ export const BoxFooterContainer = ({
       </BoxFooterRow>
       {lowEth &&
       <ErrorInfo>
-        There is not enough ETH in your account to pay for the conversion fees - please top up your ETH account.
+        You may not have enough ETH on your account to cover gas fees. Please top up your account with at least 0.03 ETH.
       </ErrorInfo>
       }
     </BoxFooter>

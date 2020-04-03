@@ -3,8 +3,6 @@ import styled from 'styled-components';
 import {CTAButton} from './commons/CTAButton';
 import {useServices} from './hooks/useServices';
 import {useProperty} from './hooks/useProperty';
-import {tokens} from '../domain/constants';
-
 
 interface TransactionProgressProps {
   transactionHash: string | undefined;
@@ -42,7 +40,7 @@ export const TransactionProgress = ({
     if (!inProgress) {
       return `${description} completed successfully`;
     }
-    return `It might take some time, but soon you'll receive your ${tokens.ngnt.name}!`;
+    return description;
   }
 
   function doNotShowTransactionLink() {

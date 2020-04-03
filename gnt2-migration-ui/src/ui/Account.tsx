@@ -206,7 +206,7 @@ export const Account = () => {
           <BlurModal
             isVisible={!hasContracts}
             title="Wrong Network"
-            body={`You are on the ${network} test network - please select "Main Ethereum Network" on the top bar on Metamask`}
+            body={`You are on an unsupported network (${network}). Please switch to Ethereum Mainnet to migrate your tokens.`}
           />
         </Content>
         <WarningModal

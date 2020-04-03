@@ -7,7 +7,7 @@ export const TrezorLedgerInstruction = () => (
     <Title>Connecting your Hardware Wallet</Title>
     <OL>
       <LI>
-        <StyledText>Head over to the top-right menu on your Metamask wallet - select the &ldquo;connect a hardware wallet&ldquo; option.</StyledText>
+        <StyledText>Head over to the top-right menu on your Metamask wallet - select the &ldquo;Connect Hardware Wallet&ldquo; option.</StyledText>
       </LI>
       <LI>
         <StyledText>Plug your Ledger or Trezor device into your computer</StyledText>
