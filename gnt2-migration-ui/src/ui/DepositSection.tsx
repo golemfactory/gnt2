@@ -32,16 +32,16 @@ export function DepositSection({onMoveToWrapped, onUnlock}: DepositSectionProps)
   useEffect(() => {
     switch (depositLockState) {
       case DepositState.EMPTY:
-        setDepositText('is empty');
+        setDepositText('empty');
         break;
       case DepositState.UNLOCKED:
-        setDepositText('is unlocked');
+        setDepositText('unlocked');
         break;
       case DepositState.TIME_LOCKED:
-        setDepositText('is time-locked');
+        setDepositText('time-locked');
         break;
       default:
-        setDepositText('is locked');
+        setDepositText('locked');
     }
   }, [depositLockState]);
 
@@ -64,9 +64,15 @@ export function DepositSection({onMoveToWrapped, onUnlock}: DepositSectionProps)
     <BalanceBlock>
       <TitleWithTooltip
         tooltipText={
-          <div data-testid='deposit-status'>
-            Deposit {depositText}
-          </div>
+          <>
+            <div data-testid='deposit-status'>
+            Deposit is {depositText}.
+            </div>
+            <div>
+            GNTb locked in the Concent Service Deposit. To migrate possible attacks all deposits are time-locked in 48h
+            &quot;pending withdrawal&quot; when unlocking the deposit. After that period of time, you will be able to unwrap them into GNT.
+            </div>
+          </>
         }
       >
         Locked Tokens

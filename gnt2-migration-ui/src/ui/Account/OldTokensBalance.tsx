@@ -21,7 +21,7 @@ export const OldTokensBalance = ({balance, onConvert}: OldTokensBalanceProps) =>
       setTooltipText('Migration is currently stopped. You won\'t be able to migrate your tokens.');
       return;
     }
-    setTooltipText('Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce vehicula vehicula odio, ut scelerisque massa.Learn more');
+    setTooltipText('Deprecated Golem Network Token');
   }, [isMigrationTargetSetToZero]);
 
   return (

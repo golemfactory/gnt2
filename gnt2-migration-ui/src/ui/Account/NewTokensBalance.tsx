@@ -4,6 +4,7 @@ import {SmallTitle} from '../commons/Text/SmallTitle';
 import {BigNumber} from 'ethers/utils';
 import {formatValue} from '../../utils/formatter';
 import {BalanceBlock, BalanceRow, Amount, Ticker} from './Balance';
+import {tokens} from '../../domain/constants';
 
 export interface NewTokensBalanceProps {
   balance: BigNumber | undefined;
@@ -11,9 +12,9 @@ export interface NewTokensBalanceProps {
 
 export const NewTokensBalance = ({balance}: NewTokensBalanceProps) => (
   <View>
-    <SmallTitle>New Golem Network Tokens</SmallTitle>
+    <SmallTitle>{tokens.ngnt.name}</SmallTitle>
     <Row>
-      <TokenTicker>NGNT</TokenTicker>
+      <TokenTicker>{tokens.ngnt.ticker}</TokenTicker>
       <TokenAmount data-testid="NGNT-balance">{balance ? formatValue(balance.toString(), 3) : 0}</TokenAmount>
     </Row>
   </View>

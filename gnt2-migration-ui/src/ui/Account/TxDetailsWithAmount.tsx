@@ -62,7 +62,7 @@ export const TxDetailsWithAmount = ({onAmountConfirm, onCancelClick, description
           disabled={!!inputError || isEmpty(balance)}
         />
       </Box>
-      <CancelButton onClick={onCancelClick}>Cancel Converting</CancelButton>
+      <CancelButton onClick={onCancelClick}>Cancel this Conversion</CancelButton>
     </>
   );
 };

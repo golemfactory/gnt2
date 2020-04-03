@@ -101,7 +101,7 @@ export const NumberInput = ({
           data-testid={`${dataTestId}-input-set-max`}
           onClick={() => updateValue(convertBalanceToBigJs(balance).toString())}
         >
-          SET MAX
+          MAX
         </SetMaxButton>
       </InputRow>
     </Row>

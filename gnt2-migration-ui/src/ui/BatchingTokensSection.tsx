@@ -22,7 +22,8 @@ export const BatchingTokensSection = ({onUnwrap}: BatchingTokensSectionProps) =>
   return (
     <BalanceBlock>
       <TitleWithTooltip
-        tooltipText="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce vehicula vehicula odio, ut scelerisque massa.Learn more"
+        tooltipText="GNTb: wrapped tokens used for batched transactions (to decrease the cost of transaction fees)
+        in Golem Network. You have to unwrap those tokens into GNT before migration."
       >
         Wrapped Tokens
       </TitleWithTooltip>

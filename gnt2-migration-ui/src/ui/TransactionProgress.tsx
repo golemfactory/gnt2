@@ -4,7 +4,6 @@ import {CTAButton} from './commons/CTAButton';
 import {useServices} from './hooks/useServices';
 import {useProperty} from './hooks/useProperty';
 
-
 interface TransactionProgressProps {
   transactionHash: string | undefined;
   errorMessage: string | undefined;
@@ -31,12 +30,12 @@ export const TransactionProgress = ({
     if (!inProgress) {
       return 'Transaction completed';
     }
-    return 'Transaction is in progress';
+    return 'Transaction in Progress';
   }
 
   function getDescription() {
     if (errorMessage) {
-      return `${description} failed. Reason: ${errorMessage}`;
+      return `This conversion has failed. Check the videos and text guides for troubleshooting. Reason: ${errorMessage}`;
     }
     if (!inProgress) {
       return `${description} completed successfully`;

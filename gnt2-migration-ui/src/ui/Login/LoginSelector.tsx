@@ -14,6 +14,7 @@ import {ConnectionState} from '../../services/ConnectionService';
 import trezorIcon from '../../assets/icons/trezor.svg';
 import ledgerIcon from '../../assets/icons/ledger.svg';
 import {WalletName} from './WalletName';
+import {tokens} from '../../domain/constants';
 
 export interface LoginSelectorProps {
   onMetamaskClick: () => void;
@@ -27,16 +28,16 @@ export const LoginSelector = ({onMetamaskClick}: LoginSelectorProps) => {
 
   return (
     <>
-      <MainTitle>Golem token migrator</MainTitle>
+      <MainTitle>Golem Token Migrator</MainTitle>
       <StyledText>
-        Use Token Migrator to move your GNT into new version.<br/>Connect your wallet to view available migrations on your
-        account.
+        {`Migrate your GNT to the new token version ${tokens.ngnt.ticker}.
+        Connect your wallet to view your available GNT balance.`}
       </StyledText>
       <Checkbox
         value={isChecked}
         onChange={setIsChecked}
-        label={'Lorem ipsum dolor sit amet enim etiam'}
-        nonClickableLabel={<><Link href="/google">Terms and Conditions</Link>.*</>}
+        label={'I have read and agree to the '}
+        nonClickableLabel={<><Link href="/">&quot;Terms and Conditions&quot;</Link></>}
       />
       <ConnectionBlock>
         <BlockTitle>Connect to:</BlockTitle>
@@ -58,7 +59,7 @@ export const LoginSelector = ({onMetamaskClick}: LoginSelectorProps) => {
           }
         </InfoRow>
         <ConnectLabel onClick={() => setIsModalVisible(true)}>
-          How to connect with&nbsp;
+          You can also connect with&nbsp;
           <WalletName icon={trezorIcon}>Trezor</WalletName>&nbsp;
           or&nbsp;&nbsp;<WalletName icon={ledgerIcon}>Ledger</WalletName>
         </ConnectLabel>

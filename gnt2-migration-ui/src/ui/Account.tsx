@@ -18,6 +18,7 @@ import {WarningModalContent} from './Account/WarningModalContent';
 import {BlurModal} from './BlurModal';
 import {DescribeAction} from './Account/AccountActionDescriptions';
 import {useAsyncEffect} from './hooks/useAsyncEffect';
+import {tokens} from '../domain/constants';
 
 enum AccountActions {
   MIGRATE,
@@ -106,7 +107,7 @@ export const Account = () => {
   const migrate = (amount: string) => {
     setCurrentTransaction({
       txFunction: () => tokensService.migrateTokens(account, parseEther(amount)),
-      description: `Migrating ${amount} GNT tokens to NGNT`
+      description: `${amount} GNT have been converted to ${amount} ${tokens.ngnt.ticker}`
     });
   };
 
@@ -220,8 +221,8 @@ export const Account = () => {
         </WarningModal>
         <WarningModal isVisible={showOtherBalancesWarning} onClose={closeOtherBalancesWarning}>
           <WarningModalContent
-            body="You are going to convert your GNT and you still have balance in GNTb and/or GNTb Deposit.
-             If you plan to convert them later, additional Ethereum transactions will be required."
+            body={`Your GNTb balance will not be converted. Only your GNT balance can be moved to ${tokens.ngnt.ticker}.
+            If you want your whole balance migrated, please click on "Cancel this Conversion" and then click "unwrap" and start again.`}
             onConfirmClick={() => {
               closeOtherBalancesWarning();
               continueMigration();
