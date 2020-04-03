@@ -50,7 +50,7 @@ export const TransactionStatus = ({
   }
 
   return (
-    <TransactionModal inProgress={txInProgress} errorMessage={errorMessage}>
+    <TransactionModal>
       <TransactionProgress
         transactionHash={transactionHash}
         description={transactionToBeExecuted.description}

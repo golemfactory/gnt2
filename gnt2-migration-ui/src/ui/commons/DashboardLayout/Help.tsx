@@ -9,9 +9,11 @@ export const Help = () => (
   <HelpView>
     <HelpTitle>WATCH THIS BEFORE YOU GET STARTED</HelpTitle>
     <HelpText>Please watch this video - migrate in a safe and secure way!</HelpText>
-    <Video>
-      <PlatButton/>
-    </Video>
+    <VideoContainer>
+      <Video>
+        <PlatButton/>
+      </Video>
+    </VideoContainer>
     <HelpLink>Need more information? We got you covered.</HelpLink>
   </HelpView>
 );
@@ -40,6 +42,12 @@ const HelpText = styled(Text)`
   margin-bottom: 32px;
 `;
 
+const VideoContainer = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: center;
+`;
+
 const Video = styled.div`
   display: flex;
   align-items: center;
@@ -54,6 +62,7 @@ const Video = styled.div`
   }
 
   @media (max-width: 350px) {
+    margin: 0 0 62px 0;
     width: 203px;
     height: 114px;
   }
