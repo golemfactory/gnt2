@@ -73,7 +73,6 @@ export const LoginSelector = ({onMetamaskClick}: LoginSelectorProps) => {
 };
 
 const ConnectLabel = styled.a`
-  font-family: AktivGrotesk;
   font-weight: 300;
   display: flex;
   font-size: 14px;

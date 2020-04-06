@@ -47,7 +47,6 @@ const OL = styled.ol`
 const LI = styled.li`
   font-size: 18px;
   line-height: 30px;
-  font-family: AktivGrotesk;
   font-weight: 500;
   color: #1722A2;
   font-weight: 500;

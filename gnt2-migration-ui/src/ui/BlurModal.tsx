@@ -52,7 +52,6 @@ const Title = styled.h1`
 
 
 const Text = styled.p`
-  font-family: AktivGrotesk;
   font-weight: 300;
   font-size: 18px;
   line-height: 30px;

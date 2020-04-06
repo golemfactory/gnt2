@@ -94,7 +94,6 @@ const Title = styled.p`
 `;
 
 const ModalText = styled.p`
-  font-family: AktivGrotesk;
   font-weight: 300;
   font-size: 18px;
   line-height: 30px;

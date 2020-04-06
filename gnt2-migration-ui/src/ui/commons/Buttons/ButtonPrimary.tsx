@@ -1,7 +1,6 @@
 import styled from 'styled-components';
 
 export const ButtonPrimary = styled.button`
-  font-family: AktivGrotesk;
   font-weight: 500;
   width: 148px;
   height: 40px;
