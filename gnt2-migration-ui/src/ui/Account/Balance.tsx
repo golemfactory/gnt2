@@ -20,6 +20,7 @@ export const BalanceRow = styled.div`
 `;
 
 export const Ticker = styled.p`
+  font-family: AktivGroteskEx;
   font-weight: bold;
   font-size: 13px;
   line-height: 17px;
@@ -28,6 +29,8 @@ export const Ticker = styled.p`
 `;
 
 export const Amount = styled.p`
+  font-family: Roboto Mono;
+  font-weight: normal;
   margin-left: auto;
   font-size: 18px;
   line-height: 21px;

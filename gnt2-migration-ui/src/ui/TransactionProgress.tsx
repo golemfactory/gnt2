@@ -100,6 +100,7 @@ const TxSpinner = styled.div`
 `;
 
 const Title = styled.p`
+  font-family: AktivGroteskEx;
   text-align: center;
   font-weight: bold;
   font-size: 24px;
@@ -109,6 +110,7 @@ const Title = styled.p`
 `;
 
 const ModalText = styled.p`
+  font-weight: 300;
   font-size: 18px;
   line-height: 30px;
   color: #1722A2;

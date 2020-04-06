@@ -77,6 +77,7 @@ const PlatButton = styled.button`
 `;
 
 const HelpLink = styled.a`
+  font-family: AktivGroteskEx;
   position: relative;
   display: block;
   padding-right: 170px;

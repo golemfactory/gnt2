@@ -124,6 +124,8 @@ const InputWrapper = styled.div`
 `;
 
 const Input = styled.input`
+  font-family: Roboto Mono;
+  font-weight: normal;
   width: 100%;
   max-width: 332px;
   padding: 0 0 12px;
@@ -160,6 +162,8 @@ const AvailableAmountRow = styled.div`
 `;
 
 const AvailableAmount = styled.p`
+  font-family: Roboto Mono;
+  font-weight: normal;
   margin-left: 16px;
   font-size: 13px;
   line-height: 15px;

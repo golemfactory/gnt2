@@ -77,6 +77,7 @@ export const LoginSelector = ({onMetamaskClick}: LoginSelectorProps) => {
 };
 
 const ConnectLabel = styled.a`
+  font-weight: 300;
   display: flex;
   flex-wrap: wrap;
   font-size: 14px;

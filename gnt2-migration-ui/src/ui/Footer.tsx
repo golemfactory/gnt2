@@ -17,19 +17,19 @@ export const Footer = () => (
         <TableWithArrows>
           <ArrowCell href="http://chat.golem.network/">
             <ContactCell>Support Chat</ContactCell>
-            <img src={whiteArrow}/>
+            <img alt='Navigate to golem network chat' src={whiteArrow}/>
           </ArrowCell>
           <ArrowCell href="https://twitter.com/golemproject">
             <ContactCell>Twitter</ContactCell>
-            <img src={whiteArrow}/>
+            <img alt='Navigate to Golem Twitter profile' src={whiteArrow}/>
           </ArrowCell>
           <ArrowCell href="https://www.reddit.com/r/GolemProject/">
             <ContactCell>Reddit</ContactCell>
-            <img src={whiteArrow}/>
+            <img alt='Navigate to Golem Reddit profile' src={whiteArrow}/>
           </ArrowCell>
           <ArrowCell href="https://blog.golemproject.net/?gi=9ae7ace74474">
             <ContactCell>Golem blog</ContactCell>
-            <img src={whiteArrow}/>
+            <img alt='Navigate to Golem blog' src={whiteArrow}/>
           </ArrowCell>
         </TableWithArrows>
         <Button>
@@ -67,6 +67,8 @@ const ToTopArrow = styled.img`
 `;
 
 const FooterBackground = styled.footer`
+  font-family: AktivGroteskEx;
+  font-weight: normal;
   background: #181EA9;
 `;
 
@@ -136,7 +138,7 @@ const Button = styled.a`
   width: 378px;
   font-size: 14px;
   padding: 1.44em 0;
-  margin: 1.2em 0;
+  margin: 3em 0;
   max-width: 100%;
   border: solid 1px #fff;
   text-align: center;

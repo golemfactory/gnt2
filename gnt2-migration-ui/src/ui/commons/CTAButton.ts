@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 
 export const CTAButton = styled.button`
+  font-weight: 500;
   background-color: #fff;
   border: 1px solid #181EA9;
   color:#181EA9;
