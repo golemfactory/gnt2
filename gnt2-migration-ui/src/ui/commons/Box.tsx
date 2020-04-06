@@ -13,6 +13,9 @@ export const Box = styled.div`
 export const BoxContent = styled.div`
   flex-grow: 1;
   padding: 40px 48px 70px;
+  @media (max-width: 390px) {
+    padding: 40px 24px 70px;
+  }
 `;
 
 export const BoxTitle = styled(SectionTitle)`
@@ -33,16 +36,27 @@ export const BoxRow = styled.div`
 export const BoxFooter = styled.div`
   border-top: 1px solid #181EA9;
   padding: 24px 48px;
+  @media (max-width: 390px) {
+    padding: 24px;
+  }
 `;
 
 export const BoxFooterRow = styled.div`
   display: flex;
   justify-content: space-between;
+  @media (max-width: 390px) {
+    flex-direction: column;
+    align-items: center;
+  }
 `;
 
 export const BoxFooterButton = styled(ButtonPrimary)`
   max-width: 238px;
   width: 100%;
+  @media (max-width: 390px) {
+    width: 148px;
+    margin-top: 12px;
+  }
 `;
 
 export interface BoxFooterAmountProps {

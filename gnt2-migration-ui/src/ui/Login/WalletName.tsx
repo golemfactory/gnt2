@@ -15,6 +15,7 @@ export const WalletName = ({icon, children}: WalletNameProps) => (
 
 const WalletNameRow = styled.div`
   display: flex;
+  height: 14px;
 `;
 
 const WalletNameText = styled.p`

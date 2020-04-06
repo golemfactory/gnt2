@@ -53,6 +53,10 @@ const Row = styled.div`
   margin-left: 32px;
   width: 148px;
   height: 40px;
+  @media (max-width: 600px) {
+    width: 100%;
+    justify-content: flex-end;
+  }
 `;
 
 const ClockIcon = styled.img`

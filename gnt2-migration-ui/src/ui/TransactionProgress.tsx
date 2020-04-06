@@ -3,6 +3,9 @@ import styled from 'styled-components';
 import {CTAButton} from './commons/CTAButton';
 import {useServices} from './hooks/useServices';
 import {useProperty} from './hooks/useProperty';
+import {Spinner} from './commons/Spinner';
+import txfail from '../assets/icons/txfail.svg';
+import txpass from '../assets/icons/txpass.svg';
 
 interface TransactionProgressProps {
   transactionHash: string | undefined;
@@ -60,7 +63,13 @@ export const TransactionProgress = ({
         {getTitle()}
       </Title>
       <ModalText data-testid='error-message'>{getDescription()}</ModalText>
-      <Buttons showOKButton={showOKButton}>
+      <TxSpinner>
+        {inProgress
+          ? <Spinner/>
+          : <img src={errorMessage ? txfail : txpass} alt={'tx status'}/>
+        }
+      </TxSpinner>
+      <ButtonsSection showOKButton={showOKButton}>
         <a
           href={transactionLink()}
           data-testid='etherscan-link'
@@ -78,10 +87,17 @@ export const TransactionProgress = ({
           <OkButton onClick={onClose} data-testid='modal-close'>
             Ok
           </OkButton>}
-      </Buttons>
+      </ButtonsSection>
     </>
   );
 };
+
+const TxSpinner = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 55px;
+`;
 
 const Title = styled.p`
   text-align: center;
@@ -99,16 +115,18 @@ const ModalText = styled.p`
   opacity: 0.6;
 `;
 
-const Buttons = styled.div<{ showOKButton: boolean }>`
-  position: absolute;
+const ButtonsSection = styled.div<{ showOKButton: boolean }>`
   bottom: 42px;
   display: flex;
-  padding-top: 165px;
+  padding-top: 50px;
   justify-content: ${({showOKButton}) => showOKButton ? 'space-between' : 'center'};
   width: 84%;
   margin: 0 auto;
+  @media (max-width: 340px) {
+    width: ;
+    flex-direction: column;
+  }
 `;
-
 
 const OkButton = styled(CTAButton)`
   background: #181EA9;

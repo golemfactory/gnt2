@@ -24,13 +24,13 @@ export const BoxFooterContainer = ({
   return (
     <BoxFooter>
       <BoxFooterRow>
-        <div>
+        <EtherSection>
           <TitleWithTooltip
             tooltipText="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce vehicula vehicula odio, ut scelerisque massa.Learn more">
             ETH Balance:
           </TitleWithTooltip>
           {ethBalance && <BoxFooterAmount isError={lowEth}>{formatValue(ethBalance, 4)} ETH</BoxFooterAmount>}
-        </div>
+        </EtherSection>
         <BoxFooterButton
           data-testid={confirmBtnDataTestId}
           onClick={onConfirmClick}
@@ -54,4 +54,9 @@ const ErrorInfo = styled.p`
   line-height: 18px;
   color: #EC0505;
   opacity: 0.6;
+`;
+
+const EtherSection = styled.div`
+  width: 100%;
+  margin-right: 10px;
 `;
