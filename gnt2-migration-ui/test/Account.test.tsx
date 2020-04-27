@@ -100,8 +100,8 @@ describe('Account page', () => {
       await accountPage.completeTransaction();
 
       await wait(() => {
-        expect(accountPage.find('NGNT-balance')).to.have.text('9000.000');
-        expect(accountPage.find('GNT-balance')).to.have.text('4991000.000');
+        expect(accountPage.find('NGNT-balance')).to.have.text('9000.0000');
+        expect(accountPage.find('GNT-balance')).to.have.text('4991000.0000');
       });
     });
 
@@ -154,8 +154,8 @@ describe('Account page', () => {
       await accountPage.completeTransaction();
 
       await wait(() => {
-        expect(accountPage.find('NGNT-balance')).to.have.text('5000000.000');
-        expect(accountPage.find('GNT-balance')).to.have.text('0.000');
+        expect(accountPage.find('NGNT-balance')).to.have.text('5000000.0000');
+        expect(accountPage.find('GNT-balance')).to.have.text('0.0000');
         expect(accountPage.find('convert-button')).to.have.attr('disabled');
       });
     });
@@ -197,8 +197,8 @@ describe('Account page', () => {
       await accountPage.completeTransaction();
 
       await wait(() => {
-        expect(accountPage.find('NGNT-balance')).to.have.text('500.000');
-        expect(accountPage.find('GNT-balance')).to.have.text('4999500.000');
+        expect(accountPage.find('NGNT-balance')).to.have.text('500.0000');
+        expect(accountPage.find('GNT-balance')).to.have.text('4999500.0000');
       });
     });
   });
@@ -213,17 +213,17 @@ describe('Account page', () => {
 
       await wait(() => {
         expect(accountPage.find('ETH-balance')).to.have.text('9999999999999999.9720');
-        expect(accountPage.find('GNT-balance')).to.have.text('140000000.000');
-        expect(accountPage.find('NGNT-balance')).to.have.text('0.000');
-        expect(accountPage.find('GNTB-balance')).to.have.text('4999900.000');
-        expect(accountPage.find('deposit')).to.have.text('100.000');
+        expect(accountPage.find('GNT-balance')).to.have.text('140000000.0000');
+        expect(accountPage.find('NGNT-balance')).to.have.text('0.0000');
+        expect(accountPage.find('GNTB-balance')).to.have.text('4999900.0000');
+        expect(accountPage.find('deposit')).to.have.text('100.0000');
       });
     });
 
     it('show warning when trying to migrate', async () => {
       const accountPage = await new TestAccountPage(services).load();
       await wait(() => {
-        expect(accountPage.find('GNT-balance')).to.have.text('140000000.000');
+        expect(accountPage.find('GNT-balance')).to.have.text('140000000.0000');
       });
 
       await accountPage.clickConvert();
@@ -236,7 +236,7 @@ describe('Account page', () => {
     it('can continue migration by acknowledging warning', async () => {
       const accountPage = await new TestAccountPage(services).load();
       await wait(() => {
-        expect(accountPage.find('GNT-balance')).to.have.text('140000000.000');
+        expect(accountPage.find('GNT-balance')).to.have.text('140000000.0000');
       });
 
       await accountPage.clickConvert();
@@ -246,8 +246,8 @@ describe('Account page', () => {
       await accountPage.completeTransaction();
 
       await wait(() => {
-        expect(accountPage.find('NGNT-balance')).to.have.text('5000000.000');
-        expect(accountPage.find('GNT-balance')).to.have.text('135000000.000');
+        expect(accountPage.find('NGNT-balance')).to.have.text('5000000.0000');
+        expect(accountPage.find('GNT-balance')).to.have.text('135000000.0000');
       });
     });
 
@@ -275,7 +275,7 @@ describe('Account page', () => {
 
       await wait(() => {
         expect(accountPage.query('action-deposit-button')).to.not.exist;
-        expect(accountPage.find('GNTB-balance')).to.have.text('5000000.000');
+        expect(accountPage.find('GNTB-balance')).to.have.text('5000000.0000');
       });
 
     });
