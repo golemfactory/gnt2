@@ -7,5 +7,5 @@ export const formatValue = (value: BigNumberish, digits: number) => {
 };
 
 export const formatTokenBalance = (value: PossibleBalance) => {
-  return value ? formatValue(value, 3) : '';
+  return value ? formatValue(value, 4) : '';
 };

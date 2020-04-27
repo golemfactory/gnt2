@@ -21,7 +21,7 @@ export const OldTokensBalance = ({balance, onConvert}: OldTokensBalanceProps) =>
       setTooltipText('Migration is currently stopped. You won\'t be able to migrate your tokens.');
       return;
     }
-    setTooltipText('Deprecated Golem Network Token');
+    setTooltipText('Former Native Token from the Golem Network - the one you need to migrate');
   }, [isMigrationTargetSetToZero]);
 
   return (
@@ -33,7 +33,7 @@ export const OldTokensBalance = ({balance, onConvert}: OldTokensBalanceProps) =>
       </TitleWithTooltip>
       <BalanceRow>
         <Ticker>GNT</Ticker>
-        <Amount data-testid='GNT-balance'>{balance ? formatValue(balance.toString(), 3) : 0}</Amount>
+        <Amount data-testid='GNT-balance'>{balance ? formatValue(balance.toString(), 4) : 0}</Amount>
         <BalanceButton
           data-testid='convert-button'
           onClick={onConvert}
