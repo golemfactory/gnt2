@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import {BigNumber} from 'ethers/utils';
-import {formatValue} from '../../utils/formatter';
+import {formatTokenBalance} from '../../utils/formatter';
 import {Amount, BalanceBlock, BalanceRow, Ticker} from './Balance';
 import {tokens} from '../../domain/constants';
 import {TitleWithTooltip} from '../commons/Text/TitleWithTooltip';
@@ -21,7 +21,7 @@ export const NewTokensBalance = ({balance}: NewTokensBalanceProps) => (
     </TitleWithTooltip>
     <Row>
       <TokenTicker>{tokens.ngnt.ticker}</TokenTicker>
-      <TokenAmount data-testid="NGNT-balance">{balance ? formatValue(balance.toString(), 4) : 0}</TokenAmount>
+      <TokenAmount data-testid="NGNT-balance">{formatTokenBalance(balance)}</TokenAmount>
     </Row>
   </View>
 );

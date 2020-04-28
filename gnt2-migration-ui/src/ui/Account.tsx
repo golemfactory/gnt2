@@ -19,7 +19,7 @@ import {BlurModal} from './BlurModal';
 import {DescribeAction} from './Account/AccountActionDescriptions';
 import {useAsyncEffect} from './hooks/useAsyncEffect';
 import {tokens} from '../domain/constants';
-import {formatValue} from '../utils/formatter';
+import {formatTokenBalance} from '../utils/formatter';
 
 enum AccountActions {
   MIGRATE,
@@ -126,7 +126,7 @@ export const Account = () => {
   const moveToWrapped = () => {
     setCurrentTransaction({
       txFunction: () => tokensService.moveToWrapped(account),
-      description: `Withdrawing ${depositBalance ? formatValue(depositBalance.toString(), 4) : 0} GNTB from your deposit`
+      description: `Withdrawing ${formatTokenBalance(depositBalance)} GNTB from your deposit`
     });
   };
 

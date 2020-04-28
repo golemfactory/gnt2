@@ -69,7 +69,7 @@ export function DepositSection({onMoveToWrapped, onUnlock}: DepositSectionProps)
             Deposit is {depositText}.
             </div>
             <div>
-              GNTb locked as a deposit within the Concent Service. To migrate possible attacks all these deposits are
+              GNTb locked as a deposit within the Concent Service. To mitigate possible attacks all these deposits are
               time-locked in 48h &quot;pending withdrawal&quot; when unlocking the deposit.
               After that period of time, you will be able to unwrap them into GNT.
             </div>

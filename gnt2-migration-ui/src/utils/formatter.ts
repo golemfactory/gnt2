@@ -6,6 +6,6 @@ export const formatValue = (value: BigNumberish, digits: number) => {
   return convertBalanceToBigJs(value).toFixed(digits);
 };
 
-export const formatTokenBalance = (value: PossibleBalance) => {
-  return value ? formatValue(value, 4) : '';
+export const formatTokenBalance = (value: PossibleBalance, ifEmpty: string | number = '') => {
+  return value ? formatValue(value, 4) : ifEmpty;
 };

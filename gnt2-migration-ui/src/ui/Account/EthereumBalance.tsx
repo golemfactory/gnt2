@@ -2,7 +2,7 @@ import React from 'react';
 import {BigNumber} from 'ethers/utils';
 import {Amount, BalanceBlock, BalanceRow, Ticker} from './Balance';
 import styled from 'styled-components';
-import {formatValue} from '../../utils/formatter';
+import {formatTokenBalance} from '../../utils/formatter';
 import {TitleWithTooltip} from '../commons/Text/TitleWithTooltip';
 
 interface EthereumBalanceProps {
@@ -24,7 +24,7 @@ export const EthereumBalance = ({balance}: EthereumBalanceProps) => (
     </TitleWithTooltip>
     <Row>
       <Ticker>ETH</Ticker>
-      <Amount data-testid="ETH-balance">{balance && formatValue(balance, 4)}</Amount>
+      <Amount data-testid="ETH-balance">{formatTokenBalance(balance)}</Amount>
       <ActionBox/>
     </Row>
   </EthereumBalanceBlock>

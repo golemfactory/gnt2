@@ -1,5 +1,5 @@
 import React from 'react';
-import {formatValue} from '../utils/formatter';
+import {formatTokenBalance} from '../utils/formatter';
 import {Amount, BalanceBlock, BalanceButton, BalanceRow, Ticker} from './Account/Balance';
 import {useServices} from './hooks/useServices';
 import {useProperty} from './hooks/useProperty';
@@ -29,7 +29,7 @@ export const BatchingTokensSection = ({onUnwrap}: BatchingTokensSectionProps) =>
       </TitleWithTooltip>
       <BalanceRow>
         <Ticker>GNTb</Ticker>
-        <Amount data-testid='GNTB-balance'>{batchingTokensBalance && formatValue(batchingTokensBalance.toString(), 4)}</Amount>
+        <Amount data-testid='GNTB-balance'>{formatTokenBalance(batchingTokensBalance)}</Amount>
         <BalanceButton
           data-testid="unwrap-tokens-button"
           onClick={onUnwrap}
