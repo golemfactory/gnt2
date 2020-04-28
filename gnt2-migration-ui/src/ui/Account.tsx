@@ -19,6 +19,7 @@ import {BlurModal} from './BlurModal';
 import {DescribeAction} from './Account/AccountActionDescriptions';
 import {useAsyncEffect} from './hooks/useAsyncEffect';
 import {tokens} from '../domain/constants';
+import {formatTokenBalance} from '../utils/formatter';
 
 enum AccountActions {
   MIGRATE,
@@ -107,7 +108,7 @@ export const Account = () => {
   const migrate = (amount: string) => {
     setCurrentTransaction({
       txFunction: () => tokensService.migrateTokens(account, parseEther(amount)),
-      description: `${amount} GNT have been converted to ${amount} ${tokens.ngnt.ticker}`
+      description: `Ongoing transaction`
     });
   };
 
@@ -125,7 +126,7 @@ export const Account = () => {
   const moveToWrapped = () => {
     setCurrentTransaction({
       txFunction: () => tokensService.moveToWrapped(account),
-      description: `Withdrawing ${depositBalance} GNTB from your deposit`
+      description: `Withdrawing ${formatTokenBalance(depositBalance)} GNTB from your deposit`
     });
   };
 

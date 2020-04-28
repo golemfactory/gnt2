@@ -1,10 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
-import {SmallTitle} from '../commons/Text/SmallTitle';
 import {BigNumber} from 'ethers/utils';
-import {formatValue} from '../../utils/formatter';
-import {BalanceBlock, BalanceRow, Amount, Ticker} from './Balance';
+import {formatTokenBalance} from '../../utils/formatter';
+import {Amount, BalanceBlock, BalanceRow, Ticker} from './Balance';
 import {tokens} from '../../domain/constants';
+import {TitleWithTooltip} from '../commons/Text/TitleWithTooltip';
 
 export interface NewTokensBalanceProps {
   balance: BigNumber | undefined;
@@ -12,10 +12,16 @@ export interface NewTokensBalanceProps {
 
 export const NewTokensBalance = ({balance}: NewTokensBalanceProps) => (
   <View>
-    <SmallTitle>{tokens.ngnt.name}</SmallTitle>
+    <TitleWithTooltip
+      tooltipText={
+        `These are the new migrated tokens. If you have migrated to ${tokens.ngnt.ticker}, your whole balance shows as ${tokens.ngnt.ticker}.`
+      }
+    >
+      {tokens.ngnt.name}
+    </TitleWithTooltip>
     <Row>
       <TokenTicker>{tokens.ngnt.ticker}</TokenTicker>
-      <TokenAmount data-testid="NGNT-balance">{balance ? formatValue(balance.toString(), 3) : 0}</TokenAmount>
+      <TokenAmount data-testid="NGNT-balance">{formatTokenBalance(balance)}</TokenAmount>
     </Row>
   </View>
 );

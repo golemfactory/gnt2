@@ -2,7 +2,7 @@ import React from 'react';
 import {BigNumber} from 'ethers/utils';
 import {Amount, BalanceBlock, BalanceRow, Ticker} from './Balance';
 import styled from 'styled-components';
-import {formatValue} from '../../utils/formatter';
+import {formatTokenBalance} from '../../utils/formatter';
 import {TitleWithTooltip} from '../commons/Text/TitleWithTooltip';
 
 interface EthereumBalanceProps {
@@ -12,13 +12,19 @@ interface EthereumBalanceProps {
 export const EthereumBalance = ({balance}: EthereumBalanceProps) => (
   <EthereumBalanceBlock>
     <TitleWithTooltip
-      tooltipText="Remember: you need ETH to pay for gas, otherwise the migration will not be effective."
+      tooltipText={
+        <p>
+          ETH is the native currency of the Ethereum Network, used to pay for transaction fees.
+          You need some ETH to make the transactions.
+          Check <a href='https://ethgasstation.info'>https://ethgasstation.info</a> for current gas prices.
+        </p>
+      }
     >
       ETH Balance
     </TitleWithTooltip>
     <Row>
       <Ticker>ETH</Ticker>
-      <Amount data-testid="ETH-balance">{balance && formatValue(balance, 4)}</Amount>
+      <Amount data-testid="ETH-balance">{formatTokenBalance(balance)}</Amount>
       <ActionBox/>
     </Row>
   </EthereumBalanceBlock>

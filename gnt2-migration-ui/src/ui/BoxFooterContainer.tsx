@@ -1,7 +1,7 @@
 import React from 'react';
 import {BoxFooter, BoxFooterAmount, BoxFooterButton, BoxFooterRow} from './commons/Box';
 import {TitleWithTooltip} from './commons/Text/TitleWithTooltip';
-import {formatValue} from '../utils/formatter';
+import {formatTokenBalance} from '../utils/formatter';
 import styled from 'styled-components';
 import {useProperty} from './hooks/useProperty';
 import {useServices} from './hooks/useServices';
@@ -29,7 +29,7 @@ export const BoxFooterContainer = ({
             tooltipText="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce vehicula vehicula odio, ut scelerisque massa.Learn more">
             ETH Balance:
           </TitleWithTooltip>
-          {ethBalance && <BoxFooterAmount isError={lowEth}>{formatValue(ethBalance, 4)} ETH</BoxFooterAmount>}
+          {ethBalance && <BoxFooterAmount isError={lowEth}>{formatTokenBalance(ethBalance)} ETH</BoxFooterAmount>}
         </EtherSection>
         <BoxFooterButton
           data-testid={confirmBtnDataTestId}
