@@ -156,6 +156,7 @@ const Button = styled.a`
   display: inline-block;
   color: #fff;
   transition: all 0.2s ease;
+  text-decoration: none;
   &:hover {
     background: #fff;
     color: #181EA9;
