@@ -8,51 +8,38 @@ export const Footer = () => (
     <FooterBlock>
       <FooterContainer>
         <div>
-          <ToTop href="#topSectionID" data-action="scroll">
+          <ToTop
+            data-action="scroll"
+            onClick={() => window.scrollTo({top: 0, left: 0, behavior: 'smooth'})}
+          >
             <ToTopArrow src={totop}/>
-            TO TOP
+              TO TOP
           </ToTop>
           <ContactTable>contact golem</ContactTable>
         </div>
         <TableWithArrows>
-          <ArrowCell href="http://chat.golem.network/">
+          <ArrowCell href="http://chat.golem.network/" target='_blank' rel="noopener noreferrer">
             <ContactCell>Support Chat</ContactCell>
             <img alt='Navigate to golem network chat' src={whiteArrow}/>
           </ArrowCell>
-          <ArrowCell href="https://twitter.com/golemproject">
+          <ArrowCell href="https://twitter.com/golemproject" target='_blank' rel="noopener noreferrer">
             <ContactCell>Twitter</ContactCell>
             <img alt='Navigate to Golem Twitter profile' src={whiteArrow}/>
           </ArrowCell>
-          <ArrowCell href="https://www.reddit.com/r/GolemProject/">
+          <ArrowCell href="https://www.reddit.com/r/GolemProject/" target='_blank' rel="noopener noreferrer">
             <ContactCell>Reddit</ContactCell>
             <img alt='Navigate to Golem Reddit profile' src={whiteArrow}/>
           </ArrowCell>
-          <ArrowCell href="https://blog.golemproject.net/?gi=9ae7ace74474">
+          <ArrowCell href="https://blog.golemproject.net/?gi=9ae7ace74474" target='_blank' rel="noopener noreferrer">
             <ContactCell>Golem blog</ContactCell>
             <img alt='Navigate to Golem blog' src={whiteArrow}/>
           </ArrowCell>
         </TableWithArrows>
-        <Button>
-          Email Golem
+        <Button href="mailto:contact@golem.network" target="_blank" rel="noopener noreferrer">
+            Email Golem
         </Button>
-        <ContactTable>Map</ContactTable>
-        <ContactTable>
-          <TableMap>
-            <TableMapCell>GOLEM.NETWORK</TableMapCell>
-            <TableMapCell>Brass Beta</TableMapCell>
-            <TableMapCell>TEAM</TableMapCell>
-            <TableMapCell>Unlimited</TableMapCell>
-            <TableMapCell>Careers</TableMapCell>
-            <TableMapCell>DOCUMENTATION</TableMapCell>
-            <TableMapCell>PRIVACY POLICY</TableMapCell>
-            <TableMapCell>Press Kit</TableMapCell>
-            <TableMapCell>CROWDFUNDING</TableMapCell>
-          </TableMap>
-        </ContactTable>
-        <ContactTable>WHITEPAPER</ContactTable>
         <Copyright>
           <p>Copyright © 2020 Golem Factory GmbH</p>
-          <CopyrightText>Made with The Codein</CopyrightText>
         </Copyright>
       </FooterContainer>
     </FooterBlock>
@@ -119,18 +106,40 @@ const ArrowCell = styled.a`
   align-items: flex-start;
   text-decoration: none;
   width: 25%;
-  &:hover{
+
+  p {
+    transition: all 0.2s ease;
+  }
+
+  img {
+    transition: all 0.2s ease;
+  }
+
+  &:hover {
     p {
-      transition: all 0.3s ease;
       transform: translateY(15px);
     }
+
     img {
-      transition: all 0.3s ease;
       transform: translateX(15px);
     }
   }
   @media (max-width: 900px) {
     width: auto;
+  }
+`;
+
+const ToTop = styled.a`
+  display: flex;
+  flex-direction: row-reverse;
+  color: #fff;
+  font-size: 10px;
+  letter-spacing: .2em;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  &:hover {
+   transform: translateY(-5px);
   }
 `;
 
@@ -146,46 +155,13 @@ const Button = styled.a`
   letter-spacing: .2em;
   display: inline-block;
   color: #fff;
+  transition: all 0.2s ease;
   &:hover {
     background: #fff;
     color: #181EA9;
   }
 `;
 
-const ToTop = styled.a`
-  display: flex;
-  flex-direction: row-reverse;
-  color: #fff;
-  font-size: 10px;
-  letter-spacing: .2em;
-  text-decoration: none;
-`;
-
-const TableMap = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  width: 100%;
-`;
-const TableMapCell = styled.div`
-  flex: 0 50%;
-  padding-top: 1.2em;
-  color: #fff;
-  text-transform: uppercase;
-  letter-spacing: .2em;
-  display: block;
-  text-transform: uppercase;
-  font-size: 12px;
-
-  &:hover {
-    padding-right: 0;
-    padding-left: 20px;
-    transform: translateY(5px);
-    transition-duration: 0.3s;
-    transition-timing-function: ease;
-    transition-delay: 0s;
-  }
-`;
 
 const Copyright = styled.div`
   display: flex;
@@ -193,8 +169,4 @@ const Copyright = styled.div`
   padding-top: 40px;
   color: #fff;
   font-size: 12px;
-`;
-
-const CopyrightText = styled.p`
-  font: bold;
 `;
