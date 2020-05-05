@@ -22,7 +22,9 @@ export const DashboardLayout = ({title, backTo, children}: DashboardLayoutProps)
             <img src={logo} alt="Golem logo"/>
             {backTo && <BackButton onClick={backTo}/>}
           </LogoWithBackButton>
-          <PageName>GOLEM HOME</PageName>
+          <PageName href="http://golem.network/" target='_blank' rel="noopener noreferrer">
+            GOLEM HOME
+          </PageName>
         </Header>
         <Title>{title || 'GOLEM TOKEN MIGRATOR'}</Title>
         <Row>
@@ -53,13 +55,14 @@ const Header = styled.div`
   margin-bottom: 73px;
 `;
 
-const PageName = styled.p`
+const PageName = styled.a`
   font-weight: 300;
   font-size: 14px;
   line-height: 18px;
   text-align: right;
   letter-spacing: 2px;
   color: #1722A2;
+  text-decoration: none;
 `;
 
 const Title = styled(BlockTitle)`
