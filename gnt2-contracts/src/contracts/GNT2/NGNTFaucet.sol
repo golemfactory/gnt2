@@ -1,19 +1,12 @@
 pragma solidity ^0.5.10;
 
 import "./NewGolemNetworkToken.sol";
+import "@openzeppelin/contracts/ownership/Ownable.sol";
 
-contract NGNTFaucet {
-    address deployer;
+contract NGNTFaucet is Ownable {
     NewGolemNetworkToken public token;
 
-    constructor() public {
-        deployer = msg.sender;
-    }
-
-    function setNGNT (address _token) external {
-        // can be called only by the deployer
-        require(msg.sender == deployer, "Only contract deployer can set the token");
-
+    function setNGNT (address _token) external onlyOwner {
         // can be called only once
         require(address(token) == address(0), "Function can be invoked only once");
 
@@ -27,6 +20,6 @@ contract NGNTFaucet {
         require(address(token) != address(0), "Token contract has not been set");
         uint256 tokens = 1000 * 10 ** uint256(token.decimals());
         if (token.balanceOf(msg.sender) >= tokens) revert("Cannot acquire more funds");
-        token.mint(msg.sender, tokens);
+        require(token.mint(msg.sender, tokens), "Failed to create funds");
     }
 }
