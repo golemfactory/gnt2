@@ -14,9 +14,9 @@ jobs:
       uses: machine-learning-apps/gpr-docker-publish@master
       id: docker
       with:
-        IMAGE_NAME: 'docker-yagna-gnt2'
+        IMAGE_NAME: 'gnt2-docker-yagna'
         # TAG: 'my-optional-tag-name'
-        # DOCKERFILE_PATH: 'Dockerfile'
+        DOCKERFILE_PATH: 'gnt2-docker-yagna/Dockerfile'
         # BUILD_CONTEXT: 'argo/'
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

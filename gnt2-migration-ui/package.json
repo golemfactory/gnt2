@@ -4,7 +4,6 @@
   "private": true,
   "scripts": {
     "start": "ts-node scripts/startDevEnvironment",
-    "start:yagna": "ts-node scripts/startYagnaEnv",
     "start:webpack": "webpack-dev-server --mode development --progress --hot",
     "build": "webpack --mode production",
     "test": "NODE_ENV=test mocha",
