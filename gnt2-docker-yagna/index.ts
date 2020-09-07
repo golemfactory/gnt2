@@ -1,7 +1,6 @@
 import {startGanache} from './startGanache';
 import {getWallets} from 'ethereum-waffle';
 import {NewGolemNetworkTokenFactory, NGNTFaucetFactory} from 'gnt2-contracts';
-import {JsonRpcProvider} from 'ethers/providers';
 
 const PORT = 8545;
 
@@ -11,7 +10,7 @@ async function start() {
   const deployWallet = wallets[0];
   const deployer = deployWallet.address;
   const chainId = (await provider.getNetwork()).chainId;
-  console.log(`Chain ID: ${chainId}`)
+  console.log(`Chain ID: ${chainId}`);
 
   console.log('Deploying NGNT faucet...');
   const faucet = await new NGNTFaucetFactory(deployWallet).deploy();
@@ -21,15 +20,15 @@ async function start() {
   const newToken = await new NewGolemNetworkTokenFactory(deployWallet).deploy(faucet.address, chainId);
   console.log(`New Golem Network Token address: ${newToken.address}`);
 
-  console.log('Setting NGNT address in faucet...')
+  console.log('Setting NGNT address in faucet...');
   await NGNTFaucetFactory.connect(faucet.address, provider.getSigner(deployer)).setNGNT(newToken.address);
-  console.log('NGNT address set.')
+  console.log('NGNT address set.');
 
-  console.log('Supplying wallets with NGNT...')
-  for (let wallet of wallets) {
+  console.log('Supplying wallets with NGNT...');
+  for (const wallet of wallets) {
     await NGNTFaucetFactory.connect(faucet.address, provider.getSigner(wallet.address)).create();
   }
-  console.log('Wallets supplied.')
+  console.log('Wallets supplied.');
 
 }
 
