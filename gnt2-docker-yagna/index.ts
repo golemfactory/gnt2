@@ -1,6 +1,6 @@
 import {startGanache} from './startGanache';
 import {getWallets} from 'ethereum-waffle';
-import {NewGolemNetworkTokenFactory, NGNTFaucetFactory} from 'gnt2-contracts';
+import {NewGolemNetworkTokenFactory, NGNTFaucetFactory, ZkSyncFactory} from 'gnt2-contracts';
 
 const PORT = 8545;
 
@@ -23,6 +23,10 @@ async function start() {
   console.log('Setting NGNT address in faucet...');
   await NGNTFaucetFactory.connect(faucet.address, provider.getSigner(deployer)).setNGNT(newToken.address);
   console.log('NGNT address set.');
+
+  console.log('Deploying zkSync mock contract...');
+  const zkSyncMock = await new ZkSyncFactory(deployWallet).deploy();
+  console.log(`ZkSync mock contract address: ${zkSyncMock.address}`);
 
   console.log('Supplying wallets with NGNT...');
   for (const wallet of wallets) {
