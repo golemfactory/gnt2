@@ -7,7 +7,7 @@
   ],
   "scripts": {
     "build": "yarn wsrun --stages --fast-exit --exclude-missing build",
-    "test": "yarn wsrun --serial test",
+    "test": "yarn wsrun --serial --exclude-missing test",
     "lint": "yarn wsrun lint",
     "clean": "yarn wsrun clean"
   },
