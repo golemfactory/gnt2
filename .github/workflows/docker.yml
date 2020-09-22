@@ -1,5 +1,11 @@
 name: Publish Docker image to GitHub Package Registry
-on: push
+
+on:
+  push:
+    branches:
+      - master
+      # - <your-branch>    # put your branch name here to test it @ GH Actions
+
 jobs:
   build:
     runs-on: ubuntu-latest
