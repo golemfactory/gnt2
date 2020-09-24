@@ -8,3 +8,4 @@ export {GolemNetworkTokenFactory} from './build/contract-types/GolemNetworkToken
 export {GNTDepositFactory} from './build/contract-types/GNTDepositFactory';
 export {GNTMigrationAgentFactory} from './build/contract-types/GNTMigrationAgentFactory';
 export {NGNTFaucetFactory} from './build/contract-types/NGNTFaucetFactory';
+export {ZkSyncFactory} from './build/contract-types/ZkSyncFactory';
