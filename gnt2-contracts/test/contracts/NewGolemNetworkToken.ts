@@ -41,8 +41,8 @@ describe('New Golem Network Token', () => {
   describe('deployment', async () => {
 
     it('sets token properties', async () => {
-      expect(await token.name()).to.eq('New Golem Network Token');
-      expect(await token.symbol()).to.eq('NGNT');
+      expect(await token.name()).to.eq('Golem Network Token');
+      expect(await token.symbol()).to.eq('GLM');
       expect(await token.decimals()).to.eq(18);
     });
 

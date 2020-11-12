@@ -39,7 +39,7 @@ export class DescribeAction {
     return {
       title: 'Convert',
       from: 'GNT',
-      to: 'NGNT',
+      to: 'GLM',
       balance: gntBalance
     };
   }

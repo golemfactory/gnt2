@@ -3,8 +3,8 @@ pragma solidity ^0.5.10;
 import "@openzeppelin/contracts/token/ERC20/ERC20Mintable.sol";
 
 contract NewGolemNetworkToken is ERC20Mintable {
-    string public name = "New Golem Network Token";
-    string public symbol = "NGNT";
+    string public name = "Golem Network Token";
+    string public symbol = "GLM";
     uint8 public decimals = 18;
     string public constant version = "1";
     mapping(address => uint) public nonces;

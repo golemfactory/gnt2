@@ -1,6 +1,6 @@
 const tokens = {
   ngnt: {
-    name: 'New Golem Network Tokens',
+    name: 'Golem Network Tokens',
     ticker: 'GLM'
   }
 };
