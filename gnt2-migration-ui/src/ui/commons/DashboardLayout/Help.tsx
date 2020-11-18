@@ -1,4 +1,5 @@
 import React from 'react';
+import Iframe from 'react-iframe'
 import styled from 'styled-components';
 import {SectionTitle} from '../Text/SectionTitle';
 import {Text} from '../Text/Text';
@@ -11,10 +12,10 @@ export const Help = () => (
     <HelpText>Please watch this video - migrate in a safe and secure way!</HelpText>
     <VideoContainer>
       <Video>
-        <PlatButton/>
+        <Iframe width="100%" height="100%" url="https://www.youtube.com/embed/DYX9Xn2HyWw" allowFullScreen/>
       </Video>
     </VideoContainer>
-    <HelpLink>Need more information? We got you covered.</HelpLink>
+    <HelpLink href="https://docs.golem.network/#/Products/Migrate/migration-guideline" onClick={e => e.stopPropagation()}>Need more information? We got you covered.</HelpLink>
   </HelpView>
 );
 
