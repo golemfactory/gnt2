@@ -1,9 +1,8 @@
 import React from 'react';
-import Iframe from 'react-iframe'
+import Iframe from 'react-iframe';
 import styled from 'styled-components';
 import {SectionTitle} from '../Text/SectionTitle';
 import {Text} from '../Text/Text';
-import triangle from '../../../assets/icons/triangle.svg';
 import arrow from '../../../assets/icons/arrow.svg';
 
 export const Help = () => (
@@ -15,7 +14,9 @@ export const Help = () => (
         <Iframe width="100%" height="100%" url="https://www.youtube.com/embed/DYX9Xn2HyWw" allowFullScreen/>
       </Video>
     </VideoContainer>
-    <HelpLink href="https://docs.golem.network/#/Products/Migrate/migration-guideline" onClick={e => e.stopPropagation()}>Need more information? We got you covered.</HelpLink>
+    <HelpLink
+      href="https://docs.golem.network/#/Products/Migrate/migration-guideline"
+      onClick={e => e.stopPropagation()}>Need more information? We got you covered.</HelpLink>
   </HelpView>
 );
 
@@ -67,14 +68,6 @@ const Video = styled.div`
     width: 203px;
     height: 114px;
   }
-`;
-
-const PlatButton = styled.button`
-  width: 56px;
-  height: 56px;
-  background: url(${triangle}) center no-repeat;
-  border-radius: 50%;
-  border: 1px solid rgba(173, 176, 229, 0.3);
 `;
 
 const HelpLink = styled.a`
