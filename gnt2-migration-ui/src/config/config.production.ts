@@ -27,10 +27,10 @@ const getConfig = () => Object.freeze<WebConfig>(
       },
       mainnet: {
         oldGolemToken: getEnv('OLD_GNT_TOKEN_CONTRACT_ADDRESS_MAINNET', '0xa74476443119A942dE498590Fe1f2454d7D4aC0d'),
-        newGolemToken: getEnv('NEW_GNT_TOKEN_CONTRACT_ADDRESS_MAINNET', AddressZero),
+        newGolemToken: getEnv('NEW_GNT_TOKEN_CONTRACT_ADDRESS_MAINNET', '0x7DD9c5Cba05E151C895FDe1CF355C9A1D5DA6429'),
         batchingGolemToken: getEnv('BATCHING_GNT_TOKEN_CONTRACT_ADDRESS_MAINNET', '0xA7dfb33234098c66FdE44907e918DAD70a3f211c'),
         gntDeposit: getEnv('GNT_DEPOSIT_CONTRACT_ADDRESS_MAINNET', '0x98d3ca6528A2532Ffd9BDef50F92189568932570'),
-        migrationAgent: getEnv('MIGRATION_AGENT_CONTRACT_ADDRESS_MAINNET', AddressZero)
+        migrationAgent: getEnv('MIGRATION_AGENT_CONTRACT_ADDRESS_MAINNET', '0xBFAd98d76598961827bA832108c21445aa4FEE9A')
       }
     }
   }
