@@ -1,5 +1,4 @@
 import {getEnv} from './getEnv';
-import {AddressZero} from 'ethers/constants';
 import {WebConfig} from '../domain/WebConfig';
 
 const getConfig = () => Object.freeze<WebConfig>(
