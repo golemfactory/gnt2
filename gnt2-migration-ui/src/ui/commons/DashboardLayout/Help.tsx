@@ -17,6 +17,10 @@ export const Help = () => (
     <HelpLink
       href="https://docs.golem.network/#/Products/Migrate/migration-guideline"
       onClick={e => e.stopPropagation()}>Need more information? We got you covered.</HelpLink>
+    <TrackerLink
+      href="https://glm.golem.network/"
+      onClick={e => e.stopPropagation()}>Migration Tracker
+    </TrackerLink>
   </HelpView>
 );
 
@@ -90,5 +94,28 @@ const HelpLink = styled.a`
     width: 150px;
     height: 40px;
     background: url(${arrow}) center no-repeat;
+  }
+`;
+
+const TrackerLink = styled.a`
+  font-family: AktivGroteskEx;
+  position: relative;
+  display: block;
+  padding: 42px 170px 0 0;
+  font-weight: bold;
+  font-size: 13px;
+  line-height: 16px;
+  text-align: right;
+  color: #1722A2;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: 0;
+    transform: translateY(10px);
+    width: 120px;
+    height: 30px;
+    background: url(${arrow}) center/90% no-repeat;
   }
 `;
