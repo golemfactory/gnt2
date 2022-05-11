@@ -3,7 +3,7 @@ import {WebConfig} from '../domain/WebConfig';
 
 const getConfig = () => Object.freeze<WebConfig>(
   {
-    gasLimit: Number.parseInt(getEnv('GAS_LIMIT', '750000')),
+    gasLimit: Number.parseInt(getEnv('GAS_LIMIT', '120000')),
     confirmationHeights: {
       local: 1,
       rinkeby: 6,
