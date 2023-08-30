@@ -1,5 +1,5 @@
 # Builder image
-FROM node:12 as builder
+FROM node:14 as builder
 
 WORKDIR /build
 
@@ -18,7 +18,7 @@ RUN yarn install --production
 
 # ===============
 # Runtime image
-FROM node:12-alpine as runtime
+FROM node:14-alpine as runtime
 
 WORKDIR /app/
 

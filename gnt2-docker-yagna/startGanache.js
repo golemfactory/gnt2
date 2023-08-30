@@ -1,7 +1,7 @@
-import {promisify} from 'util';
-import Ganache from 'ganache-cli';
-import {defaultAccounts, getWallets} from 'ethereum-waffle';
-import {providers} from 'ethers';
+import { promisify } from 'util';
+import Ganache from 'ganache';
+import { defaultAccounts, getWallets } from 'ethereum-waffle';
+import { providers } from 'ethers';
 
 function printWallets(wallets) {
   console.log('  Wallets:');
@@ -12,7 +12,7 @@ function printWallets(wallets) {
 }
 
 async function startGanache(port) {
-  const options = {accounts: defaultAccounts, hardfork: 'constantinople'};
+  const options = { accounts: defaultAccounts, hardfork: 'constantinople' };
   const server = Ganache.server(options);
   const listenPromise = promisify(server.listen);
   await listenPromise(port);
@@ -27,4 +27,4 @@ async function startGanache(port) {
   return provider;
 }
 
-export {startGanache};
+export { startGanache };
