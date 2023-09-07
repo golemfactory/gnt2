@@ -1,5 +1,4 @@
 {
   "compilerVersion": "v0.5.11+commit.c082d0b4",
-  "sourceDirectory": "./src/contracts/currentlyDeployed/deposit",
-  "outputDirectory": "./build/deposit"
+  "sourceDirectory": "./src/contracts/currentlyDeployed/deposit"
 }
