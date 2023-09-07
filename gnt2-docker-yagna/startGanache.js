@@ -12,6 +12,11 @@ function printWallets(wallets) {
 }
 
 async function startGanache(port) {
+  for (var el of defaultAccounts) {
+    el.balance = "0x" + BigInt(el.balance).toString(16);
+  }
+
+  console.log(JSON.stringify(defaultAccounts));
   const options = { accounts: defaultAccounts, hardfork: 'constantinople' };
   const server = Ganache.server(options);
   const listenPromise = promisify(server.listen);
