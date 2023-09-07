@@ -1,11 +1,9 @@
 # Builder image
-FROM node:14 as builder
+FROM node:20 as builder
 
 WORKDIR /build
 
 COPY "./" "/build/"
-# Remove un-used project. Can be removed after gnt2-docker-yagna is build as a vendor package
-RUN rm -rf ./gnt2-migration-ui
 
 # Install, add to path and build
 RUN yarn install
@@ -18,7 +16,7 @@ RUN yarn install --production
 
 # ===============
 # Runtime image
-FROM node:14-alpine as runtime
+FROM node:20-alpine as runtime
 
 WORKDIR /app/
 
