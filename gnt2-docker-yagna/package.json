@@ -7,12 +7,12 @@
     "lint": "eslint '*.{js,ts,tsx}'"
   },
   "dependencies": {
-    "ethereum-waffle": "^2.1.2",
-    "ethers": "^4.0.40",
+    "ethereum-waffle": "^4.0.10",
+    "ethers": "^5.7.2",
     "gnt2-contracts": "0.0.1",
     "ganache": "^7.9.0",
     "ts-node": "^8.4.1",
-    "typescript": "^3.7.2"
+    "typescript": "^5.2.2"
   },
   "devDependencies": {
     "@types/chai-as-promised": "^7.1.2",

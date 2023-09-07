@@ -1,5 +1,5 @@
-import {Provider} from 'ethers/providers';
+import { providers } from "ethers";
 
-export async function getChainId(provider: Provider) {
+export async function getChainId(provider: providers.Provider) {
   return (await provider.getNetwork()).chainId;
 }
