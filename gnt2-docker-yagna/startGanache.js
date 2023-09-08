@@ -12,7 +12,7 @@ function printWallets(wallets) {
 }
 
 async function startGanache(port) {
-  const options = { accounts: defaultAccounts, hardfork: "constantinople" };
+  const options = { accounts: defaultAccounts, hardfork: "london" };
   const server = Ganache.server(options);
   const listenPromise = promisify(server.listen);
 
