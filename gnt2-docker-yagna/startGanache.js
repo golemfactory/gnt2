@@ -14,9 +14,8 @@ function printWallets(wallets) {
 async function startGanache(port) {
   const options = { accounts: defaultAccounts, hardfork: "london" };
   const server = Ganache.server(options);
-  const listenPromise = promisify(server.listen);
 
-  await server.listen(port);
+  server.listen(port);
 
   const jsonRpcUrl = `http://localhost:${port}`;
 
