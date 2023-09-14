@@ -24,13 +24,10 @@ async function start() {
   await factories.NGNTFaucet__factory.connect(faucet.address, provider.getSigner(deployer)).setNGNT(newToken.address);
   console.log("NGNT address set.");
 
-  console.log("Deploying zkSync mock contract...");
-  const zkSyncMock = await new factories.ZkSync__factory(deployWallet).deploy();
-  console.log(`ZkSync mock contract address: ${zkSyncMock.address}`);
-
   console.log("Supplying wallets with NGNT...");
   for (const wallet of wallets) {
     await factories.NGNTFaucet__factory.connect(faucet.address, provider.getSigner(wallet.address)).create();
+    console.log("Dupa nie ma golemów: " + await newToken.balanceOf(wallet.address));
   }
   console.log("Wallets supplied.");
 }
