@@ -4,9 +4,13 @@ import { MockProvider } from "ethereum-waffle";
 const PORT = 8545;
 
 import { factories } from "gnt2-contracts";
+import {ethers} from "ethers";
 async function start() {
   const provider = await startGanache(PORT);
-  const wallets = new MockProvider().getWallets();
+  const wallets = [];
+  for (const wallet of new MockProvider().getWallets()) {
+    wallets.push(new ethers.Wallet(wallet.privateKey, provider));
+  }
   const deployWallet = wallets[0];
   const deployer = deployWallet.address;
   const chainId = (await provider.getNetwork()).chainId;
@@ -31,6 +35,8 @@ async function start() {
   console.log("Supplying wallets with NGNT...");
   for (const wallet of wallets) {
     await factories.NGNTFaucet__factory.connect(faucet.address, provider.getSigner(wallet.address)).create();
+    let balance = await newToken.balanceOf(wallet.address);
+    console.log("Account " + wallet.address + " has " + balance.toString() + " NGNT" + " and " + (await wallet.getBalance()).toString() + " ETH");
   }
   console.log("Wallets supplied.");
 }
