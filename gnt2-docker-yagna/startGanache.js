@@ -12,7 +12,11 @@ function printWallets(wallets) {
 }
 
 async function startGanache(port) {
-  const options = { accounts: defaultAccounts, hardfork: "london" };
+  const options = {
+    accounts: defaultAccounts,
+    hardfork: "london",
+    chainId: 4
+  };
   const server = Ganache.server(options);
 
   server.listen(port);

@@ -7,6 +7,7 @@ import { factories } from "gnt2-contracts";
 import {ethers} from "ethers";
 async function start() {
   const provider = await startGanache(PORT);
+  console.log("Ganache started. Chain id: " + (await provider.getNetwork()).chainId);
   const wallets = [];
   for (const wallet of new MockProvider().getWallets()) {
     wallets.push(new ethers.Wallet(wallet.privateKey, provider));
