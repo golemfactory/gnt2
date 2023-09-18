@@ -6,7 +6,16 @@ const PORT = 8545;
 import { factories } from "gnt2-contracts";
 import {ethers} from "ethers";
 async function start() {
-  const provider = await startGanache(PORT);
+  let chainId: number | undefined = undefined;
+  if (!process.env.GANACHE_CHAIN_ID) {
+    throw new Error("GANACHE_CHAIN_ID env variable not set or empty");
+  }
+  chainId = parseInt(process.env.GANACHE_CHAIN_ID);
+  if (!chainId) {
+    throw new Error("GANACHE_CHAIN_ID should be a number greater than 0");
+  }
+
+  const provider = await startGanache(PORT, chainId);
   console.log("Ganache started. Chain id: " + (await provider.getNetwork()).chainId);
 
   //Create wallets by taking defaults from ethereum_waffle and setting ganache as provider
@@ -16,7 +25,10 @@ async function start() {
   }
   const deployWallet = wallets[0];
   const deployer = deployWallet.address;
-  const chainId = (await provider.getNetwork()).chainId;
+  const chainIdFromNetwork = (await provider.getNetwork()).chainId;
+  if ( chainId != chainIdFromNetwork ) {
+    throw new Error(`Chain ID mismatch ${chainId} vs ${chainIdFromNetwork}`);
+  }
   console.log(`Chain ID: ${chainId}`);
 
   console.log("Deploying NGNT faucet...");
