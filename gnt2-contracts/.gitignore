@@ -2,3 +2,4 @@ node_modules/
 build/
 dist/
 /rinkeby-deployment.json
+cache/

@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - master
-      # - <your-branch>    # put your branch name here to test it @ GH Actions
 
 jobs:
   build:
@@ -22,7 +21,7 @@ jobs:
       with:
         IMAGE_NAME: 'gnt2-docker-yagna'
         # TAG: 'my-optional-tag-name'
-        DOCKERFILE_PATH: 'gnt2-docker-yagna/Dockerfile'
+        DOCKERFILE_PATH: 'Dockerfile'
         # BUILD_CONTEXT: 'argo/'
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

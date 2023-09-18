@@ -8,5 +8,8 @@
     "exclude": [
       "**/build",
       "**/dist"
-    ]
+    ], 
+    "paths" : {
+      "factories/*" : [ "build/contract-types/factories" ]
+    }
   }

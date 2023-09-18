@@ -3,7 +3,8 @@
   "version": "0.0.1",
   "private": true,
   "workspaces": [
-    "gnt2-*"
+    "gnt2-contracts",
+    "gnt2-docker-yagna"
   ],
   "scripts": {
     "build": "yarn wsrun --stages --fast-exit --exclude-missing build",

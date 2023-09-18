@@ -11,7 +11,7 @@
     "build:gntd": "yarn waffle .waffle-GNTD.json",
     "build:multisig": "yarn waffle .waffle-MultiSigWallet.json",
     "build:zksync": "yarn waffle .waffle-zkSync.json",
-    "build:types": "typechain --target ethers --outDir build/contract-types 'build/**/*.json' && tsc",
+    "build:types": "typechain --target ethers-v5 --out-dir build/contract-types 'build/**/*.json'",
     "build": "yarn build:gnt && yarn build:gnt2 && yarn build:gntb && yarn build:gntd && yarn build:multisig && yarn build:zksync && yarn build:types",
     "lint": "yarn lint:ts && yarn lint:contracts",
     "lint:ts": "eslint '{src,test}/**/*.ts'",
@@ -21,8 +21,9 @@
     "deploy:ngt2:dev": "ts-node src/deployment/deployAllRinkeby.ts"
   },
   "dependencies": {
+    "@types/node": "^20.5.9",
     "chalk": "^2.4.2",
-    "ethers": "^4.0.0"
+    "ethers": "^5.7.2"
   },
   "devDependencies": {
     "@openzeppelin/contracts": "2.5.0",
@@ -30,14 +31,12 @@
     "@types/mocha": "^5.2.7",
     "chai": "^4.2.0",
     "eslint": "^6.7.2",
-    "ethereum-waffle": "^2.0.15",
+    "ethereum-waffle": "^4.0.10",
     "ethlint": "^1.2.5",
     "mocha": "^6.2.0",
     "rimraf": "^3.0.0",
     "ts-node": "^8.3.0",
-    "typechain": "^1.0.3",
-    "typechain-target-ethers": "^1.0.3",
-    "typescript": "^3.7.2",
+    "typescript": "^5.2.2",
     "uuid": "^3.3.3"
   }
 }

@@ -1,5 +1,4 @@
 {
-  "solcVersion": "v0.5.11+commit.c082d0b4",
-  "sourcesPath": "./src/contracts/currentlyDeployed/deposit",
-  "targetPath": "./build/deposit"
+  "compilerVersion": "v0.5.11+commit.c082d0b4",
+  "sourceDirectory": "./src/contracts/currentlyDeployed/deposit"
 }
