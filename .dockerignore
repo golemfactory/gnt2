@@ -1,0 +1,4 @@
+**/node_modules/
+**/dist
+.env
+gnt2-migration-ui/

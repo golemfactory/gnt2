@@ -8,6 +8,8 @@ import {ethers} from "ethers";
 async function start() {
   const provider = await startGanache(PORT);
   console.log("Ganache started. Chain id: " + (await provider.getNetwork()).chainId);
+
+  //Create wallets by taking defaults from ethereum_waffle and setting ganache as provider
   const wallets = [];
   for (const wallet of new MockProvider().getWallets()) {
     wallets.push(new ethers.Wallet(wallet.privateKey, provider));
