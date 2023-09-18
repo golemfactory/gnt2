@@ -25,5 +25,4 @@ COPY --from=builder "/build/" "/app/"
 
 WORKDIR /app/gnt2-docker-yagna
 ENV NODE_ENV=production
-EXPOSE 8545
 CMD ["yarn", "start"]
