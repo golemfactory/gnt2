@@ -9,7 +9,7 @@
   "dependencies": {
     "ethereum-waffle": "^4.0.10",
     "ethers": "^5.7.2",
-    "gnt2-contracts": "0.0.1",
+    "gnt2-contracts": "0.0.2",
     "ganache": "^7.9.0",
     "ts-node": "^8.4.1",
     "typescript": "^5.2.2"
