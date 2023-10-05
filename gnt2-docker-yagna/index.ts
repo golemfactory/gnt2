@@ -47,6 +47,10 @@ async function start() {
   const zkSyncMock = await new factories.ZkSync__factory(deployWallet).deploy();
   console.log(`ZkSync mock contract address: ${zkSyncMock.address}`);
 
+  console.log(`Deploying MultiTransfer ...`);
+  const multiTransfer = await new factories.MultiTransferERC20__factory(deployWallet).deploy(newToken.address);
+  console.log(`Multi transfer ERC20 deployed at address: ${multiTransfer.address}`);
+
   console.log("Supplying wallets with NGNT...");
   for (const wallet of wallets) {
     await factories.NGNTFaucet__factory.connect(faucet.address, provider.getSigner(wallet.address)).create();
