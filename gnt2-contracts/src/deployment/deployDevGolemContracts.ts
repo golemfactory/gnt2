@@ -3,17 +3,19 @@ import {
   GNTMigrationAgent__factory,
   GolemNetworkTokenBatching__factory,
   GolemNetworkToken__factory,
-  NewGolemNetworkToken__factory
+  NewGolemNetworkToken__factory, MultiTransferERC20__factory
 } from "../../build/contract-types/factories";
 import { providers } from "ethers";
 import { ConsoleLogger, Logger } from "../utils/logger";
 import { GolemNetworkTokenBatching } from "../../build/contract-types/GolemNetworkTokenBatching";
 import { GolemNetworkToken } from "../../build/contract-types/GolemNetworkToken";
+import { MultiTransferERC20 } from "../../build/contract-types/MultiTransferERC20";
 import { GolemContractsDevDeployment } from "./interfaces";
 import { utils, BigNumber } from "ethers";
 import { getGasLimit } from "../config";
 import { getChainId } from "../utils/network";
 import { GNTDeposit__factory } from "gnt2-contracts/build/contract-types";
+import * as zlib from "zlib";
 
 const delay = 48 * 60 * 60;
 
@@ -104,6 +106,11 @@ export async function deployDevGolemContracts(
   await oldToken.setMigrationAgent(migrationAgent.address);
   await migrationAgent.setTarget(newToken.address);
   logger.log("Migration agent set");
+
+  logger.log(`Deploying MultiTransfer ...`);
+  const multiTransfer = await new MultiTransferERC20__factory(deployWallet).deploy(newToken.address);
+  logger.log(`Multi transfer ERC20 deployed at address: ${multiTransfer.address}`);
+
   logger.log(`Dev account: ${holderWallet.address} - ${holderWallet.privateKey}`);
   return {
     oldGolemToken: oldToken.address,
