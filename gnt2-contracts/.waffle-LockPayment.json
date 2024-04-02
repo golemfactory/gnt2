@@ -1,0 +1,10 @@
+{
+  "compilerVersion": "v0.8.24+commit.e11b9ed9",
+  "sourceDirectory": "./src/contracts/LockPayment",
+    "compilerOptions": {
+        "optimizer": {
+            "enabled": true,
+            "runs": 200
+        }
+    }
+}
