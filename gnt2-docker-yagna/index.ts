@@ -51,6 +51,10 @@ async function start() {
   const multiTransfer = await new factories.MultiTransferERC20__factory(deployWallet).deploy(newToken.address);
   console.log(`Multi transfer ERC20 deployed at address: ${multiTransfer.address}`);
 
+  console.log("Deploying LockPayment ...");
+  const lockContract = await new factories.LockPayment__factory(deployWallet).deploy(newToken.address);
+  console.log(`LockPayment deployed at address: ${lockContract.address}`);
+
   console.log("Supplying wallets with NGNT...");
   for (const wallet of wallets) {
     await factories.NGNTFaucet__factory.connect(faucet.address, provider.getSigner(wallet.address)).create();
