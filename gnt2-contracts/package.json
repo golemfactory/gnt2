@@ -15,6 +15,8 @@
     "build:lock": "yarn waffle .waffle-LockPayment.json",
     "build:types": "typechain --target ethers-v5 --out-dir build/contract-types 'build/**/*.json'",
     "build": "yarn build:lock && yarn build:gnt && yarn build:gnt2 && yarn build:gntb && yarn build:gntd && yarn build:multisig && yarn build:zksync && yarn build:multitransfer && yarn build:types",
+    "lint": "yarn lint:ts",
+    "lint:ts": "eslint \"**/*.{ts,tsx}\"",
     "clean": "rimraf build dist",
     "test": "NODE_ENV=test mocha",
     "deploy:ngt2:dev": "ts-node src/deployment/deployAllRinkeby.ts"
