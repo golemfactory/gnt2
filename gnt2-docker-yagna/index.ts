@@ -1,10 +1,11 @@
-import { startGanache } from "./startGanache";
-import { MockProvider } from "ethereum-waffle";
+import {startGanache} from "./startGanache";
+import {MockProvider} from "ethereum-waffle";
 
 const PORT = 8545;
 
-import { factories } from "gnt2-contracts";
+import {factories} from "gnt2-contracts";
 import {ethers} from "ethers";
+
 async function start() {
   let chainId: number | undefined = undefined;
   if (!process.env.GANACHE_CHAIN_ID) {
@@ -18,7 +19,7 @@ async function start() {
   const provider = await startGanache(PORT, chainId);
   console.log("Ganache started. Chain id: " + (await provider.getNetwork()).chainId);
 
-  //Create wallets by taking defaults from ethereum_waffle and setting ganache as provider
+  // Create wallets by taking defaults from ethereum_waffle and setting ganache as provider
   const wallets = [];
   for (const wallet of new MockProvider().getWallets()) {
     wallets.push(new ethers.Wallet(wallet.privateKey, provider));
@@ -26,7 +27,7 @@ async function start() {
   const deployWallet = wallets[0];
   const deployer = deployWallet.address;
   const chainIdFromNetwork = (await provider.getNetwork()).chainId;
-  if ( chainId != chainIdFromNetwork ) {
+  if (chainId !== chainIdFromNetwork) {
     throw new Error(`Chain ID mismatch ${chainId} vs ${chainIdFromNetwork}`);
   }
   console.log(`Chain ID: ${chainId}`);
@@ -58,7 +59,7 @@ async function start() {
   console.log("Supplying wallets with NGNT...");
   for (const wallet of wallets) {
     await factories.NGNTFaucet__factory.connect(faucet.address, provider.getSigner(wallet.address)).create();
-    let balance = await newToken.balanceOf(wallet.address);
+    const balance = await newToken.balanceOf(wallet.address);
     console.log("Account " + wallet.address + " has " + balance.toString() + " NGNT" + " and " + (await wallet.getBalance()).toString() + " ETH");
   }
   console.log("Wallets supplied.");

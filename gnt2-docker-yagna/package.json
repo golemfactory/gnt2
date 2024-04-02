@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "ts-node index.ts",
-    "lint": "eslint '*.{js,ts,tsx}'"
+    "lint": "eslint \"**/*.{ts,tsx}\""
   },
   "dependencies": {
     "ethereum-waffle": "^4.0.10",
@@ -17,7 +17,9 @@
   "devDependencies": {
     "@types/chai-as-promised": "^7.1.2",
     "chai-as-promised": "^7.1.1",
-    "eslint": "^6.7.2",
-    "eslint-plugin-import": "^2.18.2"
+    "eslint": "^7.32",
+    "@typescript-eslint/eslint-plugin": "^7.5",
+    "@typescript-eslint/parser": "^7.5",
+    "eslint-plugin-import": "^2.25"
   }
 }
