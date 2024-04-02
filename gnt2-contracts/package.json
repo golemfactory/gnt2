@@ -12,7 +12,7 @@
     "build:multisig": "yarn waffle .waffle-MultiSigWallet.json",
     "build:multitransfer": "yarn waffle .waffle-MultiTransfer.json",
     "build:zksync": "yarn waffle .waffle-zkSync.json",
-    "build:lock": "yarn waffle .waffle-Lock.json",
+    "build:lock": "yarn waffle .waffle-LockPayment.json",
     "build:types": "typechain --target ethers-v5 --out-dir build/contract-types 'build/**/*.json'",
     "build": "yarn build:lock && yarn build:gnt && yarn build:gnt2 && yarn build:gntb && yarn build:gntd && yarn build:multisig && yarn build:zksync && yarn build:multitransfer && yarn build:types",
     "lint": "yarn lint:ts && yarn lint:contracts",
