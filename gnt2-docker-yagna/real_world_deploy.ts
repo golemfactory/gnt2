@@ -55,7 +55,7 @@ async function start() {
   console.log(`Deploying MultiTransfer ...`);
   const multiTransfer = await new factories.MultiTransferERC20__factory(deployWallet).deploy(newToken.address);
   console.log(`Multi transfer ERC20 deployed at address: ${multiTransfer.address}`);
- 
+
   await new Promise(r => setTimeout(r, 5000));
   console.log("Deploying LockPayment ...");
   const lockContract = await new factories.LockPayment__factory(deployWallet).deploy(newToken.address);
