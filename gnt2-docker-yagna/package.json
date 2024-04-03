@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "ts-node index.ts",
-    "lint": "eslint \"**/*.{ts,tsx}\""
+    "lint": "eslint index.ts"
   },
   "dependencies": {
     "ethereum-waffle": "^4.0.10",
