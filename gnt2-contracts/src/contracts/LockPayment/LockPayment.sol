@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.13;
 
 /**
  * Out of the IERC20 interface, only the transfer and transferFrom functions are used.
@@ -34,12 +34,41 @@ interface IERC20 {
         uint64 validTo; //after this timestamp funds can be returned to customer
     }
 
+interface ILockPayment {
+    function createDeposit(uint64 nonce, address spender, uint128 amount, uint128 flatFeeAmount, int64 percentFee, uint64 validToTimestamp) external returns (uint256);
+
+    function extendDeposit(uint64 nonce, uint128 additionalAmount, uint128 additionalFlatFee, uint64 validToTimestamp) external;
+
+    function closeDeposit(uint256 id) external;
+
+    function terminateDeposit(uint64 nonce) external;
+
+    function depositSingleTransfer(uint256 id, address addr, uint128 amount) external;
+
+    function depositTransfer(uint256 id, bytes32[] calldata payments) external;
+
+    function depositSingleTransferAndClose(uint256 id, address addr, uint128 amount) external;
+
+    function depositTransferAndClose(uint256 id, bytes32[] calldata payments) external;
+
+    function getMyDeposit(uint64 nonce) external view returns (DepositView memory);
+
+    function getDeposit(uint256 id) external view returns (DepositView memory);
+
+    function getDepositByNonce(uint64 nonce, address funder) external view returns (DepositView memory);
+}
+
 /**
  * @dev This contract is part of GLM payment system. Visit https://golem.network for details.
  * Be careful when interacting with this contract, because it has no exit mechanism. Any assets sent directly to this contract will be lost.
  */
-contract LockPayment {
+contract LockPayment is ILockPayment {
     IERC20 public GLM;
+
+    event DepositCreated(uint256 id, address spender);
+    event DepositExtended(uint256 id, address spender);
+    event DepositClosed(uint256 id, address spender);
+    event DepositTerminated(uint256 id, address spender);
 
     // deposit is stored using arbitrary id
     mapping(uint256 => Deposit) public deposits;
@@ -87,14 +116,14 @@ contract LockPayment {
     // id - unique id (build from Funder address and nonce)
     // spender - the address that is allowed to spend the funds regardless of time
     // amount - amount of GLM tokens to lock
-    // constFeeAmount - amount of GLM tokens given to spender (non-refundable). Fee is claimed by spender when called payoutSingle or payoutMultiple first time.
+    // flatFeeAmount - amount of GLM tokens given to spender (non-refundable). Fee is claimed by spender when called payoutSingle or payoutMultiple first time.
     // percentFee - percent fee as percent of amount (given in parts/per million), so 1000 gives 0.1 %.
-    //              if given negative it is deducted from constFeeAmount
+    //              if given negative it is deducted from flatFeeAmount
     //              IT IS NOT IMPLEMENTED IN THIS IMPLEMENTATION
     // blockNo - block number until which funds are guaranteed to be locked for spender.
     //           Spender still can use the funds after this block,
     //           but customer can request the funds to be returned clearing deposit after (or equal to) this block number.
-    function createDeposit(uint64 nonce, address spender, uint128 amount, uint128 constFeeAmount, int64 percentFee, uint64 validToTimestamp) public returns (uint256) {
+    function createDeposit(uint64 nonce, address spender, uint128 amount, uint128 flatFeeAmount, int64 percentFee, uint64 validToTimestamp) public returns (uint256) {
         //check if id is not used
         uint256 id = idFromNonce(nonce);
         require(deposits[id].amount == 0, "deposits[id].amount == 0");
@@ -102,20 +131,22 @@ contract LockPayment {
         require(percentFee == 0, "percentFee == 0 for this contract");
         require(spender != address(0), "spender cannot be null address");
         require(msg.sender != spender, "spender cannot be funder");
-        require(GLM.transferFrom(msg.sender, address(this), amount + constFeeAmount), "transferFrom failed");
-        deposits[id] = Deposit(spender, amount, constFeeAmount, validToTimestamp);
+        require(GLM.transferFrom(msg.sender, address(this), amount + flatFeeAmount), "transferFrom failed");
+        deposits[id] = Deposit(spender, amount, flatFeeAmount, validToTimestamp);
+        emit DepositCreated(id, spender);
         return id;
     }
 
-    function extendDeposit(uint64 nonce, uint128 extraAmount, uint128 extraFee, uint64 validToTimestamp) public {
+    function extendDeposit(uint64 nonce, uint128 additionalAmount, uint128 additionalFlatFee, uint64 validToTimestamp) public {
         uint256 id = idFromNonce(nonce);
         Deposit memory deposit = deposits[id];
-        require(GLM.transferFrom(msg.sender, address(this), extraAmount + extraFee), "transferFrom failed");
+        require(GLM.transferFrom(msg.sender, address(this), additionalAmount + additionalFlatFee), "transferFrom failed");
         require(deposit.validTo <= validToTimestamp, "deposit.validTo <= validTo");
-        deposit.amount += extraAmount;
-        deposit.feeAmount += extraFee;
+        deposit.amount += additionalAmount;
+        deposit.feeAmount += additionalFlatFee;
         deposit.validTo = validToTimestamp;
         deposits[id] = deposit;
+        emit DepositExtended(id, deposit.spender);
     }
 
     // Spender can close deposit anytime claiming fee and returning rest of funds to Funder
@@ -131,6 +162,7 @@ contract LockPayment {
         }
         deposits[id].amount = 0;
         deposits[id].feeAmount = 0;
+        emit DepositClosed(id, deposit.spender);
     }
 
     // Funder can terminate deposit after validTo date elapses
@@ -144,6 +176,7 @@ contract LockPayment {
         require(GLM.transfer(msg.sender, deposit.amount + deposit.feeAmount), "transfer failed");
         deposits[id].amount = 0;
         deposits[id].feeAmount = 0;
+        emit DepositTerminated(id, deposit.spender);
     }
 
     function depositSingleTransfer(uint256 id, address addr, uint128 amount) public {

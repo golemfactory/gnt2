@@ -63,6 +63,19 @@ async function start() {
     console.log("Account " + wallet.address + " has " + balance.toString() + " NGNT" + " and " + (await wallet.getBalance()).toString() + " ETH");
   }
   console.log("Wallets supplied.");
+
+  console.log("Creating deposit for wallet 1...");
+  let tx = await factories.NewGolemNetworkToken__factory.connect(newToken.address, provider.getSigner(wallets[0].address)).approve(lockContract.address, 1000000);
+
+  console.log("Approved LockPayment to transfer NGNT: " + tx);
+  let lockPayment = factories.LockPayment__factory.connect(lockContract.address, provider.getSigner(wallets[0].address));
+  await lockPayment.createDeposit(1638, wallets[1].address, 100, 10, 0, 0);
+  let view = await lockPayment.getMyDeposit(1638);
+
+
+  console.log("Deposit created:\n  contract address: " + lockPayment.address + "\n  id: " + view.id._hex + "\n  spender: " + view.spender + "\n  funder: " + view.funder + "\n  amount: " + view.amount + "\n  fee: " + view.feeAmount + "\n  expiration: " + view.validTo);
+
+  console.log("Finished successfully!")
 }
 
 start().catch(console.error);
