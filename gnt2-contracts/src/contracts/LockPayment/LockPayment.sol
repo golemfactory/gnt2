@@ -35,10 +35,6 @@ interface IERC20 {
     }
 
 interface ILockPayment {
-    function createDeposit(uint64 nonce, address spender, uint128 amount, uint128 flatFeeAmount, int64 percentFee, uint64 validToTimestamp) external returns (uint256);
-
-    function extendDeposit(uint64 nonce, uint128 additionalAmount, uint128 additionalFlatFee, uint64 validToTimestamp) external;
-
     function closeDeposit(uint256 id) external;
 
     function terminateDeposit(uint64 nonce) external;
