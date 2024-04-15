@@ -1,5 +1,5 @@
 import {startGanache} from "./startGanache";
-import {MockProvider} from "ethereum-waffle";
+import {MockProvider} from "@ethereum-waffle/provider";
 
 const PORT = 8545;
 

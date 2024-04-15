@@ -1,3 +1,3 @@
 packages:
-  - 'gnt2-docker-yagna/package.json'
-  - 'gnt2-contracts/package.json'
+  - 'gnt2-contracts'
+  - 'gnt2-docker-yagna'

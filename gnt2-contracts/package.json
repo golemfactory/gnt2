@@ -15,10 +15,7 @@
     "build:lock": "pnpm waffle .waffle-LockPayment.json",
     "build:types": "typechain --target ethers-v5 --out-dir build/contract-types 'build/**/*.json'",
     "build": "pnpm build:lock && pnpm build:gnt && pnpm build:gnt2 && pnpm build:gntb && pnpm build:gntd && pnpm build:multisig && pnpm build:zksync && pnpm build:multitransfer && pnpm build:types",
-    "lint": "pnpm lint:ts",
-    "lint:ts": "pnpm --version",
     "clean": "rimraf build dist",
-    "test": "NODE_ENV=test mocha",
     "deploy:ngt2:dev": "ts-node src/deployment/deployAllRinkeby.ts"
   },
   "dependencies": {
@@ -28,15 +25,14 @@
   },
   "devDependencies": {
     "@openzeppelin/contracts": "2.5.0",
-    "@types/chai": "^4.1.7",
-    "@types/mocha": "^5.2.7",
-    "chai": "^4.2.0",
     "ethereum-waffle": "^4.0.10",
+    "@ethereum-waffle/provider": "^4.0.5",
+    "@ethersproject/providers": "^5.7.2",
     "ethlint": "^1.2.5",
-    "mocha": "^6.2.0",
     "rimraf": "^3.0.0",
     "ts-node": "^8.3.0",
     "typescript": "^5.2.2",
+    "typechain": "^8.3",
     "uuid": "^3.3.3"
   }
 }
