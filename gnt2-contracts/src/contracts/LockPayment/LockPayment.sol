@@ -61,6 +61,11 @@ interface ILockPayment {
 contract LockPayment is ILockPayment {
     IERC20 public GLM;
 
+    uint64 immutable private CONTRACT_VERSION = 0x1;
+    uint64 immutable private CONTRACT_ID = 0x55577678999000;
+    // CONTRACT_ID_AND_VERSION = CONTRACT_ID | CONTRACT_VERSION
+    uint64 immutable private CONTRACT_ID_AND_VERSION = 0x55577678999001;
+
     event DepositCreated(uint256 id, address spender);
     event DepositExtended(uint256 id, address spender);
     event DepositClosed(uint256 id, address spender);
@@ -69,10 +74,22 @@ contract LockPayment is ILockPayment {
     // deposit is stored using arbitrary id
     mapping(uint256 => Deposit) public deposits;
 
-    // fees are stored using spender address
-    mapping(address => uint128) public funds;
     constructor(IERC20 _GLM) {
+        //check if consts are correct during deployment
+        require(CONTRACT_ID_AND_VERSION == CONTRACT_ID | CONTRACT_VERSION);
         GLM = _GLM;
+    }
+
+    function getContractID() public pure returns (uint64) {
+        return CONTRACT_ID;
+    }
+
+    function getContractVersion() public pure returns (uint64) {
+        return CONTRACT_VERSION;
+    }
+
+    function getIDAndVersion() public pure returns (uint64) {
+        return CONTRACT_ID_AND_VERSION;
     }
 
     function idFromNonce(uint64 nonce) public view returns (uint256) {
