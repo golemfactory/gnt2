@@ -3,13 +3,9 @@
   "version": "0.0.2",
   "private": true,
   "scripts": {
-    "build": "pnpm --filter gnt2-contracts run build",
-    "test": "pnpm wsrun --serial --exclude-missing test",
-    "lint": "pnpm wsrun lint",
-    "clean": "pnpm wsrun clean"
+    "build": "pnpm --filter gnt2-contracts run build"
   },
   "dependencies": {
-    "wsrun": "^5.2.0",
     "gnt2-contracts": "workspace:*",
     "gnt-docker-yagna": "workspace:*"
   }
