@@ -74,6 +74,7 @@ contract LockPayment is ILockPayment {
     event DepositTerminated(uint256 id, address spender);
 
     // deposit is stored using arbitrary id
+    // maybe should be private? But no point to hide it
     mapping(uint256 => Deposit) public deposits;
 
     constructor(IERC20 _GLM) {

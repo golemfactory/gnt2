@@ -11,6 +11,7 @@ import {GNTMigrationAgentFactory} from '../../build/contract-types/GNTMigrationA
 import {getChainId} from '../utils/network';
 
 const infuraAddress = 'https://rinkeby.infura.io/v3/e9c991e7745b46908ce2b091a4cf643a';
+//this address is compromised, use another
 const walletPrivateKeyAddress = '0xACE228774FDCDD8CEF12E94FE561747C7CD3601C9119AA389ECB43D9909E0BDC';
 
 const delay = 48 * 60 * 60;
