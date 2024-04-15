@@ -2,15 +2,11 @@
   "name": "@gnt2/monorepo",
   "version": "0.0.2",
   "private": true,
-  "workspaces": [
-    "gnt2-contracts",
-    "gnt2-docker-yagna"
-  ],
   "scripts": {
-    "build": "yarn wsrun --stages --fast-exit --exclude-missing build",
-    "test": "yarn wsrun --serial --exclude-missing test",
-    "lint": "yarn wsrun lint",
-    "clean": "yarn wsrun clean"
+    "build": "pnpm --filter gnt2-contracts run build",
+    "test": "pnpm wsrun --serial --exclude-missing test",
+    "lint": "pnpm wsrun lint",
+    "clean": "pnpm wsrun clean"
   },
   "dependencies": {
     "wsrun": "^5.2.0"
