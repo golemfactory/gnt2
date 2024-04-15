@@ -1,3 +1,10 @@
+**/*.pdf
+notes
+**/.idea
+**/.github
+**/.git
+**/.gitignore
+**/Dockerfile
 **/node_modules/
 **/dist
 .env
