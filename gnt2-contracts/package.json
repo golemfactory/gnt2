@@ -19,11 +19,11 @@
     "deploy:ngt2:dev": "ts-node src/deployment/deployAllRinkeby.ts"
   },
   "dependencies": {
-    "@types/node": "^20.5.9",
-    "chalk": "^2.4.2",
-    "ethers": "^5.7.2"
   },
   "devDependencies": {
+    "@types/node": "^20.5.9",
+    "chalk": "^2.4.2",
+    "ethers": "^5.7.2",
     "@openzeppelin/contracts": "2.5.0",
     "ethereum-waffle": "^4.0.10",
     "@ethereum-waffle/provider": "^4.0.5",
