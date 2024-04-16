@@ -69,7 +69,8 @@ async function start() {
 
   console.log("Approved LockPayment to transfer NGNT: " + tx);
   let lockPayment = factories.LockPayment__factory.connect(lockContract.address, provider.getSigner(wallets[0].address));
-  await lockPayment.createDeposit(1638, wallets[1].address, 100, 10, 0, 0);
+  let validiTo = Math.floor(Date.now() / 1000) + 3600; //1 hour
+  await lockPayment.createDeposit(1638, wallets[1].address, 100, 10, 0, validiTo);
   let view = await lockPayment.getMyDeposit(1638);
 
 
