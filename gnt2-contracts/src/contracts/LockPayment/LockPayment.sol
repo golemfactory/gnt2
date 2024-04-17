@@ -53,7 +53,7 @@ interface ILockPayment {
 
     function getDepositByNonce(uint64 nonce, address funder) external view returns (DepositView memory);
 
-    function getValidateABI() external pure returns (bytes);
+    function getValidateDepositSignature() external pure returns (string memory);
 }
 
 /**
@@ -225,5 +225,19 @@ contract LockPayment is ILockPayment {
     function depositTransferAndClose(uint256 id, bytes32[] calldata payments) public {
         depositTransfer(id, payments);
         closeDeposit(id);
+    }
+
+    function validateDeposit(uint256 id, address spender, uint128 amount, uint128 flatFeeAmount, int64 percentFee, uint64 validToTimestamp) public view returns (bool) {
+        Deposit memory deposit = deposits[id];
+        require(spender == deposit.spender, "msg.sender == deposit.spender");
+        require(amount == deposit.amount, "amount == deposit.amount");
+        require(flatFeeAmount == deposit.feeAmount, "flatFeeAmount == deposit.feeAmount");
+        require(percentFee == 0, "percentFee == 0 for this contract");
+        require(validToTimestamp < deposit.validTo, "validToTimestamp < deposit.validTo");
+        return true;
+    }
+
+    function getValidateDepositSignature() public pure returns (string memory) {
+        return "validateDeposit(uint256 id, address spender, uint128 amount, uint128 flatFeeAmount, int64 percentFee, uint64 validToTimestamp) public view returns (bool)";
     }
 }
