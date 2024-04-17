@@ -52,6 +52,8 @@ interface ILockPayment {
     function getDeposit(uint256 id) external view returns (DepositView memory);
 
     function getDepositByNonce(uint64 nonce, address funder) external view returns (DepositView memory);
+
+    function getValidateABI() external pure returns (bytes);
 }
 
 /**
