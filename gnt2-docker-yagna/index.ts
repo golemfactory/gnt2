@@ -66,16 +66,22 @@ async function start() {
 
   console.log("Creating deposit for wallet 1...");
   let GIGA = BigInt(1000000000);
-  let tx = await factories.NewGolemNetworkToken__factory.connect(newToken.address, provider.getSigner(wallets[0].address)).approve(lockContract.address, GIGA * GIGA * GIGA);
+  //funder actor of deposit, use wallet not used by yagna in goth tests
+  let funder = wallets[3].address;
+  let tx = await factories.NewGolemNetworkToken__factory.connect(newToken.address, provider.getSigner(funder)).approve(lockContract.address, GIGA * GIGA * GIGA);
 
   console.log("Approved LockPayment to transfer NGNT: " + tx);
-  let lockPayment = factories.LockPayment__factory.connect(lockContract.address, provider.getSigner(wallets[0].address));
-  let validiTo = Math.floor(Date.now() / 1000) + 3600; //1 hour
+  let lockPayment = factories.LockPayment__factory.connect(lockContract.address, provider.getSigner(funder));
+  let validTo = Math.floor(Date.now() / 1000) + 3600; //1 hour
 
-  await lockPayment.createDeposit(1638, "0xd1d84f0e28d6fedf03c73151f98df95139700aa7",  BigInt(100) * GIGA * GIGA, BigInt(10) * GIGA * GIGA, 0, validiTo);
+  await lockPayment.createDeposit(1638, "0x63fc2ad3d021a4d7e64323529a55a9442c444da0",  BigInt(100) * GIGA * GIGA, BigInt(10) * GIGA * GIGA, 0, validTo);
   let view = await lockPayment.getMyDeposit(1638);
-
-
+  console.log("Deposit created:\n  contract address: " + lockPayment.address + "\n  id: " + view.id._hex + "\n  spender: " + view.spender + "\n  funder: " + view.funder + "\n  amount: " + view.amount + "\n  fee: " + view.feeAmount + "\n  expiration: " + view.validTo);
+  await lockPayment.createDeposit(1639, "0x17ec8597ff92c3f44523bdc65bf0f1be632917ff",  BigInt(100) * GIGA * GIGA, BigInt(10) * GIGA * GIGA, 0, validTo);
+  view = await lockPayment.getMyDeposit(1639);
+  console.log("Deposit created:\n  contract address: " + lockPayment.address + "\n  id: " + view.id._hex + "\n  spender: " + view.spender + "\n  funder: " + view.funder + "\n  amount: " + view.amount + "\n  fee: " + view.feeAmount + "\n  expiration: " + view.validTo);
+  await lockPayment.createDeposit(1640, "0xd1d84f0e28d6fedf03c73151f98df95139700aa7",  BigInt(100) * GIGA * GIGA, BigInt(10) * GIGA * GIGA, 0, validTo);
+  view = await lockPayment.getMyDeposit(1640);
   console.log("Deposit created:\n  contract address: " + lockPayment.address + "\n  id: " + view.id._hex + "\n  spender: " + view.spender + "\n  funder: " + view.funder + "\n  amount: " + view.amount + "\n  fee: " + view.feeAmount + "\n  expiration: " + view.validTo);
 
   console.log("Finished successfully!")
