@@ -13,7 +13,7 @@
   "dependencies": {
     "big.js": "^5.2.2",
     "ethers": "^4.0.40",
-    "gnt2-contracts": "0.0.1",
+    "gnt2-contracts": "../gnt2-contracts/",
     "react": "^16.10.2",
     "react-dom": "^16.10.2",
     "react-hot-loader": "^4.12.15",

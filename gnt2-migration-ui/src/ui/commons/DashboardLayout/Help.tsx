@@ -15,7 +15,7 @@ export const Help = () => (
       </Video>
     </VideoContainer>
     <HelpLink
-      href="https://docs.golem.network/#/Products/Migrate/migration-guideline"
+      href="https://docs.golem.network/docs/golem/migrate/guideline"
       onClick={e => e.stopPropagation()}>Need more information? We got you covered.</HelpLink>
     <TrackerLink
       href="https://glm.golem.network/"

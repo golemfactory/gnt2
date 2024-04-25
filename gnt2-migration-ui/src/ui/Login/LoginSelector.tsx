@@ -38,7 +38,7 @@ export const LoginSelector = ({onMetamaskClick}: LoginSelectorProps) => {
         onChange={setIsChecked}
       >
         I have read and agree to the&nbsp;<Link
-          href='https://docs.golem.network/#/Products/Migrate/migration-terms-and-conditions'
+          href='https://docs.golem.network/docs/golem/migrate/terms'
           onClick={e => e.stopPropagation()}
         >&quot;Terms and Conditions&quot;</Link>
       </Checkbox>

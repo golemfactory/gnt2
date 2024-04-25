@@ -30,7 +30,7 @@ export const Footer = () => (
             <ContactCell>Reddit</ContactCell>
             <img alt='Navigate to Golem Reddit profile' src={whiteArrow}/>
           </ArrowCell>
-          <ArrowCell href="https://blog.golemproject.net/?gi=9ae7ace74474" target='_blank' rel="noopener noreferrer">
+          <ArrowCell href="https://blog.golem.network/?gi=9ae7ace74474" target='_blank' rel="noopener noreferrer">
             <ContactCell>Golem blog</ContactCell>
             <img alt='Navigate to Golem blog' src={whiteArrow}/>
           </ArrowCell>
