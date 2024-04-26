@@ -7,7 +7,7 @@ import {Dashboard} from './Dashboard';
 import {useServices} from './hooks/useServices';
 import {ConnectionState} from '../services/ConnectionService';
 import {useAsyncEffect} from './hooks/useAsyncEffect';
-import {BrowserRouter} from 'react-router-dom';
+import {HashRouter} from 'react-router-dom';
 
 const App: React.FC = () => {
   const [ready, setReady] = useState(false);
@@ -24,9 +24,9 @@ const App: React.FC = () => {
   if (!ready) return null;
 
   return (
-    <BrowserRouter>
+    <HashRouter>
       <Dashboard/>
-    </BrowserRouter>
+    </HashRouter>
   );
 };
 
