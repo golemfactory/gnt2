@@ -6,6 +6,7 @@ pragma solidity ^0.8.13;
  */
 interface IERC20 {
     function transfer(address to, uint256 amount) external returns (bool);
+
     function transferFrom(address from, address to, uint256 amount) external returns (bool);
 }
 
@@ -14,13 +15,6 @@ interface IERC20 {
   * - Spender - the address that spends the funds
   * - Funder - the address that deposits the funds
   */
-
-    struct Deposit {
-        address spender; //address that can spend the funds provided by customer
-        uint128 amount; //remaining funds locked
-        uint128 feeAmount; //fee amount locked for spender
-        uint64 validTo; //after this timestamp funds can be returned to customer
-    }
 
 interface ILockPayment {
     struct DepositView {
@@ -59,6 +53,13 @@ interface ILockPayment {
  */
 contract LockPayment is ILockPayment {
     IERC20 public GLM;
+
+    struct Deposit {
+        address spender; //address that can spend the funds provided by customer
+        uint128 amount; //remaining funds locked
+        uint128 feeAmount; //fee amount locked for spender
+        uint64 validTo; //after this timestamp funds can be returned to customer
+    }
 
     uint64 immutable public CONTRACT_VERSION = 0x2;
     uint64 immutable public CONTRACT_ID = 0x167583000; //6028800000
