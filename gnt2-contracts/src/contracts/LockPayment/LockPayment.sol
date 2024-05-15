@@ -159,6 +159,8 @@ contract LockPayment is ILockPayment {
         }
         deposits[id].amount = 0;
         deposits[id].feeAmount = 0;
+        //leave this in deposit to prevent recreating deposit with the same id
+        deposits[id].spender = 0x0000000000000000000000000000000000000Bad;
         emit DepositClosed(id, deposit.spender);
     }
 
@@ -173,6 +175,8 @@ contract LockPayment is ILockPayment {
         require(GLM.transfer(msg.sender, deposit.amount + deposit.feeAmount), "transfer failed");
         deposits[id].amount = 0;
         deposits[id].feeAmount = 0;
+        //leave this in deposit to prevent recreating deposit with the same id
+        deposits[id].spender = 0x0000000000000000000000000000000000000Bad;
         emit DepositTerminated(id, deposit.spender);
     }
 
