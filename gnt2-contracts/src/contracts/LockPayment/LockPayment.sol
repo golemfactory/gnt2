@@ -22,6 +22,7 @@ interface IERC20 {
         uint64 validTo; //after this timestamp funds can be returned to customer
     }
 
+interface ILockPayment {
     struct DepositView {
         uint256 id;     //unique id
         uint64 nonce;  //nonce unique for each funder
@@ -31,7 +32,6 @@ interface IERC20 {
         uint64 validTo; //after this timestamp funds can be returned to customer
     }
 
-interface ILockPayment {
     function closeDeposit(uint256 id) external;
 
     function terminateDeposit(uint64 nonce) external;
