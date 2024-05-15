@@ -56,7 +56,7 @@ contract LockPayment is ILockPayment {
 
     struct Deposit {
         address spender; //address that can spend the funds provided by customer
-        uint128 amount; //remaining funds locked
+        uint128 amount; //remaining funds locked (assuming max value 1 billion GLMs <=~ 2**90 gwei)
         uint128 feeAmount; //fee amount locked for spender
         uint64 validTo; //after this timestamp funds can be returned to customer
     }
@@ -82,11 +82,11 @@ contract LockPayment is ILockPayment {
         require(CONTRACT_ID_AND_VERSION == CONTRACT_ID | CONTRACT_VERSION);
         //id has special property that CONTRACT_ID | CONTRACT_VERSION == CONTRACT_ID + CONTRACT_VERSION
         require(CONTRACT_ID | CONTRACT_VERSION == CONTRACT_ID + CONTRACT_VERSION);
+        require(CONTRACT_ID ^ CONTRACT_VERSION == CONTRACT_ID + CONTRACT_VERSION);
         GLM = _GLM;
     }
 
     function idFromNonce(uint64 nonce) public view returns (uint256) {
-
         return idFromNonceAndFunder(nonce, msg.sender);
     }
 
