@@ -38,8 +38,6 @@ interface ILockPayment {
 
     function depositTransferAndClose(uint256 id, bytes32[] calldata payments) external;
 
-    function getMyDeposit(uint64 nonce) external view returns (DepositView memory);
-
     function getDeposit(uint256 id) external view returns (DepositView memory);
 
     function getDepositByNonce(uint64 nonce, address funder) external view returns (DepositView memory);
@@ -100,12 +98,6 @@ contract LockPayment is ILockPayment {
 
     function funderFromId(uint256 id) public pure returns (address) {
         return address(uint160(id >> 96));
-    }
-
-    function getMyDeposit(uint64 nonce) public view returns (DepositView memory) {
-        Deposit memory deposit = deposits[idFromNonce(nonce)];
-
-        return DepositView(idFromNonce(nonce), nonce, funderFromId(idFromNonce(nonce)), deposit.spender, deposit.amount, deposit.validTo);
     }
 
     function getDeposit(uint256 id) public view returns (DepositView memory) {
