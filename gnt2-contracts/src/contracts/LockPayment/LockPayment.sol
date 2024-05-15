@@ -117,18 +117,14 @@ contract LockPayment is ILockPayment {
     // spender - the address that is allowed to spend the funds regardless of time
     // amount - amount of GLM tokens to lock
     // flatFeeAmount - amount of GLM tokens given to spender (non-refundable). Fee is claimed by spender when called payoutSingle or payoutMultiple first time.
-    // percentFee - percent fee as percent of amount (given in parts/per million), so 1000 gives 0.1 %.
-    //              if given negative it is deducted from flatFeeAmount
-    //              IT IS NOT IMPLEMENTED IN THIS IMPLEMENTATION
-    // blockNo - block number until which funds are guaranteed to be locked for spender.
-    //           Spender still can use the funds after this block,
-    //           but customer can request the funds to be returned clearing deposit after (or equal to) this block number.
-    function createDeposit(uint64 nonce, address spender, uint128 amount, uint128 flatFeeAmount, int64 percentFee, uint64 validToTimestamp) public returns (uint256) {
+    // validToTimestamp - time until which funds are guaranteed to be locked for spender.
+    //           Spender still can use the funds after this timestamp,
+    //           but customer can request the funds to be returned clearing deposit after (or equal to) this timestamp.
+    function createDeposit(uint64 nonce, address spender, uint128 amount, uint128 flatFeeAmount, uint64 validToTimestamp) public returns (uint256) {
         //check if id is not used
         uint256 id = idFromNonce(nonce);
         require(deposits[id].amount == 0, "deposits[id].amount == 0");
         require(amount > 0, "amount > 0");
-        require(percentFee == 0, "percentFee == 0 for this contract");
         require(spender != address(0), "spender cannot be null address");
         require(msg.sender != spender, "spender cannot be funder");
         require(GLM.transferFrom(msg.sender, address(this), amount + flatFeeAmount), "transferFrom failed");
@@ -220,14 +216,13 @@ contract LockPayment is ILockPayment {
     }
 
     //validateDeposit - validate extra fields not covered by common validation
-    function validateDeposit(uint256 id, uint128 flatFeeAmount, int64 percentFee) public view {
+    function validateDeposit(uint256 id, uint128 flatFeeAmount) public view {
         Deposit memory deposit = deposits[id];
         require(flatFeeAmount == deposit.feeAmount, "flatFeeAmount == deposit.feeAmount");
-        require(percentFee == 0, "percentFee == 0 for this contract");
     }
 
     function getValidateDepositSignature() public pure returns (string memory) {
         // example implementation
-        return '[{"type": "uint256", "name": "id"}, {"type": "uint128", "name": "flatFeeAmount"}, {"type": "int64", "name": "percentFee"}]';
+        return '[{"type": "uint256", "name": "id"}, {"type": "uint128", "name": "flatFeeAmount"}]';
     }
 }
