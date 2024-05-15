@@ -30,7 +30,6 @@ interface IERC20 {
         address funder; //address that can spend the funds provided by customer
         address spender; //address that can spend the funds provided by customer
         uint128 amount; //remaining funds locked
-        uint128 feeAmount; //fee amount locked for spender
         uint64 validTo; //after this timestamp funds can be returned to customer
     }
 
@@ -63,12 +62,12 @@ interface ILockPayment {
 contract LockPayment is ILockPayment {
     IERC20 public GLM;
 
-    uint64 immutable public CONTRACT_VERSION = 0x1;
+    uint64 immutable public CONTRACT_VERSION = 0x2;
     uint64 immutable public CONTRACT_ID = 0x167583000; //6028800000
     // CONTRACT_ID_AND_VERSION = CONTRACT_ID ^ CONTRACT_VERSION
     // CONTRACT_ID_AND_VERSION = CONTRACT_ID | CONTRACT_VERSION
     // CONTRACT_ID_AND_VERSION = CONTRACT_ID + CONTRACT_VERSION
-    uint64 immutable public CONTRACT_ID_AND_VERSION = 0x167583001; //6028800001
+    uint64 immutable public CONTRACT_ID_AND_VERSION = 0x167583002; //6028800002
 
     event DepositCreated(uint256 id, address spender);
     event DepositExtended(uint256 id, address spender);
@@ -88,6 +87,7 @@ contract LockPayment is ILockPayment {
     }
 
     function idFromNonce(uint64 nonce) public view returns (uint256) {
+
         return idFromNonceAndFunder(nonce, msg.sender);
     }
 
@@ -105,18 +105,19 @@ contract LockPayment is ILockPayment {
 
     function getMyDeposit(uint64 nonce) public view returns (DepositView memory) {
         Deposit memory deposit = deposits[idFromNonce(nonce)];
-        return DepositView(idFromNonce(nonce), nonce, funderFromId(idFromNonce(nonce)), deposit.spender, deposit.amount, deposit.feeAmount, deposit.validTo);
+
+        return DepositView(idFromNonce(nonce), nonce, funderFromId(idFromNonce(nonce)), deposit.spender, deposit.amount, deposit.validTo);
     }
 
     function getDeposit(uint256 id) public view returns (DepositView memory) {
         Deposit memory deposit = deposits[id];
-        return DepositView(id, nonceFromId(id), funderFromId(id), deposit.spender, deposit.amount, deposit.feeAmount, deposit.validTo);
+        return DepositView(id, nonceFromId(id), funderFromId(id), deposit.spender, deposit.amount, deposit.validTo);
     }
 
     function getDepositByNonce(uint64 nonce, address funder) public view returns (DepositView memory) {
         uint256 id = idFromNonceAndFunder(nonce, funder);
         Deposit memory deposit = deposits[id];
-        return DepositView(id, nonceFromId(id), funderFromId(id), deposit.spender, deposit.amount, deposit.feeAmount, deposit.validTo);
+        return DepositView(id, nonceFromId(id), funderFromId(id), deposit.spender, deposit.amount, deposit.validTo);
     }
 
     // createDeposit - Customer locks funds for usage by spender
@@ -227,17 +228,15 @@ contract LockPayment is ILockPayment {
         closeDeposit(id);
     }
 
-    function validateDeposit(uint256 id, address spender, uint128 amount, uint128 flatFeeAmount, int64 percentFee, uint64 validToTimestamp) public view returns (bool) {
+    //validateDeposit - validate extra fields not covered by common validation
+    function validateDeposit(uint256 id, uint128 flatFeeAmount, int64 percentFee) public view {
         Deposit memory deposit = deposits[id];
-        require(spender == deposit.spender, "msg.sender == deposit.spender");
-        require(amount == deposit.amount, "amount == deposit.amount");
         require(flatFeeAmount == deposit.feeAmount, "flatFeeAmount == deposit.feeAmount");
         require(percentFee == 0, "percentFee == 0 for this contract");
-        require(validToTimestamp < deposit.validTo, "validToTimestamp < deposit.validTo");
-        return true;
     }
 
     function getValidateDepositSignature() public pure returns (string memory) {
-        return "validateDeposit(uint256 id, address spender, uint128 amount, uint128 flatFeeAmount, int64 percentFee, uint64 validToTimestamp) public view returns (bool)";
+        // example implementation
+        return '[{"type": "uint256", "name": "id"}, {"type": "uint128", "name": "flatFeeAmount"}, {"type": "int64", "name": "percentFee"}]';
     }
 }
