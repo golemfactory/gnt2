@@ -11,10 +11,11 @@
     "build:gntd": "pnpm waffle .waffle-GNTD.json",
     "build:multisig": "pnpm waffle .waffle-MultiSigWallet.json",
     "build:multitransfer": "pnpm waffle .waffle-MultiTransfer.json",
+    "build:wrappercall": "pnpm waffle .waffle-WrapperCall.json",
     "build:zksync": "pnpm waffle .waffle-zkSync.json",
     "build:lock": "pnpm waffle .waffle-LockPayment.json",
     "build:types": "typechain --target ethers-v5 --out-dir build/contract-types 'build/**/*.json'",
-    "build": "pnpm build:lock && pnpm build:gnt && pnpm build:gnt2 && pnpm build:gntb && pnpm build:gntd && pnpm build:multisig && pnpm build:zksync && pnpm build:multitransfer && pnpm build:types",
+    "build": "pnpm build:wrappercall && pnpm build:lock && pnpm build:gnt && pnpm build:gnt2 && pnpm build:gntb && pnpm build:gntd && pnpm build:multisig && pnpm build:zksync && pnpm build:multitransfer && pnpm build:types",
     "clean": "rimraf build dist",
     "deploy:ngt2:dev": "ts-node src/deployment/deployAllRinkeby.ts"
   },
