@@ -4,11 +4,6 @@ pragma solidity ^0.8.13;
 struct BlockDetails {
     uint256 number;
     uint256 timestamp;
-    uint256 difficulty;
-    uint256 gaslimit;
-    address coinbase;
-    bytes32 blockhash;
-    uint256 basefee;
 }
 
 struct CallWithDetailsResult {
@@ -28,12 +23,7 @@ contract WrapperCall {
     function detailsOnly() external view returns (BlockDetails memory) {
         BlockDetails memory details = BlockDetails({
             number: block.number,
-            timestamp: block.timestamp,
-            difficulty: block.difficulty,
-            gaslimit: block.gaslimit,
-            coinbase: block.coinbase,
-            blockhash: blockhash(block.number),
-            basefee: block.basefee
+            timestamp: block.timestamp
         });
 
         return details;
@@ -46,12 +36,7 @@ contract WrapperCall {
 
         BlockDetails memory details = BlockDetails({
             number: block.number,
-            timestamp: block.timestamp,
-            difficulty: block.difficulty,
-            gaslimit: block.gaslimit,
-            coinbase: block.coinbase,
-            blockhash: blockhash(block.number),
-            basefee: block.basefee
+            timestamp: block.timestamp
         });
 
         // Check if the call was successful
@@ -76,12 +61,7 @@ contract WrapperCall {
 
         BlockDetails memory details = BlockDetails({
             number: block.number,
-            timestamp: block.timestamp,
-            difficulty: block.difficulty,
-            gaslimit: block.gaslimit,
-            coinbase: block.coinbase,
-            blockhash: blockhash(block.number),
-            basefee: block.basefee
+            timestamp: block.timestamp
         });
 
         return MultiCallWithDetailsResult(details, results);
