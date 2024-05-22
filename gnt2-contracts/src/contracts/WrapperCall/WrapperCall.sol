@@ -25,6 +25,20 @@ contract WrapperCall {
     constructor() {
     }
 
+    function detailsOnly() external view returns (BlockDetails memory) {
+        BlockDetails memory details = BlockDetails({
+            number: block.number,
+            timestamp: block.timestamp,
+            difficulty: block.difficulty,
+            gaslimit: block.gaslimit,
+            coinbase: block.coinbase,
+            blockhash: blockhash(block.number),
+            basefee: block.basefee
+        });
+
+        return details;
+    }
+
     function callWithDetails(address externalContractAddress, bytes calldata callData) external returns (CallWithDetailsResult memory) {
         (bool success, bytes memory data) = externalContractAddress.call(
             callData
