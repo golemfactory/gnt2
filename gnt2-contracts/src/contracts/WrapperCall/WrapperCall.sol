@@ -32,7 +32,8 @@ contract WrapperCall {
             block.number,
             block.timestamp,
             msg.sender.balance,
-            result);
+            result
+        );
     }
 
     struct MultiCallWithDetailsResult {
@@ -43,7 +44,7 @@ contract WrapperCall {
         bytes[] callResults;
     }
 
-    // Call an external contracts with the provided calls data and return the result along with useful details
+    // Call multiple external contracts with the provided calls data and return the result along with useful details
     function multiCallWithDetails(address[] calldata externalContractAddresses, bytes[] calldata callDataArray) external returns (MultiCallWithDetailsResult memory) {
         require(externalContractAddresses.length == callDataArray.length, "Arrays must be of equal length");
         require(externalContractAddresses.length > 0, "Arrays must not be empty");
@@ -66,7 +67,8 @@ contract WrapperCall {
             block.number,
             block.timestamp,
             msg.sender.balance,
-            results);
+            results
+        );
     }
 
     // Standard multicall for chaining transactions
