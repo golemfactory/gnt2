@@ -56,6 +56,10 @@ async function start() {
   const lockContract = await new factories.LockPayment__factory(deployWallet).deploy(newToken.address);
   console.log(`LockPayment deployed at address: ${lockContract.address}`);
 
+  console.log("Deploying Wrapper contract ...");
+  const wrapperContract = await new factories.WrapperCall__factory(deployWallet).deploy();
+  console.log(`Wrapper deployed at address: ${wrapperContract.address}`);
+
   console.log("Supplying wallets with NGNT...");
   for (const wallet of wallets) {
     await factories.NGNTFaucet__factory.connect(faucet.address, provider.getSigner(wallet.address)).create();
