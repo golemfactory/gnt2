@@ -78,15 +78,15 @@ async function start() {
   let lockPayment = factories.LockPayment__factory.connect(lockContract.address, provider.getSigner(funder));
   let validTo = Math.floor(Date.now() / 1000) + 3600; //1 hour
 
-  await lockPayment.createDeposit(1638, "0x63fc2ad3d021a4d7e64323529a55a9442c444da0",  BigInt(100) * GIGA * GIGA, BigInt(10) * GIGA * GIGA, 0, validTo);
-  let view = await lockPayment.getMyDeposit(1638);
-  console.log("Deposit created:\n  contract address: " + lockPayment.address + "\n  id: " + view.id._hex + "\n  spender: " + view.spender + "\n  funder: " + view.funder + "\n  amount: " + view.amount + "\n  fee: " + view.feeAmount + "\n  expiration: " + view.validTo);
-  await lockPayment.createDeposit(1639, "0x17ec8597ff92c3f44523bdc65bf0f1be632917ff",  BigInt(100) * GIGA * GIGA, BigInt(10) * GIGA * GIGA, 0, validTo);
-  view = await lockPayment.getMyDeposit(1639);
-  console.log("Deposit created:\n  contract address: " + lockPayment.address + "\n  id: " + view.id._hex + "\n  spender: " + view.spender + "\n  funder: " + view.funder + "\n  amount: " + view.amount + "\n  fee: " + view.feeAmount + "\n  expiration: " + view.validTo);
-  await lockPayment.createDeposit(1640, "0xd1d84f0e28d6fedf03c73151f98df95139700aa7",  BigInt(100) * GIGA * GIGA, BigInt(10) * GIGA * GIGA, 0, validTo);
-  view = await lockPayment.getMyDeposit(1640);
-  console.log("Deposit created:\n  contract address: " + lockPayment.address + "\n  id: " + view.id._hex + "\n  spender: " + view.spender + "\n  funder: " + view.funder + "\n  amount: " + view.amount + "\n  fee: " + view.feeAmount + "\n  expiration: " + view.validTo);
+  await lockPayment.createDeposit(1638, "0x63fc2ad3d021a4d7e64323529a55a9442c444da0",  BigInt(100) * GIGA * GIGA, BigInt(10) * GIGA * GIGA, validTo);
+  let view = await lockPayment.getDepositByNonce(1638, funder);
+  console.log("Deposit created:\n  contract address: " + lockPayment.address + "\n  id: " + view.id._hex + "\n  spender: " + view.spender + "\n  funder: " + view.funder + "\n  amount: " + view.amount + "\n  expiration: " + view.validTo);
+  await lockPayment.createDeposit(1639, "0x17ec8597ff92c3f44523bdc65bf0f1be632917ff",  BigInt(100) * GIGA * GIGA, BigInt(10) * GIGA * GIGA, validTo);
+  view = await lockPayment.getDepositByNonce(1639, funder);
+  console.log("Deposit created:\n  contract address: " + lockPayment.address + "\n  id: " + view.id._hex + "\n  spender: " + view.spender + "\n  funder: " + view.funder + "\n  amount: " + view.amount + "\n  expiration: " + view.validTo);
+  await lockPayment.createDeposit(1640, "0xd1d84f0e28d6fedf03c73151f98df95139700aa7",  BigInt(100) * GIGA * GIGA, BigInt(10) * GIGA * GIGA, validTo);
+  view = await lockPayment.getDepositByNonce(1640, funder);
+  console.log("Deposit created:\n  contract address: " + lockPayment.address + "\n  id: " + view.id._hex + "\n  spender: " + view.spender + "\n  funder: " + view.funder + "\n  amount: " + view.amount + "\n  expiration: " + view.validTo);
 
   console.log("Finished successfully!")
 }
