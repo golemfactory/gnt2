@@ -70,7 +70,8 @@ contract LockPayment is ILockPayment {
     event DepositExtended(uint256 id, address spender);
     event DepositClosed(uint256 id, address spender);
     event DepositTerminated(uint256 id, address spender);
-
+    event DepositFeeTransfer(uint256 id, address spender, uint128 amount);
+    event DepositTransfer(uint256 id, address spender, address recipient, uint128 amount);
     // deposit is stored using arbitrary id
     // maybe should be private? But no point to hide it
     mapping(uint256 => Deposit) public deposits;
@@ -155,6 +156,7 @@ contract LockPayment is ILockPayment {
         require(GLM.transfer(funderFromId(id), deposit.amount + deposit.feeAmount), "return transfer failed");
         if (deposit.feeAmount > 0) {
             require(GLM.transfer(deposit.spender, deposit.feeAmount), "fee transfer failed");
+            emit DepositFeeTransfer(id, deposit.spender, deposit.feeAmount);
             deposit.feeAmount = 0;
         }
         deposits[id].amount = 0;
@@ -204,6 +206,7 @@ contract LockPayment is ILockPayment {
             require(addr != deposit.spender, "cannot transfer to spender");
             require(GLM.transfer(addr, amount), "GLM transfer failed");
             require(deposit.amount >= amount, "deposit.amount >= amount");
+            emit DepositTransfer(id, deposit.spender, addr, amount);
             deposit.amount -= amount;
         }
 
