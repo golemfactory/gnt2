@@ -153,7 +153,7 @@ contract LockPayment is ILockPayment {
         // customer cannot return funds before block_no
         // sender can return funds at any time
         require(msg.sender == deposit.spender);
-        require(GLM.transfer(funderFromId(id), deposit.amount + deposit.feeAmount), "return transfer failed");
+        require(GLM.transfer(funderFromId(id), deposit.amount ), "return transfer failed");
         if (deposit.feeAmount > 0) {
             require(GLM.transfer(deposit.spender, deposit.feeAmount), "fee transfer failed");
             emit DepositFeeTransfer(id, deposit.spender, deposit.feeAmount);
