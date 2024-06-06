@@ -1,0 +1,3 @@
+[submodule "gnt2-contracts/src/contracts/LockPayment/lib/forge-std"]
+	path = gnt2-contracts/src/contracts/LockPayment/lib/forge-std
+	url = https://github.com/foundry-rs/forge-std
