@@ -188,6 +188,7 @@ contract LockPayment is ILockPayment {
         require(addr != deposit.spender, "cannot transfer to spender");
         require(GLM.transfer(addr, amount), "GLM transfer failed");
         require(deposit.amount >= amount, "deposit.amount >= amount");
+        emit DepositTransfer(id, deposit.spender, addr, amount);
         deposit.amount -= amount;
         deposits[id].amount = deposit.amount;
     }
