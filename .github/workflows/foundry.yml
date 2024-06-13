@@ -14,7 +14,7 @@ jobs:
         uses: foundry-rs/foundry-toolchain@v1
 
       - name: Run tests
-        run: forge test -vvv
+        run: cd gnt2-contracts && forge test -vvv
 
       - name: Run snapshot
         run: forge snapshot
