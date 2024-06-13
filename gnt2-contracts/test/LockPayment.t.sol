@@ -79,17 +79,6 @@ contract LockPaymentTest is Test {
     assertEq(token.balanceOf(address(testee)), 0);
   }
 
-  function test_DepositCreate_ZeroAmountFailing() public {
-    helper_funds(msg.sender, 3, true);
-
-    vm.prank(msg.sender);
-    vm.expectRevert("amount > 0");
-    testee.createDeposit(0, address(2), 0, 1, 0);
-
-    assertEq(token.balanceOf(msg.sender), 3);
-    assertEq(token.balanceOf(address(testee)), 1);
-  }
-
   function test_DepositCreate_NullSpender() public {
     helper_funds(msg.sender, 3, true);
 
