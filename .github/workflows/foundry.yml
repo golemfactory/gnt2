@@ -18,5 +18,5 @@ jobs:
 
       - name: Run snapshot
         if: success() || failure()
-        run: forge snapshot
+        run: cd gnt2-contracts && forge snapshot
 
