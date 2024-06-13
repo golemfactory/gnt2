@@ -3,7 +3,7 @@ pragma solidity ^0.8.13;
 import "forge-std/console.sol";
 import "forge-std/Test.sol";
 import "forge-std/mocks/MockERC20.sol";
-import {ILockPayment, LockPayment, IERC20 as L_IERC20} from "../LockPayment.sol";
+import {ILockPayment, LockPayment, IERC20 as L_IERC20} from "../src/contracts/LockPayment/LockPayment.sol";
 
 contract MockToken is MockERC20 {
   constructor(string memory name, string memory symbol, uint8 decimals) {
