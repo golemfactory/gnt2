@@ -2,9 +2,8 @@
 # do not include all contracts
 src = "src/dummy"
 # Inlucde only contracts in the following paths
-include_paths = ["src/contracts/GNT2", "src/contracts/LockPayment", "src/contracts/MultiTransfer", "src/contracts/WrapperCall"]
+include_paths = ["test", "src/contracts/GNT2", "src/contracts/LockPayment", "src/contracts/MultiTransfer", "src/contracts/WrapperCall"]
 out = "out"
-libs = ["node_modules", "lib"]
 remappings = ["@openzeppelin/=node_modules/@openzeppelin/"]
 # See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options
 ignored_warnings_from = ["src/contracts/currentlyDeployed/GNT/Token.sol", "src/contracts/currentlyDeployed/MultiSigWallet/MultiSigWallet.sol"]
