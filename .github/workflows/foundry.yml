@@ -1,0 +1,13 @@
+name: Foundry test suite
+on: [push]
+
+jobs:
+  solidity-tests:
+    name: Run solidity tests in foundry
+    runs-on: ubuntu-latest
+    steps:
+      - name: Copy Repo Files
+        uses: actions/checkout@v4
+      - name: Install foundry
+        run: |
+          curl -L https://foundry.paradigm.xyz | bash
