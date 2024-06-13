@@ -3,7 +3,7 @@ pragma solidity ^0.8.13;
 import "forge-std/console.sol";
 import "forge-std/Test.sol";
 import "forge-std/mocks/MockERC20.sol";
-import {LockPayment, IERC20 as L_IERC20} from "../LockPayment.sol";
+import {ILockPayment, LockPayment, IERC20 as L_IERC20} from "../LockPayment.sol";
 
 contract LockPaymentTest is Test {
   MockERC20 internal token;
@@ -24,10 +24,18 @@ contract LockPaymentTest is Test {
     emit LockPayment.DepositCreated(expectedId, expectedSpender);
 
     vm.prank(msg.sender);
-    testee.createDeposit(0, address(2), 2, 1, 0);
+    uint256 depositId = testee.createDeposit(0, address(2), 2, 1, 0);
 
+    assertEq(depositId, expectedId);
     assertEq(token.balanceOf(msg.sender), 0);
     assertEq(token.balanceOf(address(testee)), 3);
+
+    ILockPayment.DepositView memory deposit = testee.getDeposit(depositId);
+    assertEq(deposit.id, depositId);
+    assertEq(deposit.funder, msg.sender);
+    assertEq(deposit.spender, expectedSpender);
+    assertEq(deposit.amount, 2);
+    assertEq(deposit.validTo, 0);
   }
 
   function test_DepositCreate_NonceReused() public {
@@ -88,10 +96,27 @@ contract LockPaymentTest is Test {
     vm.prank(msg.sender);
     uint256 depositId = testee.createDeposit(12, spender, 2, 1, 0);
     assertEq(token.balanceOf(msg.sender), 0);
+    assertEq(token.balanceOf(spender), 0);
     assertEq(token.balanceOf(address(testee)), 3);
+
+    vm.expectEmit();
+    emit LockPayment.DepositFeeTransfer(depositId, spender, 1);
+    vm.expectEmit();
+    emit LockPayment.DepositClosed(depositId, spender);
 
     vm.prank(spender);
     testee.closeDeposit(depositId);
+
+    assertEq(token.balanceOf(msg.sender), 2);
+    assertEq(token.balanceOf(spender), 1);
+    assertEq(token.balanceOf(address(testee)), 0);
+
+    ILockPayment.DepositView memory deposit = testee.getDeposit(depositId);
+    assertEq(deposit.id, depositId);
+    assertEq(deposit.funder, msg.sender);
+    assertEq(deposit.spender, address(0xBad));
+    assertEq(deposit.amount, 0);
+    assertEq(deposit.validTo, 0);
   }
 
   function helper_funds(address addr, uint256 amount, bool approve_testee) internal {
