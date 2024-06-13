@@ -1,0 +1,29 @@
+name: Foundry test suite
+on: [push]
+
+jobs:
+  solidity-tests:
+    name: Run solidity tests in foundry
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+
+      - name: Run tests
+        run: cd gnt2-contracts && forge test -vvv
+
+      - name: Run snapshot
+        run: cd gnt2-contracts && forge snapshot
+
+      - name: Upload snapshot
+        uses: actions/upload-artifact@v4
+        with:
+          name: gas-snapshot.txt
+          path: gnt2-contracts/.gas-snapshot
+
+
+
