@@ -17,5 +17,6 @@ jobs:
         run: cd gnt2-contracts && forge test -vvv
 
       - name: Run snapshot
+        if: success() || failure()
         run: forge snapshot
-        ignore-errors: true
+
