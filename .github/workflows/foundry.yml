@@ -17,6 +17,13 @@ jobs:
         run: cd gnt2-contracts && forge test -vvv
 
       - name: Run snapshot
-        if: success() || failure()
         run: cd gnt2-contracts && forge snapshot
+
+      - name: Upload snapshot
+        uses: actions/upload-artifact@v4
+        with:
+          name: gas-snapshot.txt
+          path: gnt2-contracts/.gas-snapshot
+
+
 
