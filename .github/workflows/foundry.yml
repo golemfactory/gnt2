@@ -18,4 +18,4 @@ jobs:
 
       - name: Run snapshot
         run: forge snapshot
-        continue-on-error: true
+        ignore-errors: true
