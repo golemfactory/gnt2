@@ -1,39 +1,23 @@
 # gnt2
 The new incarnation of the Golem Network Token
 
-After library update gnt2-migration-ui won't work
+# gnt2-migration-ui 
+
+It was gnt2 migration UI used for migrating token, no longer needed and not working right now
 
 Go back to https://github.com/golemfactory/gnt2/tree/legacy to last working version with old node libraries
 
-Right now library is only used for Goth tests
+# gnt2-contracts
 
-## System requirements
+Project for contract creation, compilation and testing
 
-1. [ `Node.js` ](https://nodejs.org/en/), suggested using [ `nvm` ](https://github.com/nvm-sh/nvm)
-2. [ `yarn` ](https://classic.yarnpkg.com/en/)
+# gnt2-docker-yagna
+
+Docker image and script for running GOTH tests. 
+You can deploy contracts based scripts located there or using foundry directly from gnt2-contracts
 
 ## Setup
 
-**Install dependencies**
+Check .github\workflows\main.yml for setup example
 
-``` console
-yarn install --frozen-lockfile
-```
-
-**Build**
-
-``` console
-yarn build                    
-```
-
-**Run tests**
-
-``` console
-yarn test
-```
-
-**Linter**
-
-``` console
-yarn lint
-```
+Use foundry for testing, look at .github\workflows\foundry.yml for example
