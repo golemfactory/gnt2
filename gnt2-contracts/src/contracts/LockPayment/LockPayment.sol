@@ -114,7 +114,7 @@ contract LockPayment is ILockPayment {
 
     // createDeposit - Customer locks funds for usage by spender
     //
-    // id - unique id (build from Funder address and nonce)
+    // nonce - used to build unique id (from Funder address and nonce)
     // spender - the address that is allowed to spend the funds regardless of time
     // amount - amount of GLM tokens to lock
     // flatFeeAmount - amount of GLM tokens given to spender (non-refundable). Fee is claimed by spender when called payoutSingle or payoutMultiple first time.
@@ -236,7 +236,7 @@ contract LockPayment is ILockPayment {
     }
 
     function getValidateDepositSignature() external pure returns (string memory) {
-        // example implementation
+        // this signature may be different if other compatible fee scheme is deployed
         return '[{"type": "uint256", "name": "id"}, {"type": "uint128", "name": "flatFeeAmount"}]';
     }
 }
