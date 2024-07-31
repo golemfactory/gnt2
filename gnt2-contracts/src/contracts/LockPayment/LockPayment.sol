@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.13;
+pragma solidity 0.8.26;
 
 /**
  * Out of the IERC20 interface, only the transfer and transferFrom functions are used.
@@ -129,22 +129,22 @@ contract LockPayment is ILockPayment {
         require(amount > 0, "amount > 0");
         require(spender != address(0), "spender cannot be null address");
         require(msg.sender != spender, "spender cannot be funder");
-        require(GLM.transferFrom(msg.sender, address(this), amount + flatFeeAmount), "transferFrom failed");
         deposits[id] = Deposit(spender, amount, flatFeeAmount, validToTimestamp);
         emit DepositCreated(id, spender);
+        require(GLM.transferFrom(msg.sender, address(this), amount + flatFeeAmount), "transferFrom failed");
         return id;
     }
 
     function extendDeposit(uint64 nonce, uint128 additionalAmount, uint128 additionalFlatFee, uint64 validToTimestamp) public {
         uint256 id = idFromNonce(nonce);
         Deposit memory deposit = deposits[id];
+        emit DepositExtended(id, deposit.spender);
         require(GLM.transferFrom(msg.sender, address(this), additionalAmount + additionalFlatFee), "transferFrom failed");
         require(deposit.validTo <= validToTimestamp, "deposit.validTo <= validTo");
         deposit.amount += additionalAmount;
         deposit.feeAmount += additionalFlatFee;
         deposit.validTo = validToTimestamp;
         deposits[id] = deposit;
-        emit DepositExtended(id, deposit.spender);
     }
 
     // Spender can close deposit anytime claiming fee and returning rest of funds to Funder
@@ -153,6 +153,7 @@ contract LockPayment is ILockPayment {
         // customer cannot return funds before block_no
         // sender can return funds at any time
         require(msg.sender == deposit.spender);
+        emit DepositClosed(id, deposit.spender);
         require(GLM.transfer(funderFromId(id), deposit.amount ), "return transfer failed");
         if (deposit.feeAmount > 0) {
             require(GLM.transfer(deposit.spender, deposit.feeAmount), "fee transfer failed");
@@ -163,7 +164,6 @@ contract LockPayment is ILockPayment {
         deposits[id].feeAmount = 0;
         //leave this in deposit to prevent recreating deposit with the same id
         deposits[id].spender = 0x0000000000000000000000000000000000000Bad;
-        emit DepositClosed(id, deposit.spender);
     }
 
     // Funder can terminate deposit after validTo date elapses
@@ -174,21 +174,21 @@ contract LockPayment is ILockPayment {
         require(funderFromId(id) == msg.sender, "funderFromId(id) == msg.sender");
         // Check for time condition
         require(deposit.validTo < block.timestamp, "deposit.validTo < block.timestamp");
+        emit DepositTerminated(id, deposit.spender);
         require(GLM.transfer(msg.sender, deposit.amount + deposit.feeAmount), "transfer failed");
         deposits[id].amount = 0;
         deposits[id].feeAmount = 0;
         //leave this in deposit to prevent recreating deposit with the same id
         deposits[id].spender = 0x0000000000000000000000000000000000000Bad;
-        emit DepositTerminated(id, deposit.spender);
     }
 
     function depositSingleTransfer(uint256 id, address addr, uint128 amount) public {
         Deposit memory deposit = deposits[id];
         require(msg.sender == deposit.spender, "msg.sender == deposit.spender");
         require(addr != deposit.spender, "cannot transfer to spender");
+        emit DepositTransfer(id, deposit.spender, addr, amount);
         require(GLM.transfer(addr, amount), "GLM transfer failed");
         require(deposit.amount >= amount, "deposit.amount >= amount");
-        emit DepositTransfer(id, deposit.spender, addr, amount);
         deposit.amount -= amount;
         deposits[id].amount = deposit.amount;
     }
@@ -205,9 +205,9 @@ contract LockPayment is ILockPayment {
             address addr = address(bytes20(payment));
             uint128 amount = uint128(uint256(payment) % 2 ** 96);
             require(addr != deposit.spender, "cannot transfer to spender");
+            emit DepositTransfer(id, deposit.spender, addr, amount);
             require(GLM.transfer(addr, amount), "GLM transfer failed");
             require(deposit.amount >= amount, "deposit.amount >= amount");
-            emit DepositTransfer(id, deposit.spender, addr, amount);
             deposit.amount -= amount;
         }
 
