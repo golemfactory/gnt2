@@ -54,9 +54,9 @@ contract LockPayment is ILockPayment {
 
     struct Deposit {
         address spender; //address that can spend the funds provided by customer
+        uint64 validTo; //after this timestamp funds can be returned to customer
         uint128 amount; //remaining funds locked (assuming max value 1 billion GLMs <=~ 2**90 gwei)
         uint128 feeAmount; //fee amount locked for spender
-        uint64 validTo; //after this timestamp funds can be returned to customer
     }
 
     uint64 immutable public CONTRACT_VERSION = 0x2;
@@ -76,9 +76,8 @@ contract LockPayment is ILockPayment {
     // maybe should be private? But no point to hide it
     mapping(uint256 => Deposit) public deposits;
 
-    // nly strictly ERC20 compliant tokens are supported
+    // only strictly ERC20 compliant tokens are supported
     constructor(IERC20 _GLM) {
-        //check if consts are correct during deployment
         require(CONTRACT_ID_AND_VERSION == CONTRACT_ID | CONTRACT_VERSION);
         //id has special property that CONTRACT_ID | CONTRACT_VERSION == CONTRACT_ID + CONTRACT_VERSION
         require(CONTRACT_ID | CONTRACT_VERSION == CONTRACT_ID + CONTRACT_VERSION);
@@ -110,7 +109,7 @@ contract LockPayment is ILockPayment {
     function getDepositByNonce(uint64 nonce, address funder) external view returns (DepositView memory) {
         uint256 id = idFromNonceAndFunder(nonce, funder);
         Deposit memory deposit = deposits[id];
-        return DepositView(id, nonceFromId(id), funderFromId(id), deposit.spender, deposit.amount, deposit.validTo);
+        return DepositView(id, nonce, funder, deposit.spender, deposit.amount, deposit.validTo);
     }
 
     // createDeposit - Customer locks funds for usage by spender
@@ -130,7 +129,7 @@ contract LockPayment is ILockPayment {
         require(amount > 0, "amount > 0");
         require(spender != address(0), "spender cannot be null address");
         require(msg.sender != spender, "spender cannot be funder");
-        deposits[id] = Deposit(spender, amount, flatFeeAmount, validToTimestamp);
+        deposits[id] = Deposit(spender, validToTimestamp, amount, flatFeeAmount);
         emit DepositCreated(id, spender);
         require(GLM.transferFrom(msg.sender, address(this), amount + flatFeeAmount), "transferFrom failed");
         return id;
@@ -162,7 +161,6 @@ contract LockPayment is ILockPayment {
             deposit.feeAmount = 0;
         }
         deposits[id].amount = 0;
-        deposits[id].feeAmount = 0;
         //leave this in deposit to prevent recreating deposit with the same id
         deposits[id].spender = 0x0000000000000000000000000000000000000Bad;
     }
