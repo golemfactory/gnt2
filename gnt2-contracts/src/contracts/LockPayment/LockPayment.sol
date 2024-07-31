@@ -50,7 +50,7 @@ interface ILockPayment {
  * Be careful when interacting with this contract, because it has no exit mechanism. Any assets sent directly to this contract will be lost.
  */
 contract LockPayment is ILockPayment {
-    IERC20 public GLM;
+    IERC20 public immutable GLM;
 
     struct Deposit {
         address spender; //address that can spend the funds provided by customer
@@ -66,16 +66,17 @@ contract LockPayment is ILockPayment {
     // CONTRACT_ID_AND_VERSION = CONTRACT_ID + CONTRACT_VERSION
     uint64 immutable public CONTRACT_ID_AND_VERSION = 0x167583002; //6028800002
 
-    event DepositCreated(uint256 id, address spender);
-    event DepositExtended(uint256 id, address spender);
-    event DepositClosed(uint256 id, address spender);
-    event DepositTerminated(uint256 id, address spender);
-    event DepositFeeTransfer(uint256 id, address spender, uint128 amount);
-    event DepositTransfer(uint256 id, address spender, address recipient, uint128 amount);
+    event DepositCreated(uint256 indexed id, address spender);
+    event DepositExtended(uint256 indexed id, address spender);
+    event DepositClosed(uint256 indexed id, address spender);
+    event DepositTerminated(uint256 indexed id, address spender);
+    event DepositFeeTransfer(uint256 indexed id, address spender, uint128 amount);
+    event DepositTransfer(uint256 indexed id, address spender, address recipient, uint128 amount);
     // deposit is stored using arbitrary id
     // maybe should be private? But no point to hide it
     mapping(uint256 => Deposit) public deposits;
 
+    // nly strictly ERC20 compliant tokens are supported
     constructor(IERC20 _GLM) {
         //check if consts are correct during deployment
         require(CONTRACT_ID_AND_VERSION == CONTRACT_ID | CONTRACT_VERSION);
@@ -101,12 +102,12 @@ contract LockPayment is ILockPayment {
         return address(uint160(id >> 96));
     }
 
-    function getDeposit(uint256 id) public view returns (DepositView memory) {
+    function getDeposit(uint256 id) external view returns (DepositView memory) {
         Deposit memory deposit = deposits[id];
         return DepositView(id, nonceFromId(id), funderFromId(id), deposit.spender, deposit.amount, deposit.validTo);
     }
 
-    function getDepositByNonce(uint64 nonce, address funder) public view returns (DepositView memory) {
+    function getDepositByNonce(uint64 nonce, address funder) external view returns (DepositView memory) {
         uint256 id = idFromNonceAndFunder(nonce, funder);
         Deposit memory deposit = deposits[id];
         return DepositView(id, nonceFromId(id), funderFromId(id), deposit.spender, deposit.amount, deposit.validTo);
@@ -121,7 +122,7 @@ contract LockPayment is ILockPayment {
     // validToTimestamp - time until which funds are guaranteed to be locked for spender.
     //           Spender still can use the funds after this timestamp,
     //           but customer can request the funds to be returned clearing deposit after (or equal to) this timestamp.
-    function createDeposit(uint64 nonce, address spender, uint128 amount, uint128 flatFeeAmount, uint64 validToTimestamp) public returns (uint256) {
+    function createDeposit(uint64 nonce, address spender, uint128 amount, uint128 flatFeeAmount, uint64 validToTimestamp) external returns (uint256) {
         //check if id is not used
         uint256 id = idFromNonce(nonce);
         //this checks if deposit is not already created with this id
@@ -135,16 +136,16 @@ contract LockPayment is ILockPayment {
         return id;
     }
 
-    function extendDeposit(uint64 nonce, uint128 additionalAmount, uint128 additionalFlatFee, uint64 validToTimestamp) public {
+    function extendDeposit(uint64 nonce, uint128 additionalAmount, uint128 additionalFlatFee, uint64 validToTimestamp) external {
         uint256 id = idFromNonce(nonce);
         Deposit memory deposit = deposits[id];
         emit DepositExtended(id, deposit.spender);
-        require(GLM.transferFrom(msg.sender, address(this), additionalAmount + additionalFlatFee), "transferFrom failed");
         require(deposit.validTo <= validToTimestamp, "deposit.validTo <= validTo");
         deposit.amount += additionalAmount;
         deposit.feeAmount += additionalFlatFee;
         deposit.validTo = validToTimestamp;
         deposits[id] = deposit;
+        require(GLM.transferFrom(msg.sender, address(this), additionalAmount + additionalFlatFee), "transferFrom failed");
     }
 
     // Spender can close deposit anytime claiming fee and returning rest of funds to Funder
@@ -156,8 +157,8 @@ contract LockPayment is ILockPayment {
         emit DepositClosed(id, deposit.spender);
         require(GLM.transfer(funderFromId(id), deposit.amount ), "return transfer failed");
         if (deposit.feeAmount > 0) {
-            require(GLM.transfer(deposit.spender, deposit.feeAmount), "fee transfer failed");
             emit DepositFeeTransfer(id, deposit.spender, deposit.feeAmount);
+            require(GLM.transfer(deposit.spender, deposit.feeAmount), "fee transfer failed");
             deposit.feeAmount = 0;
         }
         deposits[id].amount = 0;
@@ -167,7 +168,7 @@ contract LockPayment is ILockPayment {
     }
 
     // Funder can terminate deposit after validTo date elapses
-    function terminateDeposit(uint64 nonce) public {
+    function terminateDeposit(uint64 nonce) external {
         uint256 id = idFromNonce(nonce);
         Deposit memory deposit = deposits[id];
         //The following check is not needed (Funder is in id), but added for clarity
@@ -186,9 +187,9 @@ contract LockPayment is ILockPayment {
         Deposit memory deposit = deposits[id];
         require(msg.sender == deposit.spender, "msg.sender == deposit.spender");
         require(addr != deposit.spender, "cannot transfer to spender");
+        require(deposit.amount >= amount, "deposit.amount >= amount");
         emit DepositTransfer(id, deposit.spender, addr, amount);
         require(GLM.transfer(addr, amount), "GLM transfer failed");
-        require(deposit.amount >= amount, "deposit.amount >= amount");
         deposit.amount -= amount;
         deposits[id].amount = deposit.amount;
     }
@@ -214,18 +215,18 @@ contract LockPayment is ILockPayment {
         deposits[id].amount = deposit.amount;
     }
 
-    function depositSingleTransferAndClose(uint256 id, address addr, uint128 amount) public {
+    function depositSingleTransferAndClose(uint256 id, address addr, uint128 amount) external {
         depositSingleTransfer(id, addr, amount);
         closeDeposit(id);
     }
 
-    function depositTransferAndClose(uint256 id, bytes32[] calldata payments) public {
+    function depositTransferAndClose(uint256 id, bytes32[] calldata payments) external {
         depositTransfer(id, payments);
         closeDeposit(id);
     }
 
     //validateDeposit - validate extra fields not covered by common validation
-    function validateDeposit(uint256 id, uint128 flatFeeAmount) public view returns (string memory) {
+    function validateDeposit(uint256 id, uint128 flatFeeAmount) external view returns (string memory) {
         Deposit memory deposit = deposits[id];
         if (deposit.spender == address(0)) {
             return "failed due to wrong deposit id";
@@ -236,7 +237,7 @@ contract LockPayment is ILockPayment {
         return "valid";
     }
 
-    function getValidateDepositSignature() public pure returns (string memory) {
+    function getValidateDepositSignature() external pure returns (string memory) {
         // example implementation
         return '[{"type": "uint256", "name": "id"}, {"type": "uint128", "name": "flatFeeAmount"}]';
     }
