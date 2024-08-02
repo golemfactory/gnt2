@@ -158,8 +158,8 @@ contract LockPayment is ILockPayment {
         if (deposit.feeAmount > 0) {
             emit DepositFeeTransfer(id, deposit.spender, deposit.feeAmount);
             require(GLM.transfer(deposit.spender, deposit.feeAmount), "fee transfer failed");
-            deposits[id].feeAmount = 0;
         }
+        deposits[id].feeAmount = 0;
         deposits[id].amount = 0;
         //leave this in deposit to prevent recreating deposit with the same id
         deposits[id].spender = 0x0000000000000000000000000000000000000Bad;
