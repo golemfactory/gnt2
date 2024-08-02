@@ -154,11 +154,11 @@ contract LockPayment is ILockPayment {
         // sender can return funds at any time
         require(msg.sender == deposit.spender);
         emit DepositClosed(id, deposit.spender);
-        require(GLM.transfer(funderFromId(id), deposit.amount ), "return transfer failed");
+        require(GLM.transfer(funderFromId(id), deposit.amount), "return transfer failed");
         if (deposit.feeAmount > 0) {
             emit DepositFeeTransfer(id, deposit.spender, deposit.feeAmount);
             require(GLM.transfer(deposit.spender, deposit.feeAmount), "fee transfer failed");
-            deposit.feeAmount = 0;
+            deposits[id].feeAmount = 0;
         }
         deposits[id].amount = 0;
         //leave this in deposit to prevent recreating deposit with the same id
