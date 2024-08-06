@@ -113,9 +113,9 @@ contract LockPaymentTest is Test {
     assertEq(token.balanceOf(address(testee)), 3);
 
     vm.expectEmit();
-    emit LockPayment.DepositFeeTransfer(depositId, spender, 1);
-    vm.expectEmit();
     emit LockPayment.DepositClosed(depositId, spender);
+    vm.expectEmit();
+    emit LockPayment.DepositFeeTransfer(depositId, spender, 1);
 
     vm.prank(spender);
     testee.closeDeposit(depositId);
@@ -175,7 +175,7 @@ contract LockPaymentTest is Test {
     helper_funds(msg.sender, 3, true);
 
     vm.prank(msg.sender);
-    uint256 depositId = testee.createDeposit(12, spender, 2, 1, 100);
+    testee.createDeposit(12, spender, 2, 1, 100);
 
     vm.roll(0);
     vm.prank(msg.sender);
