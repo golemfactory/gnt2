@@ -1,0 +1,10 @@
+{
+  "compilerVersion": "v0.8.28+commit.7893614a",
+  "sourceDirectory": "./src/contracts/Create3",
+  "compilerOptions": {
+    "optimizer": {
+      "enabled": true,
+      "runs": 2000
+    }
+  }
+}
